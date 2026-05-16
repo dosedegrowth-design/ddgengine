@@ -49,8 +49,8 @@ const STEPS = [
   {
     n: "02",
     badge: "5 minutos",
-    title: "Você sugere os temas",
-    desc: "Conta o que importa pro seu negócio: lançamento, sazonal, dor de cliente, pivô. A engine entra em ação pesquisando o terreno antes de escrever. Você no controle do que importa.",
+    title: "A engine aprende sua marca",
+    desc: "15 perguntas pra engine virar especialista no seu nicho: tom de voz, concorrentes, dores reais, palavras-chave. Daí ela propõe os temas todo mês — e você pode sugerir tema específico quando quiser (lançamento, sazonal, pivô).",
     icon: FileText,
   },
   {
@@ -71,9 +71,9 @@ const STEPS = [
 
 const FEATURES = [
   {
-    label: "VOCÊ NO CONTROLE",
-    title: "Você sugere os temas. Engine pesquisa fundo.",
-    description: "Você diz o que quer trabalhar — lançamento, sazonal, dor de cliente, pivô. A engine entra em ação: pesquisa terreno, mapeia oportunidades, analisa concorrência antes de escrever. SEO sério, não blog automático genérico.",
+    label: "BRIEFING INTELIGENTE",
+    title: "Engine entende sua marca e propõe os temas",
+    description: "Em 15 perguntas iniciais a engine vira especialista no seu nicho. Toda semana ela propõe os temas baseado em pesquisa real de keywords, concorrência e dores do cliente. Você só revisa — e pode sugerir tema específico quando precisar (lançamento, sazonal, pivô).",
     icon: FileText,
   },
   {
@@ -159,8 +159,8 @@ const CITATIONS_ROW_2 = [
 
 const FAQ = [
   {
-    q: "Eu posso escolher os temas dos posts?",
-    a: "Sim — você no controle. Toda semana você sugere os temas (lançamento de produto, dor de cliente, sazonal, pivô estratégico) e a engine cuida do trabalho técnico: pesquisa de keywords, intenção de busca, perguntas frequentes, análise de concorrência e estrutura editorial. Se não quiser sugerir, a engine puxa temas baseado no seu setor e oportunidades de SEO detectadas.",
+    q: "Quem decide os temas dos posts?",
+    a: "A engine decide por padrão — e você pode sugerir quando quiser. No setup inicial, em 15 perguntas, ela aprende seu nicho, tom de voz, concorrentes e dores reais do cliente. A partir daí, todo mês propõe os temas baseado em pesquisa real de keywords, oportunidades de SEO detectadas e o que tá bombando no setor. MAS você pode sugerir tema específico a qualquer momento (lançamento de produto, sazonal, pivô estratégico, resposta a dor de cliente). A engine pega esse tema e faz o trabalho técnico em cima dele. Resumo: você nunca precisa pensar, mas pode opinar sempre que quiser.",
   },
   {
     q: "É só blog automático ou tem SEO sério mesmo?",
@@ -270,14 +270,14 @@ export default function Home() {
                 <h1 className="ddg-display text-3xl sm:text-4xl md:text-5xl lg:text-[3rem] xl:text-[3.75rem] 2xl:text-[4.25rem] leading-[0.95]">
                   <span className="block">
                     <WordReveal
-                      text="Você sugere o tema."
+                      text="A engine entende sua marca."
                       delay={0.15}
                       stagger={0.05}
                     />
                   </span>
                   <span className="block text-ddg-muted">
                     <WordReveal
-                      text="A engine faz o SEO."
+                      text="Propõe e cria o conteúdo."
                       delay={0.55}
                       stagger={0.05}
                     />
@@ -299,7 +299,7 @@ export default function Home() {
 
                 <Reveal variant="up" delay={1.6}>
                   <p className="text-lg md:text-xl text-ddg-muted max-w-2xl leading-relaxed">
-                    Trabalho de <span className="text-ddg-ink font-semibold">SEO técnico profundo</span> que agência cobraria R$ 5 mil — automatizado. Você sugere os temas, a engine pesquisa, escreve, otimiza e publica em volume. <span className="text-ddg-ink font-semibold">Mais conteúdo no ar = mais rápido ranqueia</span> no Google E aparece em 4 IAs. A partir de <span className="text-ddg-lime-deep font-bold">R$ 97/mês</span>.
+                    Trabalho de <span className="text-ddg-ink font-semibold">SEO técnico profundo</span> que agência cobraria R$ 5 mil — automatizado. A engine <span className="text-ddg-ink font-semibold">entende sua marca, propõe os temas e cria o conteúdo</span> (você pode sugerir tema também quando quiser). Publica no Google e mede em 4 IAs. A partir de <span className="text-ddg-lime-deep font-bold">R$ 97/mês</span>.
                   </p>
                 </Reveal>
 
@@ -338,7 +338,7 @@ export default function Home() {
 
                 <Reveal variant="up" delay={2.1}>
                   <p className="text-[10px] font-mono text-ddg-muted/60 italic">
-                    * Você no controle dos temas. A engine no controle do trabalho técnico.
+                    * A engine entende sua marca e propõe os temas. Você sugere quando quiser. Trabalho técnico, sempre por conta dela.
                   </p>
                 </Reveal>
               </div>
@@ -649,11 +649,11 @@ export default function Home() {
                   variant="new"
                   badge="A virada"
                   title="DDG Engine: você decide os temas. A engine entrega o resto."
-                  description="Configura em 7 minutos. Toda semana você sugere temas que importam pro seu negócio — a engine pesquisa, escreve, otimiza tecnicamente, publica no Google E mede sua marca em 4 IAs. Sem agência. Sem contratação. Você no controle do que conta, automação no que cansa."
+                  description="Configura em 7 minutos. A engine aprende seu negócio em 15 perguntas e passa a propor os temas todo mês — pesquisa de keywords, oportunidades de SEO, dores reais do cliente. Você revisa, sugere tema específico quando quiser, e a engine cuida do resto: escrita, otimização técnica, publicação no Google e tracking em 4 IAs. Sem agência. Sem contratação."
                   price="R$ 97+"
                   priceLabel="A partir de · 4 planos"
                   pros={[
-                    "Você sugere os temas — engine pesquisa fundo antes de escrever",
+                    "Engine entende seu negócio e propõe os temas (você pode sugerir também)",
                     "SEO técnico completo (o trabalho que agência cobra caro)",
                     "8 artigos longos + 16 perguntas-respostas/mês (vs 4 da agência)",
                     "Medimos sua marca no Google E nas 4 principais IAs",
@@ -681,7 +681,7 @@ export default function Home() {
               </Reveal>
               <Reveal delay={0.2}>
                 <p className="text-lg text-ddg-muted mt-4 max-w-2xl">
-                  7 capacidades que <strong className="text-ddg-ink">nenhum outro produto BR entrega junto</strong>. Trabalho de SEO sério + escrita editorial + tracking Google E IA. Você no controle dos temas, a engine no controle do trabalho técnico.
+                  7 capacidades que <strong className="text-ddg-ink">nenhum outro produto BR entrega junto</strong>. Trabalho de SEO sério + escrita editorial + tracking Google E IA. A engine entende sua marca, propõe os temas e cuida do trabalho técnico — você só revisa (e sugere quando quiser).
                 </p>
               </Reveal>
             </div>
@@ -798,6 +798,7 @@ export default function Home() {
                   <ul className="space-y-2 mb-6 flex-1 text-xs">
                     <li className="font-bold text-ddg-ink">4 artigos + 8 perguntas-respostas/mês</li>
                     {[
+                      "Engine propõe os temas (você pode sugerir)",
                       "1 site conectado",
                       "Modo Auto (publica sozinho)",
                       "Visibility básico: 50 prompts × 2 IAs",
@@ -841,6 +842,7 @@ export default function Home() {
                   <ul className="space-y-2 mb-6 flex-1 text-xs">
                     <li className="font-bold text-ddg-ink">6 artigos + 12 perguntas-respostas/mês</li>
                     {[
+                      "Engine propõe os temas (você pode sugerir)",
                       "1 site conectado",
                       "Modo Auto",
                       "Visibility médio: 100 prompts × 3 IAs",
@@ -887,6 +889,7 @@ export default function Home() {
                   <ul className="space-y-2 mb-6 flex-1 text-xs">
                     <li className="font-bold text-ddg-paper">8 artigos + 16 perguntas-respostas/mês</li>
                     {[
+                      "Engine propõe temas + você sugere quando quiser",
                       "1 site conectado",
                       "Auto + Aprovação WhatsApp",
                       "Visibility completo: 200 × 4 IAs",
@@ -932,6 +935,7 @@ export default function Home() {
                   <ul className="space-y-2 mb-6 flex-1 text-xs">
                     <li className="font-bold text-ddg-ink">16 artigos + 32 perguntas-respostas</li>
                     {[
+                      "Engine propõe temas por marca + sugestões",
                       "3 sites simultâneos",
                       "Auto + WhatsApp",
                       "Visibility × 3 sites (200 × 4 IAs cada)",

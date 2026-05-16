@@ -75,7 +75,7 @@ export function StickyStackCard({
           "relative rounded-2xl md:rounded-3xl border-2 overflow-hidden",
           variant === "old"
             ? "border-ddg-ink bg-ddg-paper text-ddg-ink p-5 sm:p-6 md:p-8 lg:p-10"
-            : "border-ddg-lime bg-ddg-ink text-ddg-paper shadow-[6px_6px_0_var(--ddg-lime)] md:shadow-[10px_10px_0_var(--ddg-lime)] p-6 sm:p-8 md:p-10 lg:p-12"
+            : "border-ddg-lime bg-ddg-ink text-ddg-paper shadow-[6px_6px_0_var(--ddg-lime)] md:shadow-[10px_10px_0_var(--ddg-lime)] p-5 sm:p-6 md:p-7 lg:p-8"
         )}
       >
         {/* Decorações de fundo APENAS pro variant new */}
@@ -127,8 +127,8 @@ export function StickyStackCard({
 
         {/* Badge "RECOMENDADO" pro variant new */}
         {variant === "new" && (
-          <div className="relative z-10 flex justify-center md:justify-start mb-5 md:mb-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-ddg-lime text-ddg-ink shadow-[0_0_24px_rgba(200,255,61,0.4)]">
+          <div className="relative z-10 flex justify-center md:justify-start mb-3 md:mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ddg-lime text-ddg-ink shadow-[0_0_24px_rgba(200,255,61,0.4)]">
               <span className="h-1.5 w-1.5 rounded-full bg-ddg-ink ddg-pulse" />
               <span className="text-[10px] font-mono font-black uppercase tracking-widest">
                 Recomendado · A virada
@@ -139,12 +139,12 @@ export function StickyStackCard({
 
         <div className={cn(
           "relative z-10 grid md:grid-cols-12",
-          variant === "new" ? "gap-6 md:gap-10" : "gap-5 md:gap-8"
+          variant === "new" ? "gap-4 md:gap-8" : "gap-5 md:gap-8"
         )}>
           {/* Esquerda — badge + título + descrição */}
           <div className={cn(
             "md:col-span-7",
-            variant === "new" ? "space-y-5 md:space-y-6" : "space-y-4 md:space-y-5"
+            variant === "new" ? "space-y-3 md:space-y-4" : "space-y-4 md:space-y-5"
           )}>
             {variant === "old" && (
               <div className="flex flex-wrap items-center gap-2">
@@ -161,7 +161,7 @@ export function StickyStackCard({
               className={cn(
                 "ddg-display",
                 variant === "new"
-                  ? "text-3xl sm:text-4xl md:text-4xl lg:text-5xl text-ddg-paper"
+                  ? "text-2xl sm:text-3xl md:text-3xl lg:text-4xl text-ddg-paper"
                   : "text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
               )}
             >
@@ -172,7 +172,7 @@ export function StickyStackCard({
               className={cn(
                 "leading-relaxed max-w-xl",
                 variant === "new"
-                  ? "text-base md:text-lg text-ddg-paper/80"
+                  ? "text-sm md:text-base text-ddg-paper/75"
                   : "text-base md:text-lg text-ddg-muted"
               )}
             >
@@ -193,18 +193,18 @@ export function StickyStackCard({
                 ))}
               </ul>
             ) : (
-              <div className="pt-3">
-                <div className="ddg-bracket text-ddg-lime mb-4">O que você ganha</div>
-                <ul className="space-y-3">
+              <div className="pt-2">
+                <div className="ddg-bracket text-ddg-lime mb-3">O que você ganha</div>
+                <ul className="space-y-2">
                   {pros?.map((p, i) => (
                     <li
                       key={i}
-                      className="flex items-start gap-3 text-sm md:text-base text-ddg-paper font-medium group/item"
+                      className="flex items-start gap-2.5 text-sm text-ddg-paper font-medium group/item"
                     >
-                      <span className="inline-flex items-center justify-center w-6 h-6 md:w-7 md:h-7 rounded-full bg-ddg-lime/15 border border-ddg-lime/40 shrink-0 mt-0.5 group-hover/item:bg-ddg-lime/25 transition-colors">
-                        <Check className="w-3.5 h-3.5 md:w-4 md:h-4 text-ddg-lime stroke-[3]" />
+                      <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-ddg-lime/15 border border-ddg-lime/40 shrink-0 mt-0.5 group-hover/item:bg-ddg-lime/25 transition-colors">
+                        <Check className="w-3 h-3 text-ddg-lime stroke-[3]" />
                       </span>
-                      <span className="pt-0.5">{p}</span>
+                      <span>{p}</span>
                     </li>
                   ))}
                 </ul>
@@ -216,7 +216,7 @@ export function StickyStackCard({
           <div className={cn(
             "md:col-span-5 flex flex-col justify-center md:items-end",
             variant === "new"
-              ? "items-center text-center md:text-right space-y-3 md:border-l md:border-ddg-lime/20 md:pl-8 lg:pl-10"
+              ? "items-center text-center md:text-right space-y-2 md:border-l md:border-ddg-lime/20 md:pl-6 lg:pl-8"
               : "items-start space-y-2"
           )}>
             <div className={cn(
@@ -230,7 +230,7 @@ export function StickyStackCard({
                 "ddg-stat font-black break-words leading-[0.9]",
                 variant === "old"
                   ? "text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-ddg-ink line-through decoration-2 decoration-red-500/50"
-                  : "text-6xl sm:text-7xl md:text-7xl lg:text-8xl text-ddg-lime drop-shadow-[0_0_40px_rgba(200,255,61,0.45)]"
+                  : "text-5xl sm:text-6xl md:text-6xl lg:text-7xl text-ddg-lime drop-shadow-[0_0_32px_rgba(200,255,61,0.4)]"
               )}
               style={{ fontFamily: 'ui-serif, "Times New Roman", serif' }}
             >
@@ -238,19 +238,19 @@ export function StickyStackCard({
             </div>
             {variant === "new" && (
               <>
-                <div className="text-sm md:text-base font-mono uppercase tracking-widest text-ddg-paper/70 font-bold">
+                <div className="text-xs md:text-sm font-mono uppercase tracking-widest text-ddg-paper/70 font-bold">
                   = R$ 9,90/dia
                 </div>
-                <div className="pt-2 flex flex-col items-center md:items-end gap-1">
-                  <div className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest text-ddg-paper/50">
+                <div className="pt-1 flex flex-col items-center md:items-end gap-0.5">
+                  <div className="inline-flex items-center gap-1.5 text-[9px] font-mono uppercase tracking-widest text-ddg-paper/50">
                     <span className="h-1 w-1 rounded-full bg-ddg-lime" />
                     14 dias grátis
                   </div>
-                  <div className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest text-ddg-paper/50">
+                  <div className="inline-flex items-center gap-1.5 text-[9px] font-mono uppercase tracking-widest text-ddg-paper/50">
                     <span className="h-1 w-1 rounded-full bg-ddg-lime" />
                     Garantia 90 dias
                   </div>
-                  <div className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest text-ddg-paper/50">
+                  <div className="inline-flex items-center gap-1.5 text-[9px] font-mono uppercase tracking-widest text-ddg-paper/50">
                     <span className="h-1 w-1 rounded-full bg-ddg-lime" />
                     Cancela em 1 clique
                   </div>
@@ -262,16 +262,16 @@ export function StickyStackCard({
 
         {/* Footer link sutil pro variant new */}
         {variant === "new" && (
-          <div className="relative z-10 mt-8 md:mt-10 pt-6 border-t border-ddg-paper/10 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="text-xs font-mono uppercase tracking-widest text-ddg-paper/50">
+          <div className="relative z-10 mt-4 md:mt-5 pt-4 border-t border-ddg-paper/10 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div className="text-[10px] font-mono uppercase tracking-widest text-ddg-paper/50">
               4 planos self-service · 2 enterprise
             </div>
             <a
               href="#pricing"
-              className="inline-flex items-center gap-2 text-sm font-medium text-ddg-lime hover:text-ddg-lime-bright transition-colors"
+              className="inline-flex items-center gap-2 text-xs font-medium text-ddg-lime hover:text-ddg-lime-bright transition-colors"
             >
               Ver detalhes dos planos
-              <span className="text-base leading-none">→</span>
+              <span className="text-sm leading-none">→</span>
             </a>
           </div>
         )}

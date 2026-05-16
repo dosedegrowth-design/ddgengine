@@ -49,27 +49,39 @@ const STEPS = [
   {
     n: "02",
     badge: "5 minutos",
-    title: "Conta sua marca pra IA",
-    desc: "15 perguntas estruturadas: tom de voz, concorrentes, diferenciais, palavras-chave. A IA vira especialista no seu negócio — não responde genérico.",
+    title: "Você sugere os temas",
+    desc: "15 perguntas sobre seu negócio + lista de temas/produtos/dores que quer trabalhar. A engine pesquisa keywords, intenção de busca e concorrência pra cada tema. Você no controle do conteúdo — sem terceirizar o que importa.",
     icon: FileText,
   },
   {
     n: "03",
     badge: "Toda semana",
-    title: "Você só lê e aprova",
-    desc: "Post novo pronto no seu WhatsApp: título, score SEO, score IA. 3 botões — aprovar, editar, descartar. 5 segundos entre reuniões.",
-    icon: MessageCircle,
+    title: "SEO técnico + escrita",
+    desc: "Multi-pass writer faz: pesquisa real, estrutura editorial, escrita, SEO técnico (schema, sitemap, internal links), GEO pra IA, fact-check. Chega pronto no seu WhatsApp pra aprovar.",
+    icon: Brain,
   },
   {
     n: "04",
     badge: "24/7",
-    title: "Publica, ranqueia, mede",
-    desc: "Vai pro seu site na hora. 4 IAs (ChatGPT, Perplexity, Claude, Gemini) verificam toda semana onde sua marca aparece nas respostas. Você vê o número subir.",
+    title: "Publica e mede tudo",
+    desc: "Vai pro seu site na hora. Google ranqueia (impressions, posição, CTR) e 4 IAs (ChatGPT, Perplexity, Claude, Gemini) verificam toda semana onde sua marca aparece. Tudo num painel só.",
     icon: Sparkles,
   },
 ];
 
 const FEATURES = [
+  {
+    label: "VOCÊ NO CONTROLE",
+    title: "Você sugere os temas. A engine pesquisa fundo.",
+    description: "Você diz o que quer trabalhar (lançamento, sazonal, dor de cliente, pivô). A engine pesquisa keywords reais, intenção de busca, perguntas frequentes, concorrência e GEO antes de escrever. Não é blog automático bobo — é SEO profissional.",
+    icon: FileText,
+  },
+  {
+    label: "SEO TÉCNICO",
+    title: "Trabalho de R$ 5k de agência, automatizado",
+    description: "Schema markup, sitemap, canonical, internal links, meta tags, Core Web Vitals, GEO pra IA generativa, fact-check. Tudo que agência cobra caro pra fazer, a engine entrega em cada post. Sem você precisar entender nada disso.",
+    icon: ShieldCheck,
+  },
   {
     label: "AI VISIBILITY",
     title: "Você vê o que a IA fala de você",
@@ -93,12 +105,6 @@ const FEATURES = [
     title: "Conecta em 2 min, não migra nada",
     description: "Cloudflare Worker serve o blog em seusite.com.br/blog. Seu site continua igual, sua agência continua mexendo. Você só ganha um blog automático em cima.",
     icon: Globe,
-  },
-  {
-    label: "BRAND RAG",
-    title: "Sua voz, seu tom, seus diferenciais",
-    description: "Cada post passa pela base do seu negócio: histórias reais, casos, jeito de falar, palavras que você usa. Não soa AI — soa você (porque virou você).",
-    icon: ShieldCheck,
   },
   {
     label: "SEM LOCK-IN",
@@ -152,6 +158,14 @@ const CITATIONS_ROW_2 = [
 ];
 
 const FAQ = [
+  {
+    q: "Eu posso escolher os temas dos posts?",
+    a: "Sim — você no controle. Toda semana você sugere os temas (lançamento de produto, dor de cliente, sazonal, pivô estratégico) e a engine cuida do trabalho técnico: pesquisa de keywords, intenção de busca, perguntas frequentes, análise de concorrência e estrutura editorial. Se não quiser sugerir, a engine puxa temas baseado no seu setor e oportunidades de SEO detectadas.",
+  },
+  {
+    q: "É só blog automático ou tem SEO sério mesmo?",
+    a: "SEO sério. Cada post passa por 7 passos editoriais: pesquisa real de keywords (não só ChatGPT cuspindo texto), estrutura H1/H2/H3 otimizada, schema markup JSON-LD, sitemap atualizado, canonical correto, internal links inteligentes, meta tags, Core Web Vitals, GEO (otimização pra IA generativa) e fact-check. É o trabalho que agência de SEO cobra R$ 3-5k/mês — automatizado.",
+  },
   {
     q: "Eu já tenho redator (ou agência). Substitui?",
     a: "Pode substituir, pode complementar — você escolhe. Quem usa pra trocar: economiza R$ 2-4 mil/mês e ainda ganha o tracking de IA que agência nenhuma faz. Quem usa pra complementar: deixa a engine cuidar do volume (8 posts/mês) e a agência foca em campanhas, posts âncora ou conteúdo estratégico.",
@@ -238,37 +252,41 @@ export default function Home() {
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-ddg-ink text-ddg-paper">
                     <span className="h-2 w-2 rounded-full bg-ddg-lime ddg-pulse" />
                     <span className="text-[11px] font-mono uppercase tracking-widest">
-                      Chega de queimar dinheiro com ads
+                      Posicionamento orgânico · Google + IA
                     </span>
                   </div>
                 </Reveal>
 
                 <h1 className="ddg-display text-5xl md:text-7xl lg:text-[5.5rem] leading-[0.95]">
                   <WordReveal
-                    text="SEO sempre foi caro,"
+                    text="Você sugere o tema."
                     delay={0.15}
                     stagger={0.05}
                   />
                   <br />
-                  <WordReveal
-                    text="lento e complexo."
-                    delay={0.5}
-                    stagger={0.05}
-                  />
-                  <br />
                   <span className="text-ddg-muted">
-                    <WordReveal text="Agora não é" delay={0.95} stagger={0.05} />
-                  </span>{" "}
+                    <WordReveal
+                      text="A engine faz o SEO."
+                      delay={0.55}
+                      stagger={0.05}
+                    />
+                  </span>
+                  <br />
+                  <WordReveal
+                    text="Google e IA fazem"
+                    delay={1.0}
+                    stagger={0.05}
+                  />{" "}
                   <span className="relative inline-block">
-                    <WordReveal text="mais" delay={1.25} stagger={0.05} highlight={["mais"]} />
+                    <WordReveal text="o resto" delay={1.35} stagger={0.05} highlight={["o", "resto"]} />
                     <AsteriskMark className="text-ddg-lime-deep" />
                   </span>
                   <span className="text-ddg-muted">.</span>
                 </h1>
 
-                <Reveal variant="up" delay={1.5}>
+                <Reveal variant="up" delay={1.6}>
                   <p className="text-lg md:text-xl text-ddg-muted max-w-2xl leading-relaxed">
-                    <BrandMark size="sm" className="!gap-1" /> escreve, otimiza e publica conteúdo no seu site toda semana — ranqueando no <span className="text-ddg-ink font-semibold">Google</span> e aparecendo no <span className="text-ddg-ink font-semibold">ChatGPT, Perplexity, Claude e Gemini</span>. Por <span className="text-ddg-lime-deep font-bold">R$ 297/mês</span>. Sem agência. Sem ads. Sem queimar capital.
+                    Trabalho de <span className="text-ddg-ink font-semibold">SEO técnico profundo</span> que agência cobraria R$ 5 mil — automatizado. Você sugere os temas que importam, a engine pesquisa keywords, escreve, otimiza, publica e <span className="text-ddg-ink font-semibold">mede sua marca no Google E em 4 IAs</span> (ChatGPT, Perplexity, Claude, Gemini). Por <span className="text-ddg-lime-deep font-bold">R$ 297/mês</span>.
                   </p>
                 </Reveal>
 
@@ -309,7 +327,7 @@ export default function Home() {
 
                 <Reveal variant="up" delay={2.1}>
                   <p className="text-[10px] font-mono text-ddg-muted/60 italic">
-                    * E ainda apareça no ChatGPT, Perplexity, Claude e Gemini de bônus.
+                    * Você no controle dos temas. A engine no controle do trabalho técnico.
                   </p>
                 </Reveal>
               </div>
@@ -358,8 +376,8 @@ export default function Home() {
               </Reveal>
               <Reveal delay={0.1}>
                 <h2 className="ddg-display text-4xl md:text-6xl text-balance">
-                  Você já gastou rios de dinheiro
-                  <span className="block text-ddg-muted mt-2">tentando aparecer no Google.</span>
+                  Aparecer no Google sempre exigiu agência cara.
+                  <span className="block text-ddg-muted mt-2">Aparecer em IA, ninguém te ensinou.</span>
                 </h2>
               </Reveal>
             </div>
@@ -367,7 +385,7 @@ export default function Home() {
             {/* Parágrafo com scroll char reveal */}
             <div className="max-w-3xl mb-14 md:mb-20">
               <ScrollCharRevealDark
-                text="Pagou agência. Contratou redator. Ligou Google Ads. Algumas keywords subiram, a maioria não. E agora seu cliente nem abre o Google primeiro — pergunta pra IA quem indicar. Se sua marca não tá no Google E nas IAs, você desapareceu. E quem aparecer nos dois, leva o cliente que era seu."
+                text="Por anos você precisou de agência pra fazer SEO sério: pesquisa de keywords, estrutura editorial, schema, GEO, internal links, otimização técnica. Custava R$ 3-5 mil por mês — e ainda assim, ninguém te ensinou a aparecer no ChatGPT. Agora seu cliente abre a IA antes do Google. Sem estar nos dois, você desapareceu — e quem aparecer leva o cliente que era seu."
                 className="text-xl md:text-2xl leading-relaxed font-medium"
                 highlightWords={["desapareceu", "leva"]}
               />
@@ -567,16 +585,17 @@ export default function Home() {
                   total={4}
                   variant="new"
                   badge="A virada"
-                  title="DDG Engine: faz tudo. Por R$ 297."
-                  description="Configura em 7 minutos. Toda semana sai conteúdo pesquisado, escrito, otimizado pra Google E pra IA, aprovado por você no WhatsApp. E ainda vê em tempo real onde sua marca aparece nas IAs. Sem agência. Sem ads. Sem contratação."
+                  title="DDG Engine: você decide os temas. A engine entrega o resto."
+                  description="Configura em 7 minutos. Toda semana você sugere temas que importam pro seu negócio — a engine pesquisa keywords, escreve, otimiza tecnicamente, publica no Google E mede sua marca em 4 IAs. Sem agência. Sem contratação. Você no controle do que conta, automação no que cansa."
                   price="R$ 297"
                   priceLabel="Plano único mensal"
                   pros={[
-                    "8 posts longos + 16 perguntas-respostas/mês",
-                    "SEO técnico automático (schema, sitemap, canonical, GEO)",
-                    "Tracking 24/7 em ChatGPT, Perplexity, Claude e Gemini",
+                    "Você sugere os temas — engine pesquisa keywords + concorrência + intenção",
+                    "SEO técnico completo: schema, sitemap, canonical, internal links, GEO",
+                    "8 artigos longos + 16 perguntas-respostas/mês (vs 4 da agência)",
+                    "Tracking 24/7 no Google E em ChatGPT, Perplexity, Claude, Gemini",
                     "Aprovação WhatsApp em 5s ou modo Auto",
-                    "Garantia 90 dias: não cresceu? Devolvemos 100%",
+                    "Garantia 90 dias: impressions não cresceram? Devolvemos 100%",
                   ]}
                 />
               </div>
@@ -593,13 +612,13 @@ export default function Home() {
               </Reveal>
               <Reveal delay={0.1}>
                 <h2 className="ddg-display text-4xl md:text-6xl text-balance">
-                  Tudo que faltava.<br />
-                  <span className="text-ddg-muted">Junto, num lugar só.</span>
+                  Você decide o que importa.<br />
+                  <span className="text-ddg-muted">A engine faz o trabalho pesado.</span>
                 </h2>
               </Reveal>
               <Reveal delay={0.2}>
                 <p className="text-lg text-ddg-muted mt-4 max-w-2xl">
-                  6 capacidades que <strong className="text-ddg-ink">nenhum outro produto BR entrega junto</strong>. Cada uma resolve uma dor que você já tem hoje no marketing.
+                  7 capacidades que <strong className="text-ddg-ink">nenhum outro produto BR entrega junto</strong>. Trabalho de SEO sério + escrita editorial + tracking Google E IA. Você no controle dos temas, a engine no controle do trabalho técnico.
                 </p>
               </Reveal>
             </div>
@@ -672,14 +691,14 @@ export default function Home() {
               </Reveal>
               <Reveal delay={0.1}>
                 <h2 className="ddg-display text-4xl md:text-6xl text-balance">
-                  Menos que 1 hora<br />
-                  <span className="text-ddg-muted">de</span>{" "}
-                  <span className="ddg-pill-lime">agência por dia.</span>
+                  R$ 9,90 por dia<br />
+                  <span className="text-ddg-muted">pra ter</span>{" "}
+                  <span className="ddg-pill-lime">agência inteira.</span>
                 </h2>
               </Reveal>
               <Reveal delay={0.2}>
                 <p className="text-lg text-ddg-muted mt-5 max-w-2xl mx-auto">
-                  R$ 297/mês = R$ 9,90/dia. Uma hora do estagiário de marketing custa mais.
+                  SEO técnico profundo + escrita editorial + tracking Google + tracking 4 IAs. Tudo por menos do que uma hora do estagiário de marketing.
                 </p>
               </Reveal>
             </div>
@@ -748,13 +767,15 @@ export default function Home() {
 
                   <ul className="space-y-3 mb-8 flex-1">
                     {[
+                      "Você sugere os temas — engine pesquisa keywords + concorrência",
+                      "SEO técnico completo: schema, sitemap, canonical, internal links, GEO",
                       "8 artigos longos + 16 perguntas-respostas/mês",
-                      "Tracking 24/7 em ChatGPT, Perplexity, Claude e Gemini",
-                      "200 perguntas testadas por semana (relatório toda 6ª)",
-                      "Multi-pass writer (7 passos editoriais por post)",
-                      "Aprovação WhatsApp ou modo Auto",
-                      "Reverse proxy Cloudflare incluído",
-                      "Brand RAG: IA aprende sua marca",
+                      "Multi-pass writer: 7 passos editoriais por post",
+                      "Tracking 24/7 no Google + ChatGPT, Perplexity, Claude e Gemini",
+                      "200 perguntas testadas em IAs por semana (relatório toda 6ª)",
+                      "Aprovação WhatsApp em 5s ou modo Auto",
+                      "Brand RAG: IA aprende sua voz, casos, diferenciais",
+                      "Reverse proxy Cloudflare incluído (sem plugin)",
                       "Suporte WhatsApp humano (não bot)",
                     ].map((it) => (
                       <li key={it} className="flex items-start gap-3 text-sm text-ddg-paper/90">

@@ -1,21 +1,27 @@
 import { getCurrentOrg } from "@/lib/auth";
-import { OnboardingWizard } from "@/components/onboarding/wizard";
+import { OnboardingFlow } from "@/components/briefing/onboarding-flow";
 
 export default async function OnboardingPage() {
-  const { org, supabase } = await getCurrentOrg();
+  const { org, user, supabase } = await getCurrentOrg();
 
-  // Verifica se já tem site
-  const { data: sites } = await supabase
-    .from("sites")
-    .select("*")
+  // Já tem briefing completo?
+  const { data: briefing } = await supabase
+    .from("briefings")
+    .select("id, raw_answers, refined_brief, mode, completion_status")
     .eq("organization_id", org.id)
-    .limit(1);
+    .maybeSingle();
 
-  const existingSite = sites?.[0] ?? null;
+  const { data: site } = await supabase
+    .from("sites")
+    .select("id, url")
+    .eq("organization_id", org.id)
+    .maybeSingle();
 
   return (
-    <div className="container mx-auto max-w-3xl px-4 py-12">
-      <OnboardingWizard orgId={org.id} existingSite={existingSite} />
-    </div>
+    <OnboardingFlow
+      initialBriefing={briefing}
+      initialSite={site}
+      userName={user.email?.split("@")[0] ?? ""}
+    />
   );
 }

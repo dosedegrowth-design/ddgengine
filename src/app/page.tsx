@@ -22,8 +22,13 @@ import { FlowDiagram } from "@/components/landing/flow-diagram";
 import { LLMTrustStrip, LLMBadge } from "@/components/landing/llm-badge";
 import { MockupDashboard } from "@/components/landing/mockup-dashboard";
 import { NumberedStep } from "@/components/landing/numbered-step";
+import { StickyStackContainer, StickyStackCard } from "@/components/landing/sticky-stack";
 import { WordmarkXXL } from "@/components/landing/wordmark-xxl";
 import { AnimatedCounter } from "@/components/landing/motion/animated-counter";
+import { AsteriskMark } from "@/components/landing/motion/asterisk-mark";
+import { CursorTrail } from "@/components/landing/motion/cursor-trail";
+import { FloatingOrbs } from "@/components/landing/motion/floating-orbs";
+import { GrainOverlay } from "@/components/landing/motion/grain-overlay";
 import { Magnet } from "@/components/landing/motion/magnet";
 import { MarqueeRow } from "@/components/landing/motion/marquee-row";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/landing/motion/reveal";
@@ -218,42 +223,56 @@ export default function Home() {
 
       <main className="flex-1">
         {/* ===== HERO ===== */}
-        <section className="relative overflow-hidden">
-          <div className="absolute inset-0 ddg-grid-light opacity-60 pointer-events-none" aria-hidden />
-          <div className="container relative mx-auto max-w-7xl px-4 lg:px-8 pt-16 md:pt-24 pb-20 md:pb-32">
+        <section className="relative overflow-hidden bg-ddg-paper min-h-[88vh] flex items-center">
+          {/* Background layers */}
+          <FloatingOrbs variant="light" />
+          <div className="absolute inset-0 ddg-grid-light opacity-40 pointer-events-none" aria-hidden />
+          <GrainOverlay opacity={0.08} />
+          <CursorTrail />
+
+          <div className="container relative z-10 mx-auto max-w-7xl px-4 lg:px-8 pt-16 md:pt-24 pb-20 md:pb-32">
             <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-center">
               {/* Esquerda — copy */}
               <div className="lg:col-span-7 space-y-7">
                 <Reveal variant="up" delay={0}>
-                  <div className="ddg-bracket inline-block">BR · 2026 · BLOG AUTOMÁTICO + AI VISIBILITY</div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-ddg-ink text-ddg-paper">
+                    <span className="h-2 w-2 rounded-full bg-ddg-lime ddg-pulse" />
+                    <span className="text-[11px] font-mono uppercase tracking-widest">
+                      Chega de queimar dinheiro com ads
+                    </span>
+                  </div>
                 </Reveal>
 
                 <h1 className="ddg-display text-5xl md:text-7xl lg:text-[5.5rem] leading-[0.95]">
                   <WordReveal
-                    text="Seu cliente perguntou pra IA."
+                    text="SEO sempre foi caro,"
                     delay={0.15}
-                    stagger={0.06}
+                    stagger={0.05}
+                  />
+                  <br />
+                  <WordReveal
+                    text="lento e complexo."
+                    delay={0.5}
+                    stagger={0.05}
                   />
                   <br />
                   <span className="text-ddg-muted">
-                    <WordReveal
-                      text="A resposta não"
-                      delay={0.6}
-                      stagger={0.06}
-                    />
+                    <WordReveal text="Agora não é" delay={0.95} stagger={0.05} />
                   </span>{" "}
                   <span className="relative inline-block">
-                    <WordReveal text="tinha você." delay={0.9} stagger={0.06} highlight={["tinha", "você."]} />
+                    <WordReveal text="mais" delay={1.25} stagger={0.05} highlight={["mais"]} />
+                    <AsteriskMark className="text-ddg-lime-deep" />
                   </span>
+                  <span className="text-ddg-muted">.</span>
                 </h1>
 
-                <Reveal variant="up" delay={1.2}>
+                <Reveal variant="up" delay={1.5}>
                   <p className="text-lg md:text-xl text-ddg-muted max-w-2xl leading-relaxed">
-                    <BrandMark size="sm" className="!gap-1" /> escreve conteúdo no seu site toda semana e mede onde sua marca aparece nas respostas de <span className="text-ddg-ink font-semibold">ChatGPT, Perplexity, Claude e Gemini</span>. Você vira a resposta — e o cliente que ia pra concorrência.
+                    <BrandMark size="sm" className="!gap-1" /> escreve, otimiza e publica conteúdo no seu site toda semana — ranqueando no <span className="text-ddg-ink font-semibold">Google</span> e aparecendo no <span className="text-ddg-ink font-semibold">ChatGPT, Perplexity, Claude e Gemini</span>. Por <span className="text-ddg-lime-deep font-bold">R$ 297/mês</span>. Sem agência. Sem ads. Sem queimar capital.
                   </p>
                 </Reveal>
 
-                <Reveal variant="up" delay={1.4}>
+                <Reveal variant="up" delay={1.7}>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-2">
                     <Magnet strength={0.25}>
                       <Link
@@ -276,14 +295,22 @@ export default function Home() {
                   </div>
                 </Reveal>
 
-                <Reveal variant="up" delay={1.6}>
+                <Reveal variant="up" delay={1.9}>
                   <div className="flex flex-wrap items-center gap-4 pt-2 text-xs font-mono text-ddg-muted uppercase tracking-widest">
                     <span>14 dias grátis</span>
                     <span className="text-ddg-lime-deep">●</span>
                     <span>Sem cartão</span>
                     <span className="text-ddg-lime-deep">●</span>
                     <span>Cancela em 1 clique</span>
+                    <span className="text-ddg-lime-deep">●</span>
+                    <span>Garantia 90 dias</span>
                   </div>
+                </Reveal>
+
+                <Reveal variant="up" delay={2.1}>
+                  <p className="text-[10px] font-mono text-ddg-muted/60 italic">
+                    * E ainda apareça no ChatGPT, Perplexity, Claude e Gemini de bônus.
+                  </p>
                 </Reveal>
               </div>
 
@@ -327,12 +354,12 @@ export default function Home() {
           <div className="container relative mx-auto max-w-7xl px-4 lg:px-8 py-24 md:py-32">
             <div className="max-w-3xl mb-10 md:mb-14">
               <Reveal>
-                <div className="ddg-bracket text-ddg-lime mb-5">O CENÁRIO MUDOU</div>
+                <div className="ddg-bracket text-ddg-lime mb-5">A DOR REAL</div>
               </Reveal>
               <Reveal delay={0.1}>
                 <h2 className="ddg-display text-4xl md:text-6xl text-balance">
-                  O Google ainda existe.
-                  <span className="block text-ddg-muted mt-2">Mas seu cliente perguntou pra IA primeiro.</span>
+                  Você já gastou rios de dinheiro
+                  <span className="block text-ddg-muted mt-2">tentando aparecer no Google.</span>
                 </h2>
               </Reveal>
             </div>
@@ -340,9 +367,9 @@ export default function Home() {
             {/* Parágrafo com scroll char reveal */}
             <div className="max-w-3xl mb-14 md:mb-20">
               <ScrollCharRevealDark
-                text="Em 2026 seu cliente abre o ChatGPT antes do Google. Pergunta direto pra IA quem é o melhor fornecedor do segmento, qual app usar, qual agência contratar. Se sua marca não tá nessa resposta — você sumiu do radar. E quem aparecer ali, leva o cliente que era seu."
+                text="Pagou agência. Contratou redator. Ligou Google Ads. Algumas keywords subiram, a maioria não. E agora seu cliente nem abre o Google primeiro — pergunta pra IA quem indicar. Se sua marca não tá no Google E nas IAs, você desapareceu. E quem aparecer nos dois, leva o cliente que era seu."
                 className="text-xl md:text-2xl leading-relaxed font-medium"
-                highlightWords={["sumiu", "leva"]}
+                highlightWords={["desapareceu", "leva"]}
               />
             </div>
 
@@ -458,6 +485,102 @@ export default function Home() {
             <Reveal delay={0.2} variant="scale">
               <FlowDiagram />
             </Reveal>
+          </div>
+        </section>
+
+        {/* ===== STICKY STACK — 3 jeitos antigos vs DDG ===== */}
+        <section className="relative bg-ddg-paper">
+          <div className="container mx-auto max-w-7xl px-4 lg:px-8 py-24 md:py-32">
+            <div className="max-w-3xl mx-auto text-center mb-14 md:mb-20">
+              <Reveal>
+                <div className="ddg-bracket mb-5">O QUE VOCÊ TÁ FAZENDO HOJE</div>
+              </Reveal>
+              <Reveal delay={0.1}>
+                <h2 className="ddg-display text-4xl md:text-6xl text-balance">
+                  3 jeitos antigos.<br />
+                  <span className="text-ddg-muted">1 que finalmente</span>{" "}
+                  <span className="ddg-pill-lime">faz sentido.</span>
+                </h2>
+              </Reveal>
+              <Reveal delay={0.2}>
+                <p className="text-lg text-ddg-muted mt-5">
+                  Role pra ver cada caminho. O último resolve sem você precisar abrir mão de mais nada.
+                </p>
+              </Reveal>
+            </div>
+
+            <StickyStackContainer>
+              <div className="space-y-5">
+                <StickyStackCard
+                  index={0}
+                  total={4}
+                  variant="old"
+                  badge="Some quando desliga"
+                  title="Tráfego pago: aluguel sem nunca virar dono."
+                  description="Liga R$ 5 mil no Meta Ads e Google Ads → entram leads. Desliga → para tudo. Custo só sobe (CPM aumentou 38% em 2025). Você nunca compra audiência — sempre aluga."
+                  price="R$ 5.000+"
+                  priceLabel="Investimento mensal típico"
+                  cons={[
+                    "ROAS caindo todo mês (concorrência leiloando)",
+                    "Some no segundo que você pausa",
+                    "Não constrói SEO nem marca",
+                    "Não aparece em IAs generativas",
+                  ]}
+                />
+
+                <StickyStackCard
+                  index={1}
+                  total={4}
+                  variant="old"
+                  badge="Demora 12 meses pra render"
+                  title="Agência de SEO: cara, lenta, opaca."
+                  description="Contrata uma agência por R$ 3.500/mês. Recebe 4 posts mornos + relatório PDF que ninguém entende. SEO leva 6-12 meses. Você paga 12 vezes antes de ver resultado real."
+                  price="R$ 3.500"
+                  priceLabel="Mensalidade média"
+                  cons={[
+                    "4 posts/mês — pouco volume pra ranquear",
+                    "Sem padrão editorial real (rotativo de redator)",
+                    "Não mede visibility em IAs (nem sabem o que é)",
+                    "Contrato 12 meses, cancelamento com multa",
+                  ]}
+                />
+
+                <StickyStackCard
+                  index={2}
+                  total={4}
+                  variant="old"
+                  badge="R$ 10k/mês só de salário"
+                  title="Time interno: contratação que vira herança."
+                  description="1 redator (R$ 4k) + 1 SEO especialista (R$ 6k) + ferramentas (Semrush R$ 700, Ahrefs R$ 1.500). 6 meses pra contratar, treinar e entregar volume. Custo fixo independente de resultado."
+                  price="R$ 10.000+"
+                  priceLabel="Custo mensal real"
+                  cons={[
+                    "Difícil contratar redator técnico bom",
+                    "Treinamento de 3-6 meses até produzir",
+                    "Encargos, férias, 13º, rescisão",
+                    "Não escala — limitado a 8 posts/mês por pessoa",
+                  ]}
+                />
+
+                <StickyStackCard
+                  index={3}
+                  total={4}
+                  variant="new"
+                  badge="A virada"
+                  title="DDG Engine: faz tudo. Por R$ 297."
+                  description="Configura em 7 minutos. Toda semana sai conteúdo pesquisado, escrito, otimizado pra Google E pra IA, aprovado por você no WhatsApp. E ainda vê em tempo real onde sua marca aparece nas IAs. Sem agência. Sem ads. Sem contratação."
+                  price="R$ 297"
+                  priceLabel="Plano único mensal"
+                  pros={[
+                    "8 posts longos + 16 perguntas-respostas/mês",
+                    "SEO técnico automático (schema, sitemap, canonical, GEO)",
+                    "Tracking 24/7 em ChatGPT, Perplexity, Claude e Gemini",
+                    "Aprovação WhatsApp em 5s ou modo Auto",
+                    "Garantia 90 dias: não cresceu? Devolvemos 100%",
+                  ]}
+                />
+              </div>
+            </StickyStackContainer>
           </div>
         </section>
 

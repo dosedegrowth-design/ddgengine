@@ -238,7 +238,7 @@ export default function Home() {
 
       <main className="flex-1">
         {/* ===== HERO ===== */}
-        <section className="relative overflow-hidden bg-ddg-paper min-h-[100vh] lg:min-h-[92vh] flex items-center pt-20 lg:pt-16">
+        <section className="relative overflow-hidden bg-ddg-paper flex items-center">
           {/* Background layers — ordem importa pra blend */}
           <FloatingOrbs variant="light" />
           <div className="absolute inset-0 ddg-grid-light opacity-60 pointer-events-none" aria-hidden />
@@ -255,10 +255,10 @@ export default function Home() {
             aria-hidden
           />
 
-          <div className="container relative z-10 mx-auto max-w-7xl px-4 lg:px-8 py-12 md:py-20">
-            <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          <div className="container relative z-10 mx-auto max-w-7xl px-4 lg:px-8 py-10 md:py-14 lg:py-16">
+            <div className="grid lg:grid-cols-12 gap-6 lg:gap-12 items-center">
               {/* Esquerda — copy */}
-              <div className="lg:col-span-7 space-y-6 md:space-y-7">
+              <div className="lg:col-span-7 space-y-5 md:space-y-6">
                 <Reveal variant="up" delay={0}>
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-ddg-ink text-ddg-paper">
                     <span className="h-2 w-2 rounded-full bg-ddg-lime ddg-pulse" />
@@ -1024,8 +1024,20 @@ export default function Home() {
         </section>
 
         {/* ===== FAQ ===== */}
-        <section id="faq" className="bg-ddg-cream border-t-2 border-ddg-ink">
-          <div className="container mx-auto max-w-3xl px-4 lg:px-8 py-24 md:py-32">
+        <section id="faq" className="relative bg-ddg-cream border-t-2 border-ddg-ink overflow-hidden">
+          {/* Background layers — dão vida */}
+          <FloatingOrbs variant="light" />
+          <div className="absolute inset-0 ddg-grid-light opacity-50 pointer-events-none" aria-hidden />
+          {/* Decorações sutis nos cantos */}
+          <div className="absolute top-12 left-8 text-ddg-lime-deep opacity-40 text-3xl pointer-events-none ddg-spin-slow" aria-hidden>✦</div>
+          <div className="absolute top-32 right-12 text-ddg-ink/20 text-2xl pointer-events-none" aria-hidden>+</div>
+          <div className="absolute bottom-20 left-16 text-ddg-ink/20 text-2xl pointer-events-none" aria-hidden>+</div>
+          <div className="absolute bottom-32 right-8 text-ddg-lime-deep opacity-40 text-3xl pointer-events-none ddg-spin-slow" style={{ animationDirection: "reverse" }} aria-hidden>✦</div>
+          <div className="absolute top-1/2 left-4 w-8 h-8 rounded-full border-2 border-ddg-ink/20 pointer-events-none" aria-hidden />
+          <div className="absolute top-1/3 right-4 w-6 h-6 rounded-full border-2 border-ddg-ink/15 pointer-events-none" aria-hidden />
+          <GrainOverlay opacity={0.08} />
+
+          <div className="container relative z-10 mx-auto max-w-3xl px-4 lg:px-8 py-24 md:py-32">
             <div className="text-center mb-12">
               <Reveal>
                 <div className="ddg-bracket mb-4">DÚVIDAS FREQUENTES</div>
@@ -1083,19 +1095,27 @@ export default function Home() {
 
             {/* Mini-grid de timeline por volume */}
             <Reveal delay={0.35}>
-              <div className="mt-10 grid sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
-                <div className="p-4 rounded-xl border border-ddg-paper/10 bg-white/[0.02]">
-                  <div className="text-xs font-mono uppercase tracking-widest text-ddg-paper/40 mb-2">Starter · 4 posts/mês</div>
-                  <div className="text-sm text-ddg-paper/80">Primeiras citações em <strong className="text-ddg-paper">~60 dias</strong></div>
+              <div className="mt-10">
+                <div className="flex items-center justify-center gap-2 mb-3">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-ddg-paper/40">Estimativa baseada em casos reais</span>
                 </div>
-                <div className="p-4 rounded-xl border border-ddg-lime/40 bg-ddg-lime/5">
-                  <div className="text-xs font-mono uppercase tracking-widest text-ddg-lime mb-2">Pro · 8 posts/mês</div>
-                  <div className="text-sm text-ddg-paper"><strong className="text-ddg-lime">~30 dias</strong> — 2× mais rápido</div>
+                <div className="grid sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
+                  <div className="p-4 rounded-xl border border-ddg-paper/10 bg-white/[0.02]">
+                    <div className="text-xs font-mono uppercase tracking-widest text-ddg-paper/40 mb-2">Starter · 4 posts/mês</div>
+                    <div className="text-sm text-ddg-paper/80">Primeiras citações em <strong className="text-ddg-paper">~60 dias</strong></div>
+                  </div>
+                  <div className="p-4 rounded-xl border border-ddg-lime/40 bg-ddg-lime/5">
+                    <div className="text-xs font-mono uppercase tracking-widest text-ddg-lime mb-2">Pro · 8 posts/mês</div>
+                    <div className="text-sm text-ddg-paper"><strong className="text-ddg-lime">~30 dias</strong> — 2× mais rápido</div>
+                  </div>
+                  <div className="p-4 rounded-xl border border-ddg-paper/10 bg-white/[0.02]">
+                    <div className="text-xs font-mono uppercase tracking-widest text-ddg-paper/40 mb-2">Multi · 16 posts/mês</div>
+                    <div className="text-sm text-ddg-paper/80"><strong className="text-ddg-paper">~15 dias</strong> — 4× mais rápido</div>
+                  </div>
                 </div>
-                <div className="p-4 rounded-xl border border-ddg-paper/10 bg-white/[0.02]">
-                  <div className="text-xs font-mono uppercase tracking-widest text-ddg-paper/40 mb-2">Multi · 16 posts/mês</div>
-                  <div className="text-sm text-ddg-paper/80"><strong className="text-ddg-paper">~15 dias</strong> — 4× mais rápido</div>
-                </div>
+                <p className="text-[11px] text-ddg-paper/40 max-w-2xl mx-auto mt-4 text-center italic">
+                  * Estimativas baseadas em casos reais de clientes. Não constituem garantia de prazo — resultados de SEO e visibility em IA dependem do nicho, concorrência e estado inicial do site.
+                </p>
               </div>
             </Reveal>
 

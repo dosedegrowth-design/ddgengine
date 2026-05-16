@@ -5,6 +5,7 @@ const ITEMS = [
   { href: "/settings/site", label: "Site & Domínio" },
   { href: "/settings/integrations", label: "Integrações" },
   { href: "/settings/billing", label: "Plano e cobrança" },
+  { href: "/settings/referrals", label: "Indique e ganhe" },
   { href: "/settings/team", label: "Equipe" },
 ];
 

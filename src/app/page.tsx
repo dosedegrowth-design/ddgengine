@@ -33,7 +33,7 @@ import { GrainOverlay } from "@/components/landing/motion/grain-overlay";
 import { Magnet } from "@/components/landing/motion/magnet";
 import { MarqueeRow } from "@/components/landing/motion/marquee-row";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/landing/motion/reveal";
-import { ScrollCharRevealDark } from "@/components/landing/motion/scroll-char-reveal";
+import { ScrollWordRevealDark } from "@/components/landing/motion/scroll-word-reveal";
 import { ScrollProgress } from "@/components/landing/motion/scroll-progress";
 import { ShinyText } from "@/components/landing/motion/shiny-text";
 import { SpotlightCard } from "@/components/landing/motion/spotlight-card";
@@ -238,7 +238,7 @@ export default function Home() {
 
       <main className="flex-1">
         {/* ===== HERO ===== */}
-        <section className="relative overflow-hidden bg-ddg-paper min-h-[88vh] flex items-center">
+        <section className="relative overflow-hidden bg-ddg-paper min-h-[100vh] lg:min-h-[92vh] flex items-center pt-20 lg:pt-16">
           {/* Background layers — ordem importa pra blend */}
           <FloatingOrbs variant="light" />
           <div className="absolute inset-0 ddg-grid-light opacity-60 pointer-events-none" aria-hidden />
@@ -255,10 +255,10 @@ export default function Home() {
             aria-hidden
           />
 
-          <div className="container relative z-10 mx-auto max-w-7xl px-4 lg:px-8 pt-16 md:pt-24 pb-20 md:pb-32">
-            <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+          <div className="container relative z-10 mx-auto max-w-7xl px-4 lg:px-8 py-12 md:py-20">
+            <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
               {/* Esquerda — copy */}
-              <div className="lg:col-span-7 space-y-7">
+              <div className="lg:col-span-7 space-y-6 md:space-y-7">
                 <Reveal variant="up" delay={0}>
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-ddg-ink text-ddg-paper">
                     <span className="h-2 w-2 rounded-full bg-ddg-lime ddg-pulse" />
@@ -268,7 +268,7 @@ export default function Home() {
                   </div>
                 </Reveal>
 
-                <h1 className="ddg-display text-4xl sm:text-5xl md:text-7xl lg:text-[5.5rem] leading-[0.95]">
+                <h1 className="ddg-display text-4xl sm:text-5xl md:text-6xl lg:text-[4.25rem] xl:text-[5rem] leading-[0.95]">
                   <WordReveal
                     text="Você sugere o tema."
                     delay={0.15}
@@ -283,21 +283,23 @@ export default function Home() {
                     />
                   </span>
                   <br />
-                  <WordReveal
-                    text="Google e IA fazem o"
-                    delay={1.0}
-                    stagger={0.05}
-                  />{" "}
-                  <span className="relative inline-block whitespace-nowrap">
-                    <WordReveal text="resto" delay={1.35} stagger={0.05} highlight={["resto"]} />
-                    <AsteriskMark className="text-ddg-lime-deep" />
-                    <span className="text-ddg-muted">.</span>
+                  <span className="inline-flex flex-wrap items-baseline gap-x-3">
+                    <WordReveal
+                      text="Google e IA fazem"
+                      delay={1.0}
+                      stagger={0.05}
+                    />
+                    <span className="relative inline-block whitespace-nowrap">
+                      <WordReveal text="o resto" delay={1.35} stagger={0.05} highlight={["resto"]} />
+                      <AsteriskMark className="text-ddg-lime-deep" />
+                      <span className="text-ddg-muted">.</span>
+                    </span>
                   </span>
                 </h1>
 
                 <Reveal variant="up" delay={1.6}>
                   <p className="text-lg md:text-xl text-ddg-muted max-w-2xl leading-relaxed">
-                    Trabalho de <span className="text-ddg-ink font-semibold">SEO técnico profundo</span> que agência cobraria R$ 5 mil — automatizado. Você sugere os temas que importam, a engine pesquisa, escreve, otimiza, publica e <span className="text-ddg-ink font-semibold">mede sua marca no Google E em 4 IAs</span> (ChatGPT, Perplexity, Claude, Gemini). A partir de <span className="text-ddg-lime-deep font-bold">R$ 97/mês</span>.
+                    Trabalho de <span className="text-ddg-ink font-semibold">SEO técnico profundo</span> que agência cobraria R$ 5 mil — automatizado. Você sugere os temas, a engine pesquisa, escreve, otimiza e publica em volume. <span className="text-ddg-ink font-semibold">Mais conteúdo no ar = mais rápido ranqueia</span> no Google E aparece em 4 IAs. A partir de <span className="text-ddg-lime-deep font-bold">R$ 97/mês</span>.
                   </p>
                 </Reveal>
 
@@ -344,8 +346,10 @@ export default function Home() {
               </div>
 
               {/* Direita — mockup dashboard */}
-              <Reveal variant="right" delay={0.3} duration={0.8} className="lg:col-span-5">
-                <MockupDashboard />
+              <Reveal variant="right" delay={0.3} duration={0.8} className="lg:col-span-5 lg:pl-4">
+                <div className="max-w-md mx-auto lg:mx-0 lg:max-w-none">
+                  <MockupDashboard />
+                </div>
               </Reveal>
             </div>
           </div>
@@ -393,65 +397,65 @@ export default function Home() {
               </Reveal>
             </div>
 
-            {/* Parágrafo com scroll char reveal */}
-            <div className="max-w-3xl mb-14 md:mb-20">
-              <ScrollCharRevealDark
-                text="Por anos você precisou de agência pra fazer SEO sério: pesquisa de keywords, estrutura editorial, schema, GEO, internal links, otimização técnica. Custava R$ 3-5 mil por mês — e ainda assim, ninguém te ensinou a aparecer no ChatGPT. Agora seu cliente abre a IA antes do Google. Sem estar nos dois, você desapareceu — e quem aparecer leva o cliente que era seu."
-                className="text-xl md:text-2xl leading-relaxed font-medium"
+            {/* Parágrafo com scroll word reveal (sem quebrar palavras) */}
+            <div className="max-w-3xl mb-16 md:mb-24">
+              <ScrollWordRevealDark
+                text="Por anos você precisou de agência pra fazer SEO sério. Custava milhares por mês. E ainda assim, ninguém te ensinou a aparecer no ChatGPT. Agora seu cliente abre a IA antes do Google. Sem estar nos dois, você desapareceu — e quem aparecer leva o cliente que era seu."
+                className="text-lg sm:text-xl md:text-2xl leading-relaxed font-medium"
                 highlightWords={["desapareceu", "leva"]}
               />
             </div>
 
-            <StaggerGroup className="grid md:grid-cols-3 gap-10 md:gap-16">
+            <StaggerGroup className="grid md:grid-cols-3 gap-12 md:gap-10 lg:gap-16">
               <StaggerItem>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div
-                    className="ddg-stat text-7xl md:text-8xl"
+                    className="ddg-stat text-[7rem] sm:text-[9rem] md:text-[9rem] lg:text-[11rem] leading-[0.85]"
                     style={{ fontFamily: 'ui-serif, "Times New Roman", serif' }}
                   >
                     <ShinyText variant="lime" duration={4}>
                       <AnimatedCounter to={73} suffix="%" duration={2} />
                     </ShinyText>
                   </div>
-                  <div className="text-sm uppercase tracking-widest font-bold text-ddg-paper/80">
+                  <div className="text-base md:text-lg uppercase tracking-widest font-black text-ddg-paper">
                     Das buscas B2B
                   </div>
-                  <p className="text-sm text-ddg-paper/50 leading-relaxed max-w-xs">
+                  <p className="text-base text-ddg-paper/60 leading-relaxed max-w-xs">
                     Já começam num LLM (ChatGPT, Perplexity, Claude). E não no Google.
                   </p>
                 </div>
               </StaggerItem>
 
               <StaggerItem>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div
-                    className="ddg-stat text-7xl md:text-8xl text-ddg-lime drop-shadow-[0_0_24px_rgba(200,255,61,0.35)]"
+                    className="ddg-stat text-[7rem] sm:text-[9rem] md:text-[9rem] lg:text-[11rem] leading-[0.85] text-ddg-lime drop-shadow-[0_0_32px_rgba(200,255,61,0.45)]"
                     style={{ fontFamily: 'ui-serif, "Times New Roman", serif' }}
                   >
                     <AnimatedCounter to={0} duration={1.6} />
                   </div>
-                  <div className="text-sm uppercase tracking-widest font-bold text-ddg-paper/80">
+                  <div className="text-base md:text-lg uppercase tracking-widest font-black text-ddg-paper">
                     Ferramentas BR
                   </div>
-                  <p className="text-sm text-ddg-paper/50 leading-relaxed max-w-xs">
+                  <p className="text-base text-ddg-paper/60 leading-relaxed max-w-xs">
                     Que medem onde sua marca aparece nas respostas das IAs. Até agora.
                   </p>
                 </div>
               </StaggerItem>
 
               <StaggerItem>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div
-                    className="ddg-stat text-7xl md:text-8xl text-ddg-paper"
+                    className="ddg-stat text-[5.5rem] sm:text-[7rem] md:text-[7rem] lg:text-[9rem] leading-[0.85] text-ddg-paper whitespace-nowrap"
                     style={{ fontFamily: 'ui-serif, "Times New Roman", serif' }}
                   >
-                    <span className="text-ddg-paper/60 text-5xl md:text-6xl align-top">R$</span>
+                    <span className="text-ddg-paper/60 text-[3.5rem] sm:text-[4.5rem] md:text-[4.5rem] lg:text-[5.5rem] align-top">R$</span>
                     <AnimatedCounter to={3500} duration={1.8} />
                   </div>
-                  <div className="text-sm uppercase tracking-widest font-bold text-ddg-paper/80">
+                  <div className="text-base md:text-lg uppercase tracking-widest font-black text-ddg-paper">
                     Por mês com agência
                   </div>
-                  <p className="text-sm text-ddg-paper/50 leading-relaxed max-w-xs">
+                  <p className="text-base text-ddg-paper/60 leading-relaxed max-w-xs">
                     O que uma agência média cobra pra fazer <strong className="text-ddg-paper">4 posts</strong>. A gente entrega <strong className="text-ddg-lime">8 + tracking de IA</strong> por R$ 297.
                   </p>
                 </div>
@@ -711,6 +715,15 @@ export default function Home() {
                 <p className="text-lg text-ddg-muted mt-5 max-w-2xl mx-auto">
                   4 planos self-service pra você começar e escalar no seu ritmo. 2 planos enterprise pra agência ou integração custom. Todos com <strong className="text-ddg-ink">14 dias grátis</strong> e cancelamento em 1 clique.
                 </p>
+              </Reveal>
+              <Reveal delay={0.3}>
+                <div className="inline-flex items-start gap-3 mt-6 px-4 py-3 rounded-xl bg-ddg-ink text-ddg-paper text-left max-w-2xl mx-auto">
+                  <span className="text-ddg-lime text-xl leading-none mt-0.5">⚡</span>
+                  <p className="text-sm leading-relaxed">
+                    <strong className="text-ddg-lime">Volume é gasolina pro algoritmo.</strong>{" "}
+                    Quanto mais conteúdo publicado, mais rápido o Google entende sua marca e mais oportunidades de aparecer em IAs. Por isso planos maiores aceleram resultado proporcionalmente.
+                  </p>
+                </div>
               </Reveal>
             </div>
 
@@ -1061,8 +1074,34 @@ export default function Home() {
               </h2>
             </Reveal>
             <Reveal delay={0.25}>
-              <p className="text-lg md:text-xl text-ddg-paper/60 max-w-2xl mx-auto mt-7">
-                Em 7 minutos sua engine tá rodando. Primeiras citações em IA aparecem em <strong className="text-ddg-paper">30 a 60 dias</strong>. Google segue compondo todo mês. 14 dias grátis pra testar antes de pagar — sem cartão, sem plugin.
+              <p className="text-lg md:text-xl text-ddg-paper/70 max-w-2xl mx-auto mt-7 leading-relaxed">
+                Em 7 minutos sua engine tá rodando.{" "}
+                <strong className="text-ddg-lime">Quanto mais conteúdo no ar, mais rápido você ranqueia</strong>{" "}
+                — volume é gasolina pro algoritmo do Google e pra IA te indexar.
+              </p>
+            </Reveal>
+
+            {/* Mini-grid de timeline por volume */}
+            <Reveal delay={0.35}>
+              <div className="mt-10 grid sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
+                <div className="p-4 rounded-xl border border-ddg-paper/10 bg-white/[0.02]">
+                  <div className="text-xs font-mono uppercase tracking-widest text-ddg-paper/40 mb-2">Starter · 4 posts/mês</div>
+                  <div className="text-sm text-ddg-paper/80">Primeiras citações em <strong className="text-ddg-paper">~60 dias</strong></div>
+                </div>
+                <div className="p-4 rounded-xl border border-ddg-lime/40 bg-ddg-lime/5">
+                  <div className="text-xs font-mono uppercase tracking-widest text-ddg-lime mb-2">Pro · 8 posts/mês</div>
+                  <div className="text-sm text-ddg-paper"><strong className="text-ddg-lime">~30 dias</strong> — 2× mais rápido</div>
+                </div>
+                <div className="p-4 rounded-xl border border-ddg-paper/10 bg-white/[0.02]">
+                  <div className="text-xs font-mono uppercase tracking-widest text-ddg-paper/40 mb-2">Multi · 16 posts/mês</div>
+                  <div className="text-sm text-ddg-paper/80"><strong className="text-ddg-paper">~15 dias</strong> — 4× mais rápido</div>
+                </div>
+              </div>
+            </Reveal>
+
+            <Reveal delay={0.5}>
+              <p className="text-sm text-ddg-paper/50 max-w-xl mx-auto mt-6">
+                14 dias grátis pra testar antes de pagar — sem cartão, sem plugin.
               </p>
             </Reveal>
             <Reveal delay={0.4}>

@@ -104,8 +104,10 @@ export function StickyStackCard({
 
             <h3
               className={cn(
-                "ddg-display text-2xl sm:text-3xl md:text-5xl",
-                variant === "new" && "text-ddg-paper"
+                "ddg-display",
+                variant === "new"
+                  ? "text-3xl sm:text-4xl md:text-6xl text-ddg-paper"
+                  : "text-2xl sm:text-3xl md:text-5xl"
               )}
             >
               {title}
@@ -113,30 +115,32 @@ export function StickyStackCard({
 
             <p
               className={cn(
-                "text-base md:text-lg leading-relaxed max-w-xl",
-                variant === "old" ? "text-ddg-muted" : "text-ddg-paper/70"
+                "leading-relaxed max-w-xl",
+                variant === "new"
+                  ? "text-lg md:text-xl text-ddg-paper/80"
+                  : "text-base md:text-lg text-ddg-muted"
               )}
             >
               {description}
             </p>
 
             {/* Cons (jeito antigo) ou Pros (jeito novo) */}
-            <ul className="space-y-2 pt-3">
+            <ul className={cn("pt-3", variant === "new" ? "space-y-3" : "space-y-2")}>
               {cons?.map((c, i) => (
                 <li
                   key={i}
-                  className="flex items-start gap-3 text-sm text-ddg-muted"
+                  className="flex items-start gap-3 text-sm md:text-base text-ddg-muted"
                 >
-                  <X className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
+                  <X className="w-4 h-4 md:w-5 md:h-5 text-red-500 mt-0.5 shrink-0" />
                   <span>{c}</span>
                 </li>
               ))}
               {pros?.map((p, i) => (
                 <li
                   key={i}
-                  className="flex items-start gap-3 text-sm text-ddg-paper/90"
+                  className="flex items-start gap-3 text-base md:text-lg text-ddg-paper/90 font-medium"
                 >
-                  <Check className="w-4 h-4 text-ddg-lime mt-0.5 shrink-0" />
+                  <Check className="w-5 h-5 md:w-6 md:h-6 text-ddg-lime mt-0.5 shrink-0" />
                   <span>{p}</span>
                 </li>
               ))}
@@ -144,23 +148,29 @@ export function StickyStackCard({
           </div>
 
           {/* Direita — preço */}
-          <div className="md:col-span-5 flex flex-col justify-center items-start md:items-end space-y-2">
-            <div className="ddg-bracket whitespace-nowrap">
+          <div className={cn(
+            "md:col-span-5 flex flex-col justify-center items-start md:items-end",
+            variant === "new" ? "space-y-3" : "space-y-2"
+          )}>
+            <div className={cn(
+              "ddg-bracket whitespace-nowrap",
+              variant === "new" && "text-ddg-lime"
+            )}>
               {priceLabel ?? "Custo médio mensal"}
             </div>
             <div
               className={cn(
-                "ddg-stat text-4xl sm:text-5xl md:text-7xl font-black break-words",
+                "ddg-stat font-black break-words leading-[0.9]",
                 variant === "old"
-                  ? "text-ddg-ink line-through decoration-2 decoration-red-500/50"
-                  : "text-ddg-lime"
+                  ? "text-4xl sm:text-5xl md:text-7xl text-ddg-ink line-through decoration-2 decoration-red-500/50"
+                  : "text-6xl sm:text-7xl md:text-[9rem] text-ddg-lime drop-shadow-[0_0_40px_rgba(200,255,61,0.4)]"
               )}
               style={{ fontFamily: 'ui-serif, "Times New Roman", serif' }}
             >
               {price}
             </div>
             {variant === "new" && (
-              <div className="text-xs font-mono uppercase tracking-widest text-ddg-paper/60">
+              <div className="text-base md:text-lg font-mono uppercase tracking-widest text-ddg-paper/80 font-bold">
                 = R$ 9,90/dia
               </div>
             )}

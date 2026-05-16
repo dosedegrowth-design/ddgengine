@@ -8,6 +8,8 @@ const ITEMS = [
   { href: "/settings/billing", label: "Plano e cobrança" },
   { href: "/settings/referrals", label: "Indique e ganhe" },
   { href: "/settings/team", label: "Equipe" },
+  { href: "/settings/api-keys", label: "API Keys" },
+  { href: "/settings/webhooks", label: "Webhooks" },
 ];
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {

@@ -3,6 +3,7 @@ import { getCurrentSite } from "@/lib/auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SiteSettingsForm } from "./site-form";
+import { ImportWordPressForm } from "./import-wp";
 
 export default async function SiteSettingsPage() {
   const { site, supabase } = await getCurrentSite();
@@ -55,6 +56,18 @@ export default async function SiteSettingsPage() {
             </p>
           )}
           <SiteSettingsForm siteId={site.id} hasWorker={!!worker} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Importar de WordPress</CardTitle>
+          <CardDescription>
+            Tem um blog antigo? Importe posts via REST API. Eles ficam arquivados pra você re-otimizar com IA.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ImportWordPressForm siteId={site.id} />
         </CardContent>
       </Card>
     </div>

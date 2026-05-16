@@ -1,25 +1,33 @@
-import Link from "next/link";
+/**
+ * Visibility — tracking de citações em LLMs com identidade DDG
+ */
 import { redirect } from "next/navigation";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { getCurrentSite } from "@/lib/auth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { formatRelativeTime } from "@/lib/utils";
 import { RunVisibilityButton } from "@/components/dashboard/run-visibility-button";
+import { PageHeader } from "@/components/dashboard/page-header";
+import { StatusBadge } from "@/components/dashboard/status-badge";
+import { EmptyState } from "@/components/dashboard/empty-state";
 
-const LLM_LABELS: Record<string, { label: string; color: string }> = {
-  chatgpt: { label: "ChatGPT", color: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400" },
-  perplexity: { label: "Perplexity", color: "bg-sky-500/15 text-sky-700 dark:text-sky-400" },
-  claude: { label: "Claude", color: "bg-amber-500/15 text-amber-700 dark:text-amber-400" },
-  gemini: { label: "Gemini", color: "bg-indigo-500/15 text-indigo-700 dark:text-indigo-400" },
+const LLM_DOT: Record<string, string> = {
+  chatgpt: "bg-emerald-400",
+  perplexity: "bg-sky-400",
+  claude: "bg-amber-400",
+  gemini: "bg-indigo-400",
+};
+
+const LLM_LABEL: Record<string, string> = {
+  chatgpt: "ChatGPT",
+  perplexity: "Perplexity",
+  claude: "Claude",
+  gemini: "Gemini",
 };
 
 export default async function VisibilityPage() {
   const { site, supabase, org } = await getCurrentSite();
   if (!site) redirect("/onboarding");
 
-  // Pega últimos 12 runs
   const { data: runs } = await supabase
     .from("ai_visibility_runs")
     .select("*")
@@ -28,157 +36,220 @@ export default async function VisibilityPage() {
     .limit(12);
 
   const latest = runs?.[0];
+  const citationsByLlm = (latest?.citations_by_llm ?? {}) as Record<string, number>;
+  const shareOfVoice = (latest?.share_of_voice ?? {}) as Record<string, number>;
+  const maxCitations = Math.max(...Object.values(citationsByLlm).map(Number), 1);
 
   return (
-    <div className="container mx-auto max-w-6xl px-6 py-10 space-y-8">
-      <header className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">AI Visibility</h1>
-          <p className="text-muted-foreground mt-1">
-            Quantas vezes você apareceu em ChatGPT, Perplexity, Claude e Gemini.
-          </p>
-        </div>
-        <RunVisibilityButton siteId={site.id} />
-      </header>
+    <div>
+      <PageHeader
+        bracket="AI VISIBILITY"
+        title="Sua marca nas IAs"
+        subtitle="Quantas vezes você apareceu em ChatGPT, Perplexity, Claude e Gemini esta semana."
+        actions={<RunVisibilityButton siteId={site.id} />}
+      />
 
-      {!latest && (
-        <Card className="border-dashed">
-          <CardHeader className="text-center py-12">
-            <Sparkles className="w-6 h-6 mx-auto text-muted-foreground mb-3" />
-            <CardTitle>Nenhum tracking rodado ainda</CardTitle>
-            <CardDescription>
-              Clique em &quot;Rodar tracking&quot; pra fazer o primeiro snapshot.
-              <br />
-              Toda semana o sistema vai rodar automaticamente.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      )}
+      <div className="container mx-auto max-w-7xl px-6 py-8 space-y-6">
+        {!latest ? (
+          <EmptyState
+            icon={Sparkles}
+            title="Nenhum tracking rodado ainda"
+            description='Clica em "Rodar tracking" pra fazer o primeiro snapshot. Toda semana o sistema vai rodar automaticamente.'
+          />
+        ) : (
+          <>
+            {/* KPIs */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+              <KpiCard
+                label="Citações"
+                value={latest.total_citations}
+                hint={`em ${latest.total_prompts} perguntas`}
+                accent
+              />
+              <KpiCard
+                label="Share of Voice"
+                value={`${((shareOfVoice.brand ?? 0) * 100).toFixed(1)}%`}
+                hint="vs concorrentes"
+              />
+              <KpiCard
+                label="LLMs"
+                value={Object.keys(citationsByLlm).length || "—"}
+                hint="monitoradas"
+              />
+              <KpiCard
+                label="Custo do run"
+                value={`US$ ${Number(latest.cost_usd ?? 0).toFixed(2)}`}
+                hint={`${formatRelativeTime(latest.completed_at ?? latest.started_at)}`}
+              />
+            </div>
 
-      {latest && (
-        <>
-          {/* KPIs do último run */}
-          <div className="grid md:grid-cols-4 gap-4">
-            <KpiCard
-              label="Citações esta semana"
-              value={latest.total_citations}
-              hint={`em ${latest.total_prompts} perguntas`}
-            />
-            <KpiCard
-              label="Share of voice"
-              value={`${(((latest.share_of_voice as any)?.brand ?? 0) * 100).toFixed(1)}%`}
-              hint="vs concorrentes"
-            />
-            <KpiCard
-              label="LLMs monitoradas"
-              value={Object.keys(latest.citations_by_llm as any ?? {}).length || "—"}
-              hint="ChatGPT, Perplexity..."
-            />
-            <KpiCard
-              label="Custo do run"
-              value={`US$ ${Number(latest.cost_usd ?? 0).toFixed(2)}`}
-              hint={`Rodado ${formatRelativeTime(latest.completed_at ?? latest.started_at)}`}
-            />
-          </div>
-
-          {/* Citações por LLM */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Citações por LLM</CardTitle>
-              <CardDescription>Distribuição de menções da sua marca</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {Object.entries((latest.citations_by_llm as any) ?? {}).map(([llm, count]) => {
-                const max = Math.max(...Object.values((latest.citations_by_llm as any) ?? {}).map(Number));
-                const pct = max > 0 ? (Number(count) / max) * 100 : 0;
-                const conf = LLM_LABELS[llm] ?? { label: llm, color: "bg-gray-500/15" };
-                return (
-                  <div key={llm} className="space-y-1">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className={`inline-block px-2 py-0.5 rounded ${conf.color}`}>{conf.label}</span>
-                      <span className="font-medium tabular-nums">{Number(count)}</span>
-                    </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
-                      <div className="h-full bg-foreground" style={{ width: `${pct}%` }} />
-                    </div>
-                  </div>
-                );
-              })}
-              {Object.keys((latest.citations_by_llm as any) ?? {}).length === 0 && (
-                <p className="text-sm text-muted-foreground">Nenhuma citação detectada nesta semana.</p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Share of voice */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Share of voice</CardTitle>
-              <CardDescription>Você vs concorrentes mencionados</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {Object.entries((latest.share_of_voice as any) ?? {})
-                .sort((a, b) => Number(b[1]) - Number(a[1]))
-                .map(([key, val]) => {
-                  const pct = Number(val) * 100;
-                  const isBrand = key === "brand";
-                  return (
-                    <div key={key} className="space-y-1">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className={isBrand ? "font-semibold" : ""}>
-                          {isBrand ? `${org.name} (você)` : key}
-                        </span>
-                        <span className="font-medium tabular-nums">{pct.toFixed(1)}%</span>
-                      </div>
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className={isBrand ? "h-full bg-foreground" : "h-full bg-muted-foreground/40"}
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-            </CardContent>
-          </Card>
-
-          {/* Histórico */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Histórico semanal</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {runs?.map((r: any) => (
-                <div key={r.id} className="flex items-center justify-between p-3 rounded-md border">
-                  <div>
-                    <div className="font-medium text-sm">Semana de {new Date(r.week_start).toLocaleDateString("pt-BR")}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {r.total_prompts} prompts · {r.total_citations} citações
-                    </div>
-                  </div>
-                  <Badge variant={r.status === "completed" ? "success" : r.status === "failed" ? "destructive" : "warning"}>
-                    {r.status}
-                  </Badge>
+            {/* Grid: Citações por LLM + Share of voice */}
+            <div className="grid lg:grid-cols-2 gap-4 md:gap-5">
+              <div className="rounded-2xl border-2 border-ddg-ink bg-ddg-paper p-5 md:p-6">
+                <div className="mb-4">
+                  <div className="ddg-bracket mb-1">CITAÇÕES POR LLM</div>
+                  <h2 className="text-lg font-black text-ddg-ink">
+                    Distribuição esta semana
+                  </h2>
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-        </>
-      )}
+
+                {Object.keys(citationsByLlm).length === 0 ? (
+                  <p className="text-sm text-ddg-muted py-4">
+                    Nenhuma citação detectada nesta semana.
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {Object.entries(citationsByLlm).map(([llm, count]) => {
+                      const pct = (Number(count) / maxCitations) * 100;
+                      return (
+                        <div key={llm} className="space-y-1.5">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="inline-flex items-center gap-2 font-medium text-ddg-ink">
+                              <span
+                                className={`h-2 w-2 rounded-full ${
+                                  LLM_DOT[llm] ?? "bg-ddg-muted"
+                                }`}
+                              />
+                              {LLM_LABEL[llm] ?? llm}
+                            </span>
+                            <span className="font-bold tabular-nums text-ddg-ink">
+                              {Number(count)}
+                            </span>
+                          </div>
+                          <div className="h-2 bg-ddg-stone rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-ddg-lime"
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-2xl border-2 border-ddg-ink bg-ddg-ink text-ddg-paper p-5 md:p-6 relative overflow-hidden shadow-[6px_6px_0_var(--ddg-lime)]">
+                <div
+                  className="absolute -top-20 -right-20 w-60 h-60 rounded-full pointer-events-none opacity-25"
+                  style={{
+                    background:
+                      "radial-gradient(circle, rgba(200,255,61,0.4) 0%, transparent 60%)",
+                  }}
+                  aria-hidden
+                />
+                <div className="relative mb-4">
+                  <div className="ddg-bracket text-ddg-lime mb-1">SHARE OF VOICE</div>
+                  <h2 className="text-lg font-black text-ddg-paper">
+                    Você vs concorrentes
+                  </h2>
+                </div>
+
+                <div className="relative space-y-3">
+                  {Object.entries(shareOfVoice)
+                    .sort((a, b) => Number(b[1]) - Number(a[1]))
+                    .map(([key, val]) => {
+                      const pct = Number(val) * 100;
+                      const isBrand = key === "brand";
+                      return (
+                        <div key={key} className="space-y-1.5">
+                          <div className="flex items-center justify-between text-sm">
+                            <span
+                              className={
+                                isBrand
+                                  ? "font-bold text-ddg-lime"
+                                  : "text-ddg-paper/70"
+                              }
+                            >
+                              {isBrand ? `${org.name} (você)` : key}
+                            </span>
+                            <span className="font-bold tabular-nums">
+                              {pct.toFixed(1)}%
+                            </span>
+                          </div>
+                          <div className="h-2 bg-ddg-paper/10 rounded-full overflow-hidden">
+                            <div
+                              className={isBrand ? "h-full bg-ddg-lime" : "h-full bg-ddg-paper/40"}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            </div>
+
+            {/* Histórico */}
+            <div className="rounded-2xl border-2 border-ddg-ink bg-ddg-paper p-5 md:p-6">
+              <div className="mb-4">
+                <div className="ddg-bracket mb-1">HISTÓRICO</div>
+                <h2 className="text-lg font-black text-ddg-ink">Runs anteriores</h2>
+              </div>
+
+              <ul className="space-y-2">
+                {runs?.map((r) => (
+                  <li
+                    key={r.id}
+                    className="flex items-center justify-between p-3 rounded-lg border-2 border-ddg-stone hover:border-ddg-ink/30 transition-colors"
+                  >
+                    <div>
+                      <div className="font-bold text-sm text-ddg-ink">
+                        Semana de{" "}
+                        {new Date(r.week_start).toLocaleDateString("pt-BR")}
+                      </div>
+                      <div className="text-xs font-mono uppercase tracking-widest text-ddg-muted mt-0.5">
+                        {r.total_prompts} prompts ● {r.total_citations} citações
+                      </div>
+                    </div>
+                    <StatusBadge status={r.status} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
 
-function KpiCard({ label, value, hint }: { label: string; value: React.ReactNode; hint: string }) {
+function KpiCard({
+  label,
+  value,
+  hint,
+  accent = false,
+}: {
+  label: string;
+  value: React.ReactNode;
+  hint: string;
+  accent?: boolean;
+}) {
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardDescription className="text-xs uppercase tracking-wide">{label}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="text-3xl font-semibold tabular-nums">{value}</div>
-        <p className="text-xs text-muted-foreground mt-1">{hint}</p>
-      </CardContent>
-    </Card>
+    <div
+      className={`rounded-xl border-2 p-4 md:p-5 ${
+        accent
+          ? "border-ddg-ink bg-ddg-ink text-ddg-paper"
+          : "border-ddg-ink bg-ddg-paper"
+      }`}
+    >
+      <div className={`ddg-bracket mb-2 ${accent ? "text-ddg-lime" : ""}`}>
+        {label}
+      </div>
+      <div
+        className={`text-3xl md:text-4xl font-black tabular-nums leading-none ${
+          accent ? "text-ddg-paper" : "text-ddg-ink"
+        }`}
+      >
+        {value}
+      </div>
+      <div
+        className={`text-[10px] font-mono uppercase tracking-widest mt-2 ${
+          accent ? "text-ddg-paper/60" : "text-ddg-muted"
+        }`}
+      >
+        {hint}
+      </div>
+    </div>
   );
 }

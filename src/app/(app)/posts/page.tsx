@@ -1,27 +1,19 @@
+/**
+ * Posts — lista de conteúdo gerado, com identidade DDG
+ */
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, FileText, Plus, Sparkles } from "lucide-react";
+import { ArrowRight, FileText, Sparkles, ExternalLink } from "lucide-react";
 import { getCurrentSite } from "@/lib/auth";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { GeneratePostButton } from "@/components/dashboard/generate-post-button";
+import { PageHeader } from "@/components/dashboard/page-header";
+import { StatusBadge } from "@/components/dashboard/status-badge";
+import { EmptyState } from "@/components/dashboard/empty-state";
 import { formatRelativeTime } from "@/lib/utils";
 
-const STATUS_LABEL: Record<string, { label: string; variant: "default" | "secondary" | "success" | "warning" | "destructive" | "outline" }> = {
-  draft: { label: "Rascunho", variant: "secondary" },
-  generating: { label: "Gerando...", variant: "warning" },
-  in_review: { label: "Aguardando aprovação", variant: "warning" },
-  approved: { label: "Aprovado", variant: "default" },
-  scheduled: { label: "Agendado", variant: "default" },
-  published: { label: "Publicado", variant: "success" },
-  failed: { label: "Falhou", variant: "destructive" },
-  archived: { label: "Arquivado", variant: "outline" },
-};
-
 const TYPE_LABEL: Record<string, string> = {
-  long_form: "Artigo longo",
-  faq_page: "FAQ Page",
+  long_form: "Artigo",
+  faq_page: "FAQ",
 };
 
 export default async function PostsPage() {
@@ -31,11 +23,13 @@ export default async function PostsPage() {
 
   const { data: briefing } = await supabase
     .from("briefings")
-    .select("id, completion_percent, embedding_status")
+    .select("id, completion_status, embedding_status")
     .eq("site_id", site.id)
     .maybeSingle();
 
-  const briefingReady = briefing?.embedding_status === "done";
+  const briefingReady =
+    briefing?.embedding_status === "done" ||
+    briefing?.completion_status === "completed";
 
   const { data: posts } = await supabase
     .from("posts")
@@ -45,96 +39,113 @@ export default async function PostsPage() {
     .limit(50);
 
   return (
-    <div className="container mx-auto max-w-6xl px-6 py-10 space-y-8">
-      <header className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Conteúdo</h1>
-          <p className="text-muted-foreground mt-1">
-            Posts gerados pelo DDG Engine pra {site.domain}
-          </p>
-        </div>
-        {briefingReady ? (
-          <GeneratePostButton siteId={site.id} />
-        ) : (
-          <Button asChild>
-            <Link href="/briefing">
-              Completar briefing primeiro <ArrowRight className="w-4 h-4" />
+    <div>
+      <PageHeader
+        bracket="CONTEÚDO"
+        title="Posts"
+        subtitle={
+          <span>
+            Gerados pela engine pra{" "}
+            <strong className="text-ddg-ink">{site.domain ?? "seu site"}</strong>
+          </span>
+        }
+        actions={
+          briefingReady ? (
+            <GeneratePostButton siteId={site.id} />
+          ) : (
+            <Link
+              href="/briefing"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-ddg-lime text-ddg-ink font-bold text-sm border-2 border-ddg-ink shadow-[3px_3px_0_var(--ddg-ink)] hover:shadow-[5px_5px_0_var(--ddg-ink)] hover:-translate-y-0.5 transition-all"
+            >
+              Completar briefing
+              <ArrowRight className="w-4 h-4" />
             </Link>
-          </Button>
+          )
+        }
+      />
+
+      <div className="container mx-auto max-w-7xl px-6 py-8 space-y-6">
+        {!briefingReady && (
+          <div className="rounded-xl border-2 border-amber-300 bg-amber-50 p-4 flex items-center gap-3">
+            <Sparkles className="w-5 h-5 text-amber-700 shrink-0" />
+            <div className="text-sm flex-1">
+              <strong className="text-amber-900">Termine o briefing</strong>
+              <span className="text-amber-800">
+                {" "}— a IA precisa aprender sua voz antes de gerar posts.
+              </span>
+            </div>
+            <Link
+              href="/briefing"
+              className="text-xs font-mono uppercase tracking-widest text-amber-900 hover:underline"
+            >
+              Ir pro briefing →
+            </Link>
+          </div>
         )}
-      </header>
 
-      {!briefingReady && (
-        <Card className="border-amber-500/30 bg-amber-500/5">
-          <CardContent className="p-4 flex items-center gap-3">
-            <Sparkles className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
-            <div className="text-sm">
-              <span className="font-medium">Termine o briefing</span> pra IA aprender sua voz antes de gerar posts.
-            </div>
-            <Button asChild size="sm" variant="outline" className="ml-auto">
-              <Link href="/briefing">Ir pro briefing</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {!posts || posts.length === 0 ? (
-        <Card className="border-dashed">
-          <CardHeader className="text-center py-12">
-            <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
-              <FileText className="w-6 h-6 text-muted-foreground" />
-            </div>
-            <CardTitle>Nenhum post ainda</CardTitle>
-            <CardDescription className="max-w-sm mx-auto">
-              {briefingReady
-                ? "Clique em \"Gerar post\" pra criar seu primeiro conteúdo."
-                : "Termine o briefing primeiro e a IA escreve por você."}
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      ) : (
-        <div className="space-y-2">
-          {posts.map((p) => {
-            const status = STATUS_LABEL[p.status] ?? { label: p.status, variant: "default" as const };
-            return (
-              <Link
-                key={p.id}
-                href={`/posts/${p.id}`}
-                className="block p-4 rounded-lg border bg-card hover:bg-accent/30 transition-colors"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Badge variant="outline" className="text-xs">
-                        {TYPE_LABEL[p.type] ?? p.type}
-                      </Badge>
-                      <Badge variant={status.variant} className="text-xs">
-                        {status.label}
-                      </Badge>
+        {!posts || posts.length === 0 ? (
+          <EmptyState
+            icon={FileText}
+            title="Nenhum post ainda"
+            description={
+              briefingReady
+                ? 'Clica em "Gerar post" no topo pra criar o primeiro conteúdo.'
+                : "Termine o briefing primeiro e a engine começa a gerar."
+            }
+            cta={
+              !briefingReady
+                ? { label: "Completar briefing", href: "/briefing" }
+                : undefined
+            }
+          />
+        ) : (
+          <ul className="space-y-2">
+            {posts.map((p) => (
+              <li key={p.id}>
+                <Link
+                  href={`/posts/${p.id}`}
+                  className="block p-4 rounded-xl border-2 border-ddg-ink bg-ddg-paper hover:bg-ddg-cream hover:-translate-y-0.5 hover:shadow-[3px_3px_0_var(--ddg-ink)] transition-all group"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 mb-2 flex-wrap">
+                        <span className="text-[9px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded-full bg-ddg-stone text-ddg-muted">
+                          {TYPE_LABEL[p.type] ?? p.type}
+                        </span>
+                        <StatusBadge status={p.status} />
+                      </div>
+                      <div className="font-bold text-base text-ddg-ink truncate group-hover:text-ddg-lime-deep transition-colors">
+                        {p.title ?? "Sem título"}
+                      </div>
+                      <div className="text-xs font-mono uppercase tracking-widest text-ddg-muted mt-1.5">
+                        {p.status === "published" && p.published_at
+                          ? `Publicado ${formatRelativeTime(p.published_at)}`
+                          : `Criado ${formatRelativeTime(p.created_at)}`}
+                        {p.cost_usd != null && (
+                          <span className="ml-2">
+                            ● Custo US$ {Number(p.cost_usd).toFixed(3)}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <div className="font-medium truncate">
-                      {p.title ?? "Sem título"}
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {p.status === "published" && p.published_at
-                        ? `Publicado ${formatRelativeTime(p.published_at)}`
-                        : `Criado ${formatRelativeTime(p.created_at)}`}
-                      {p.cost_usd != null ? ` · custo US$ ${Number(p.cost_usd).toFixed(4)}` : ""}
-                    </div>
-                  </div>
-                  {p.status === "published" && (
-                    <Button asChild variant="outline" size="sm" onClick={(e) => e.stopPropagation()}>
-                      <Link href={`/blog/${org.slug}/${p.slug}`} target="_blank">
+                    {p.status === "published" && p.slug && org.slug && (
+                      <Link
+                        href={`/blog/${org.slug}/${p.slug}`}
+                        target="_blank"
+                        className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border-2 border-ddg-ink text-ddg-ink text-xs font-medium hover:bg-ddg-ink hover:text-ddg-paper transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <ExternalLink className="w-3 h-3" />
                         Ver post
                       </Link>
-                    </Button>
-                  )}
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      )}
+                    )}
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

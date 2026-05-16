@@ -15,36 +15,24 @@ import { useReducedMotion } from "motion/react";
 
 export function AuroraBackground({
   className,
-  variant = "lime",
 }: {
   className?: string;
-  variant?: "lime" | "rainbow";
 }) {
   const reduced = useReducedMotion();
 
-  const palette =
-    variant === "rainbow"
-      ? {
-          a: "#c8ff3d", // lime
-          b: "#5BE9E9", // cyan
-          c: "#7B5CFF", // roxo
-          d: "#FF6B9D", // pink
-          e: "#FFB84D", // orange
-        }
-      : {
-          a: "#c8ff3d", // lime forte
-          b: "#a8e620", // lime deep
-          c: "#5BE9E9", // cyan accent sutil
-          d: "#c8ff3d",
-          e: "#a8e620",
-        };
+  // Paleta DDG estrita — apenas tons de lime + ink
+  const palette = {
+    limeBright: "#d4ff5e",
+    lime: "#c8ff3d",
+    limeDeep: "#a8e620",
+  };
 
   return (
     <div
       className={`absolute inset-0 overflow-hidden bg-ddg-ink ${className ?? ""}`}
       aria-hidden
     >
-      {/* Layer 1 — aurora principal grande rolando */}
+      {/* Layer 1 — aurora principal grande rolando (lime forte) */}
       <div
         className="absolute -inset-[40%]"
         style={{
@@ -55,13 +43,13 @@ export function AuroraBackground({
         <div
           className="absolute inset-0 rounded-[50%]"
           style={{
-            background: `radial-gradient(ellipse at 30% 40%, ${palette.a}aa 0%, transparent 50%), radial-gradient(ellipse at 70% 60%, ${palette.b}88 0%, transparent 55%)`,
-            filter: "blur(80px)",
+            background: `radial-gradient(ellipse at 30% 40%, ${palette.lime}99 0%, transparent 52%), radial-gradient(ellipse at 70% 60%, ${palette.limeDeep}77 0%, transparent 55%)`,
+            filter: "blur(90px)",
           }}
         />
       </div>
 
-      {/* Layer 2 — aurora secundária em sentido oposto */}
+      {/* Layer 2 — aurora secundária em sentido oposto (lime bright) */}
       <div
         className="absolute -inset-[30%]"
         style={{
@@ -72,13 +60,13 @@ export function AuroraBackground({
         <div
           className="absolute inset-0 rounded-[50%]"
           style={{
-            background: `radial-gradient(ellipse at 60% 30%, ${palette.c}77 0%, transparent 60%), radial-gradient(ellipse at 20% 80%, ${palette.d}99 0%, transparent 55%)`,
-            filter: "blur(100px)",
+            background: `radial-gradient(ellipse at 60% 30%, ${palette.limeBright}66 0%, transparent 60%), radial-gradient(ellipse at 20% 80%, ${palette.lime}88 0%, transparent 55%)`,
+            filter: "blur(110px)",
           }}
         />
       </div>
 
-      {/* Layer 3 — wisp lateral suave */}
+      {/* Layer 3 — wisp lateral suave (lime deep) */}
       <div
         className="absolute -inset-[20%]"
         style={{
@@ -89,8 +77,8 @@ export function AuroraBackground({
         <div
           className="absolute inset-0 rounded-[50%]"
           style={{
-            background: `radial-gradient(ellipse at 80% 50%, ${palette.e}66 0%, transparent 60%), radial-gradient(ellipse at 10% 20%, ${palette.a}55 0%, transparent 55%)`,
-            filter: "blur(120px)",
+            background: `radial-gradient(ellipse at 80% 50%, ${palette.limeDeep}55 0%, transparent 62%), radial-gradient(ellipse at 10% 20%, ${palette.lime}44 0%, transparent 58%)`,
+            filter: "blur(130px)",
           }}
         />
       </div>

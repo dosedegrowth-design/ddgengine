@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AnalyticsPixels } from "@/components/analytics/pixels";
 import "./globals.css";
 
 const inter = Inter({
@@ -84,6 +85,7 @@ export default function RootLayout({
           {children}
           <Toaster richColors position="top-right" closeButton />
         </ThemeProvider>
+        <AnalyticsPixels />
       </body>
     </html>
   );

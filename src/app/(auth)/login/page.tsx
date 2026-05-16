@@ -37,14 +37,14 @@ function LoginForm() {
   return (
     <div className="relative">
       {/* Glass card */}
-      <div className="relative rounded-2xl border-2 border-ddg-lime/30 bg-ddg-ink/70 backdrop-blur-2xl shadow-[0_24px_80px_-12px_rgba(0,0,0,0.6)] p-7 md:p-9">
+      <div className="relative rounded-2xl border-2 border-ddg-lime/30 bg-ddg-ink/70 backdrop-blur-2xl shadow-[0_24px_80px_-12px_rgba(0,0,0,0.6)] p-5 md:p-6">
         {/* Header */}
-        <div className="text-center mb-7">
-          <div className="ddg-bracket text-ddg-lime mb-3 inline-block">ENTRAR</div>
-          <h1 className="ddg-display text-3xl md:text-4xl text-ddg-paper leading-[1] mb-2">
+        <div className="text-center mb-4">
+          <div className="ddg-bracket text-ddg-lime mb-2 inline-block">ENTRAR</div>
+          <h1 className="ddg-display text-2xl md:text-3xl text-ddg-paper leading-[1] mb-1.5">
             Bem-vindo de volta.
           </h1>
-          <p className="text-sm text-ddg-paper/60">
+          <p className="text-xs text-ddg-paper/60">
             Acesse seu painel e veja sua visibility em tempo real.
           </p>
         </div>
@@ -54,7 +54,7 @@ function LoginForm() {
           type="button"
           onClick={handleGoogle}
           disabled={loading}
-          className="w-full inline-flex items-center justify-center gap-3 h-12 rounded-xl border-2 border-ddg-paper/15 bg-ddg-paper/[0.04] hover:bg-ddg-paper/[0.08] hover:border-ddg-paper/30 transition-colors text-ddg-paper font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full inline-flex items-center justify-center gap-2.5 h-10 rounded-lg border-2 border-ddg-paper/15 bg-ddg-paper/[0.04] hover:bg-ddg-paper/[0.08] hover:border-ddg-paper/30 transition-colors text-ddg-paper font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -66,21 +66,21 @@ function LoginForm() {
         </button>
 
         {/* Divider */}
-        <div className="relative my-6">
+        <div className="relative my-3">
           <div className="absolute inset-0 flex items-center" aria-hidden>
             <span className="w-full border-t border-ddg-paper/10" />
           </div>
           <div className="relative flex justify-center">
-            <span className="px-3 text-[10px] font-mono uppercase tracking-widest text-ddg-paper/40 bg-ddg-ink/80 rounded-full">
+            <span className="px-2 text-[9px] font-mono uppercase tracking-widest text-ddg-paper/40 bg-ddg-ink/80 rounded-full">
               ou com email
             </span>
           </div>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-2.5">
           <div>
-            <label htmlFor="email" className="block text-xs font-mono uppercase tracking-widest text-ddg-paper/60 mb-2">
+            <label htmlFor="email" className="block text-[10px] font-mono uppercase tracking-widest text-ddg-paper/60 mb-1">
               Email
             </label>
             <input
@@ -91,18 +91,18 @@ function LoginForm() {
               required
               autoComplete="email"
               disabled={loading}
-              className="w-full h-11 px-4 rounded-xl border-2 border-ddg-paper/15 bg-ddg-paper/[0.04] text-ddg-paper placeholder:text-ddg-paper/30 focus:border-ddg-lime/60 focus:bg-ddg-paper/[0.06] focus:outline-none transition-colors disabled:opacity-50"
+              className="w-full h-10 px-3 rounded-lg border-2 border-ddg-paper/15 bg-ddg-paper/[0.04] text-ddg-paper placeholder:text-ddg-paper/30 focus:border-ddg-lime/60 focus:bg-ddg-paper/[0.06] focus:outline-none transition-colors disabled:opacity-50 text-sm"
             />
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <label htmlFor="password" className="block text-xs font-mono uppercase tracking-widest text-ddg-paper/60">
+            <div className="flex items-center justify-between mb-1">
+              <label htmlFor="password" className="block text-[10px] font-mono uppercase tracking-widest text-ddg-paper/60">
                 Senha
               </label>
               <Link
                 href="/forgot-password"
-                className="text-[10px] font-mono uppercase tracking-widest text-ddg-paper/40 hover:text-ddg-lime transition-colors"
+                className="text-[9px] font-mono uppercase tracking-widest text-ddg-paper/40 hover:text-ddg-lime transition-colors"
               >
                 Esqueci a senha
               </Link>
@@ -114,15 +114,15 @@ function LoginForm() {
               required
               autoComplete="current-password"
               disabled={loading}
-              className="w-full h-11 px-4 rounded-xl border-2 border-ddg-paper/15 bg-ddg-paper/[0.04] text-ddg-paper placeholder:text-ddg-paper/30 focus:border-ddg-lime/60 focus:bg-ddg-paper/[0.06] focus:outline-none transition-colors disabled:opacity-50"
+              className="w-full h-10 px-3 rounded-lg border-2 border-ddg-paper/15 bg-ddg-paper/[0.04] text-ddg-paper placeholder:text-ddg-paper/30 focus:border-ddg-lime/60 focus:bg-ddg-paper/[0.06] focus:outline-none transition-colors disabled:opacity-50 text-sm"
             />
           </div>
 
-          <Magnet strength={0.15} className="w-full pt-2">
+          <Magnet strength={0.15} className="w-full pt-1">
             <button
               type="submit"
               disabled={loading}
-              className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-xl bg-ddg-lime text-ddg-ink font-bold text-sm border-2 border-ddg-ink shadow-[4px_4px_0_var(--ddg-ink)] hover:shadow-[6px_6px_0_var(--ddg-ink)] hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-[2px_2px_0_var(--ddg-ink)] active:translate-x-0.5 active:translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-[4px_4px_0_var(--ddg-ink)] disabled:hover:translate-x-0 disabled:hover:translate-y-0"
+              className="w-full inline-flex items-center justify-center gap-2 h-11 rounded-lg bg-ddg-lime text-ddg-ink font-bold text-sm border-2 border-ddg-ink shadow-[3px_3px_0_var(--ddg-ink)] hover:shadow-[5px_5px_0_var(--ddg-ink)] hover:-translate-x-0.5 hover:-translate-y-0.5 active:shadow-[1px_1px_0_var(--ddg-ink)] active:translate-x-0.5 active:translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-[3px_3px_0_var(--ddg-ink)] disabled:hover:translate-x-0 disabled:hover:translate-y-0"
             >
               {loading ? "Entrando..." : "Entrar"}
               {!loading && <ArrowRight className="w-4 h-4" />}
@@ -132,8 +132,8 @@ function LoginForm() {
       </div>
 
       {/* Bottom links */}
-      <div className="text-center mt-6">
-        <p className="text-sm text-ddg-paper/60">
+      <div className="text-center mt-3">
+        <p className="text-xs text-ddg-paper/60">
           Não tem conta?{" "}
           <Link href="/signup" className="text-ddg-lime font-medium hover:text-ddg-lime-bright transition-colors">
             Começar grátis

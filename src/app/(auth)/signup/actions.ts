@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/utils";
 
 export async function signupWithEmail(formData: FormData) {
@@ -33,41 +33,53 @@ export async function signupWithEmail(formData: FormData) {
     return { error: traduzirErro(error.message) };
   }
 
-  // Se confirmação por email estiver desabilitada, user já é criado.
-  // Cria organization + membership.
+  // Cria org + membership via SERVICE ROLE (bypass RLS).
+  // O user pode estar com sessão ainda não-ativa (email confirmation),
+  // ou com sessão recém-criada — em ambos casos service role é seguro
+  // porque só rodamos isso uma vez no signup.
   if (data.user) {
-    await criarOrganizacaoInicial(supabase, data.user.id, name);
+    await criarOrganizacaoInicial(data.user.id, name);
   }
 
   revalidatePath("/", "layout");
+
+  // Se email confirmation está ativo, session será null aqui — manda pro login
+  // com mensagem explicativa. Senão, manda pro onboarding direto.
+  if (!data.session) {
+    redirect("/login?confirmed=pending");
+  }
+
   redirect("/onboarding");
 }
 
-async function criarOrganizacaoInicial(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  userId: string,
-  userName: string
-) {
+async function criarOrganizacaoInicial(userId: string, userName: string) {
+  // Usa service role pra bypass RLS — só rodamos no signup
+  const admin = createServiceClient();
+
   const orgName = `${userName.split(" ")[0]}'s Workspace`;
   const baseSlug = slugify(orgName) || `org-${Date.now()}`;
 
   // Tenta criar com slug único (até 5 tentativas com sufixo)
   for (let i = 0; i < 5; i++) {
-    const slug = i === 0 ? baseSlug : `${baseSlug}-${Math.floor(Math.random() * 9999)}`;
-    const { data: org, error } = await supabase
+    const slug =
+      i === 0 ? baseSlug : `${baseSlug}-${Math.floor(Math.random() * 9999)}`;
+    const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+
+    const { data: org, error } = await admin
       .from("organizations")
       .insert({
         name: orgName,
         slug,
         owner_user_id: userId,
         plan: "trial",
+        status: "active",
+        trial_ends_at: trialEndsAt,
       })
       .select()
       .single();
 
     if (!error && org) {
-      // Cria membership
-      await supabase.from("org_memberships").insert({
+      await admin.from("org_memberships").insert({
         organization_id: org.id,
         user_id: userId,
         role: "owner",
@@ -76,10 +88,11 @@ async function criarOrganizacaoInicial(
     }
 
     if (error && !error.message.includes("duplicate")) {
-      console.error("Erro ao criar org:", error);
+      console.error("[signup] erro ao criar org:", error.message);
       return null;
     }
   }
+  console.error("[signup] não foi possível criar org após 5 tentativas");
   return null;
 }
 

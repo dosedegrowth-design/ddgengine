@@ -33,7 +33,6 @@ import { GrainOverlay } from "@/components/landing/motion/grain-overlay";
 import { Magnet } from "@/components/landing/motion/magnet";
 import { MarqueeRow } from "@/components/landing/motion/marquee-row";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/landing/motion/reveal";
-import { ScrollWordRevealDark } from "@/components/landing/motion/scroll-word-reveal";
 import { ScrollProgress } from "@/components/landing/motion/scroll-progress";
 import { ShinyText } from "@/components/landing/motion/shiny-text";
 import { SpotlightCard } from "@/components/landing/motion/spotlight-card";
@@ -397,14 +396,64 @@ export default function Home() {
               </Reveal>
             </div>
 
-            {/* Parágrafo com scroll word reveal (sem quebrar palavras) */}
-            <div className="max-w-3xl mb-16 md:mb-24">
-              <ScrollWordRevealDark
-                text="Por anos você precisou de agência pra fazer SEO sério. Custava milhares por mês. E ainda assim, ninguém te ensinou a aparecer no ChatGPT. Agora seu cliente abre a IA antes do Google. Sem estar nos dois, você desapareceu — e quem aparecer leva o cliente que era seu."
-                className="text-lg sm:text-xl md:text-2xl leading-relaxed font-medium"
-                highlightWords={["desapareceu", "leva"]}
-              />
-            </div>
+            {/* 3 cards de dor */}
+            <StaggerGroup className="grid md:grid-cols-3 gap-4 md:gap-5 mb-12 md:mb-16" stagger={0.1}>
+              <StaggerItem>
+                <div className="relative h-full p-6 md:p-7 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm hover:border-ddg-lime/30 transition-colors group">
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-red-500/15 border border-red-500/40">
+                      <span className="text-red-400 text-sm font-black">✗</span>
+                    </span>
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-ddg-paper/40">Problema 01</span>
+                  </div>
+                  <h3 className="text-xl md:text-2xl font-black mb-3 text-ddg-paper leading-tight">
+                    SEO sempre custou caro
+                  </h3>
+                  <p className="text-sm md:text-base text-ddg-paper/60 leading-relaxed">
+                    Agência cobra <strong className="text-ddg-paper">R$ 3-5 mil/mês</strong> pra fazer SEO sério: pesquisa, estrutura, otimização técnica. E você espera 6-12 meses pra ver resultado.
+                  </p>
+                </div>
+              </StaggerItem>
+
+              <StaggerItem>
+                <div className="relative h-full p-6 md:p-7 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm hover:border-ddg-lime/30 transition-colors group">
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-red-500/15 border border-red-500/40">
+                      <span className="text-red-400 text-sm font-black">✗</span>
+                    </span>
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-ddg-paper/40">Problema 02</span>
+                  </div>
+                  <h3 className="text-xl md:text-2xl font-black mb-3 text-ddg-paper leading-tight">
+                    IA, ninguém te ensinou
+                  </h3>
+                  <p className="text-sm md:text-base text-ddg-paper/60 leading-relaxed">
+                    Mesmo pagando agência, <strong className="text-ddg-paper">ninguém otimizou</strong> sua marca pra aparecer no ChatGPT, Perplexity, Claude ou Gemini. Esse jogo é novo.
+                  </p>
+                </div>
+              </StaggerItem>
+
+              <StaggerItem>
+                <div className="relative h-full p-6 md:p-7 rounded-2xl border border-ddg-lime/30 bg-ddg-lime/5 backdrop-blur-sm hover:border-ddg-lime transition-colors group">
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-ddg-lime/20 border border-ddg-lime/60">
+                      <span className="text-ddg-lime text-sm font-black">!</span>
+                    </span>
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-ddg-lime">A virada</span>
+                  </div>
+                  <h3 className="text-xl md:text-2xl font-black mb-3 text-ddg-paper leading-tight">
+                    Seu cliente já mudou
+                  </h3>
+                  <p className="text-sm md:text-base text-ddg-paper/80 leading-relaxed">
+                    Em 2026, ele abre o ChatGPT <strong className="text-ddg-lime">antes</strong> do Google. Sem estar nos dois, você desapareceu — e quem aparecer leva o cliente que era seu.
+                  </p>
+                </div>
+              </StaggerItem>
+            </StaggerGroup>
+
+            {/* Linha de conclusão dramática */}
+            <Reveal>
+              <div className="border-t border-ddg-paper/10 mb-12 md:mb-16" />
+            </Reveal>
 
             <StaggerGroup className="grid md:grid-cols-3 gap-12 md:gap-10 lg:gap-16">
               <StaggerItem>

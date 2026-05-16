@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink, Sparkles } from "lucide-react";
 import { getCurrentSite } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -69,13 +69,20 @@ export default async function PostDetailPage({
             )}
           </div>
         </div>
-        {post.status === "published" && (
-          <Button asChild variant="outline">
-            <Link href={`/blog/${org.slug}/${post.slug}`} target="_blank">
-              <ExternalLink className="w-4 h-4" /> Ver no blog
+        <div className="flex gap-2">
+          {post.status === "published" && (
+            <Button asChild variant="outline">
+              <Link href={`/blog/${org.slug}/${post.slug}`} target="_blank">
+                <ExternalLink className="w-4 h-4" /> Ver no blog
+              </Link>
+            </Button>
+          )}
+          <Button asChild>
+            <Link href={`/posts/${id}/repurpose`}>
+              <Sparkles className="w-4 h-4" /> Repurpose
             </Link>
           </Button>
-        )}
+        </div>
       </header>
 
       {/* Meta */}

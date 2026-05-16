@@ -19,10 +19,11 @@ interface Orb {
 }
 
 const DEFAULT_ORBS: Orb[] = [
-  { size: 480, color: "rgba(200, 255, 61, 0.25)", initialX: "10%", initialY: "20%", duration: 28 },
-  { size: 380, color: "rgba(200, 255, 61, 0.18)", initialX: "75%", initialY: "60%", duration: 34, delay: 4 },
-  { size: 320, color: "rgba(200, 255, 61, 0.15)", initialX: "55%", initialY: "10%", duration: 26, delay: 2 },
-  { size: 260, color: "rgba(200, 255, 61, 0.20)", initialX: "20%", initialY: "75%", duration: 32, delay: 6 },
+  { size: 640, color: "rgba(200, 255, 61, 0.55)", initialX: "5%", initialY: "10%", duration: 28 },
+  { size: 520, color: "rgba(200, 255, 61, 0.42)", initialX: "70%", initialY: "55%", duration: 34, delay: 4 },
+  { size: 420, color: "rgba(200, 255, 61, 0.38)", initialX: "55%", initialY: "5%", duration: 26, delay: 2 },
+  { size: 380, color: "rgba(200, 255, 61, 0.45)", initialX: "15%", initialY: "75%", duration: 32, delay: 6 },
+  { size: 280, color: "rgba(200, 255, 61, 0.50)", initialX: "85%", initialY: "20%", duration: 30, delay: 1 },
 ];
 
 export function FloatingOrbs({
@@ -54,9 +55,9 @@ export function FloatingOrbs({
             left: orb.initialX,
             top: orb.initialY,
             background: variant === "dark"
-              ? orb.color.replace("0.25", "0.12").replace("0.18", "0.08").replace("0.15", "0.06").replace("0.20", "0.10")
+              ? orb.color.replace("0.55", "0.18").replace("0.42", "0.14").replace("0.38", "0.10").replace("0.45", "0.15").replace("0.50", "0.16")
               : orb.color,
-            filter: "blur(80px)",
+            filter: "blur(120px)",
             willChange: "transform",
           }}
           animate={

@@ -9,28 +9,28 @@ import { Brain, FileText, MessageCircle, Send, Sparkles } from "lucide-react";
 const NODES = [
   {
     icon: FileText,
-    label: "Briefing",
-    desc: "15 perguntas. A IA aprende sua marca.",
+    label: "Você briefa",
+    desc: "Conta sua marca e sugere temas.",
   },
   {
     icon: Brain,
-    label: "AI escreve",
-    desc: "Multi-pass: 7 passos editoriais.",
+    label: "Engine pesquisa",
+    desc: "Keywords, intenção, concorrência.",
   },
   {
     icon: MessageCircle,
-    label: "WhatsApp aprova",
-    desc: "Você lê e libera em 1 clique.",
+    label: "Aprova no Zap",
+    desc: "5 segundos, sem login.",
   },
   {
     icon: Send,
     label: "Publica",
-    desc: "Direto no seu site, sem plugin.",
+    desc: "Direto no seu site, sem mexer em nada.",
   },
   {
     icon: Sparkles,
-    label: "4 IAs trackeiam",
-    desc: "ChatGPT · Perplexity · Claude · Gemini",
+    label: "Medimos sua marca",
+    desc: "Em ChatGPT, Perplexity, Claude, Gemini.",
   },
 ];
 

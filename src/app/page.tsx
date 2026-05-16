@@ -19,6 +19,7 @@ import { ArrowRight, ArrowUpRight, Brain, Check, FileText, Globe, MessageCircle,
 import { BrandMark, BrandMarkInverted } from "@/components/brand/brand-mark";
 import { FeatureCard } from "@/components/landing/feature-card";
 import { FlowDiagram } from "@/components/landing/flow-diagram";
+import { HeroDecorations } from "@/components/landing/hero-decorations";
 import { LLMTrustStrip, LLMBadge } from "@/components/landing/llm-badge";
 import { MockupDashboard } from "@/components/landing/mockup-dashboard";
 import { NumberedStep } from "@/components/landing/numbered-step";
@@ -43,28 +44,28 @@ const STEPS = [
     n: "01",
     badge: "2 minutos",
     title: "Conecta seu site",
-    desc: "Cola a URL. A gente faz o resto via Cloudflare. Sem plugin, sem mexer no código, sem migração. Funciona em WordPress, Wix, Shopify, Webflow, custom.",
+    desc: "Cola a URL. A gente conecta tecnicamente em minutos — sem mexer no seu site, sem migração, sem instalar nada. Funciona em qualquer plataforma.",
     icon: Globe,
   },
   {
     n: "02",
     badge: "5 minutos",
     title: "Você sugere os temas",
-    desc: "15 perguntas sobre seu negócio + lista de temas/produtos/dores que quer trabalhar. A engine pesquisa keywords, intenção de busca e concorrência pra cada tema. Você no controle do conteúdo — sem terceirizar o que importa.",
+    desc: "Conta o que importa pro seu negócio: lançamento, sazonal, dor de cliente, pivô. A engine entra em ação pesquisando o terreno antes de escrever. Você no controle do que importa.",
     icon: FileText,
   },
   {
     n: "03",
     badge: "Toda semana",
-    title: "SEO técnico + escrita",
-    desc: "Multi-pass writer faz: pesquisa real, estrutura editorial, escrita, SEO técnico (schema, sitemap, internal links), GEO pra IA, fact-check. Chega pronto no seu WhatsApp pra aprovar.",
+    title: "Engine faz o trabalho pesado",
+    desc: "Stack editorial proprietário: pesquisa, escrita, otimização técnica completa pra Google e pra IA generativa, fact-check, revisão. Chega pronto no seu WhatsApp — sem retoque.",
     icon: Brain,
   },
   {
     n: "04",
     badge: "24/7",
-    title: "Publica e mede tudo",
-    desc: "Vai pro seu site na hora. Google ranqueia (impressions, posição, CTR) e 4 IAs (ChatGPT, Perplexity, Claude, Gemini) verificam toda semana onde sua marca aparece. Tudo num painel só.",
+    title: "Publica e medimos tudo",
+    desc: "Vai pro seu site na hora. Trackeamos sua posição no Google (impressions, ranking, CTR) e medimos onde sua marca aparece em ChatGPT, Perplexity, Claude e Gemini. Painel único.",
     icon: Sparkles,
   },
 ];
@@ -72,26 +73,26 @@ const STEPS = [
 const FEATURES = [
   {
     label: "VOCÊ NO CONTROLE",
-    title: "Você sugere os temas. A engine pesquisa fundo.",
-    description: "Você diz o que quer trabalhar (lançamento, sazonal, dor de cliente, pivô). A engine pesquisa keywords reais, intenção de busca, perguntas frequentes, concorrência e GEO antes de escrever. Não é blog automático bobo — é SEO profissional.",
+    title: "Você sugere os temas. Engine pesquisa fundo.",
+    description: "Você diz o que quer trabalhar — lançamento, sazonal, dor de cliente, pivô. A engine entra em ação: pesquisa terreno, mapeia oportunidades, analisa concorrência antes de escrever. SEO sério, não blog automático genérico.",
     icon: FileText,
   },
   {
-    label: "SEO TÉCNICO",
+    label: "SEO PROFISSIONAL",
     title: "Trabalho de R$ 5k de agência, automatizado",
-    description: "Schema markup, sitemap, canonical, internal links, meta tags, Core Web Vitals, GEO pra IA generativa, fact-check. Tudo que agência cobra caro pra fazer, a engine entrega em cada post. Sem você precisar entender nada disso.",
+    description: "Toda a parte técnica que agência cobra caro pra fazer — otimização on-page, estrutura, SEO técnico completo, otimização pra IA generativa — em cada post. Sem você precisar entender nada disso.",
     icon: ShieldCheck,
   },
   {
     label: "AI VISIBILITY",
-    title: "Você vê o que a IA fala de você",
-    description: "200 perguntas testadas por semana em ChatGPT, Perplexity, Claude e Gemini. Descobre onde sua marca já aparece — e onde a concorrência tá levando o cliente que era seu.",
+    title: "Medimos sua marca dentro das IAs",
+    description: "Toda semana testamos centenas de perguntas relevantes do seu setor em ChatGPT, Perplexity, Claude e Gemini. Você vê onde aparece — e onde a concorrência tá levando o cliente que era seu.",
     icon: Sparkles,
   },
   {
     label: "MULTI-PASS",
     title: "Conteúdo nível agência, sem agência",
-    description: "7 passos editoriais por post: pesquisa real, estrutura, escrita, SEO técnico, fact-check, otimização pra IA generativa, revisão. Não é texto AI bobo — é editorial sério.",
+    description: "Stack editorial proprietário com múltiplas camadas de qualidade por post. Não é IA cuspindo texto — é processo editorial sério. O resultado: post pronto pra publicar, sem retoque, sem revisão.",
     icon: Brain,
   },
   {
@@ -101,15 +102,15 @@ const FEATURES = [
     icon: MessageCircle,
   },
   {
-    label: "SEM PLUGIN",
+    label: "PLUG-AND-PLAY",
     title: "Conecta em 2 min, não migra nada",
-    description: "Cloudflare Worker serve o blog em seusite.com.br/blog. Seu site continua igual, sua agência continua mexendo. Você só ganha um blog automático em cima.",
+    description: "Conexão técnica em minutos, sem mexer no seu site. Funciona em qualquer plataforma — WordPress, Wix, Shopify, Webflow, custom. Seu site continua igual. Você só ganha um blog automático em cima.",
     icon: Globe,
   },
   {
     label: "SEM LOCK-IN",
     title: "O conteúdo é seu. Pra sempre.",
-    description: "Importa posts antigos do WordPress, Webflow, Shopify. Exporta tudo a qualquer hora em Markdown ou HTML. Se um dia sair, leva tudo. Cancela sem multa.",
+    description: "Importa o que você já tinha publicado. Exporta tudo a qualquer hora. Se um dia decidir sair, leva o conteúdo inteiro. Cancela sem multa, sem ligação, sem retenção.",
     icon: Zap,
   },
 ];
@@ -164,7 +165,7 @@ const FAQ = [
   },
   {
     q: "É só blog automático ou tem SEO sério mesmo?",
-    a: "SEO sério. Cada post passa por 7 passos editoriais: pesquisa real de keywords (não só ChatGPT cuspindo texto), estrutura H1/H2/H3 otimizada, schema markup JSON-LD, sitemap atualizado, canonical correto, internal links inteligentes, meta tags, Core Web Vitals, GEO (otimização pra IA generativa) e fact-check. É o trabalho que agência de SEO cobra R$ 3-5k/mês — automatizado.",
+    a: "SEO sério. Cada post passa pela nossa stack editorial proprietária com múltiplas camadas: pesquisa real de mercado, estrutura editorial, escrita, otimização técnica completa pra Google, otimização pra IA generativa, fact-check e revisão. É o trabalho que agência de SEO cobra R$ 3-5k/mês pra entregar — entregue automaticamente em cada post. Você não precisa entender nada do que acontece embaixo do capô.",
   },
   {
     q: "Eu já tenho redator (ou agência). Substitui?",
@@ -172,7 +173,7 @@ const FAQ = [
   },
   {
     q: "Funciona no meu site (WordPress, Wix, Shopify, custom)?",
-    a: "Sim, em qualquer site. Diferente de outras ferramentas, não exigimos plugin nem migração. Conecta via Cloudflare (grátis) e o blog aparece em seusite.com.br/blog em 2 minutos. Seu site continua igual — você só ganha um blog em cima.",
+    a: "Sim, em qualquer site. Diferente de outras ferramentas, não exigimos plugin, migração ou mudança de plataforma. Conexão técnica em 2 minutos e o blog aparece direto no seu domínio. Seu site continua exatamente como tá — você só ganha um blog automático em cima.",
   },
   {
     q: "Quanto tempo até ver resultado em faturamento?",
@@ -238,11 +239,21 @@ export default function Home() {
       <main className="flex-1">
         {/* ===== HERO ===== */}
         <section className="relative overflow-hidden bg-ddg-paper min-h-[88vh] flex items-center">
-          {/* Background layers */}
+          {/* Background layers — ordem importa pra blend */}
           <FloatingOrbs variant="light" />
-          <div className="absolute inset-0 ddg-grid-light opacity-40 pointer-events-none" aria-hidden />
-          <GrainOverlay opacity={0.08} />
+          <div className="absolute inset-0 ddg-grid-light opacity-60 pointer-events-none" aria-hidden />
+          <HeroDecorations />
+          <GrainOverlay opacity={0.12} />
           <CursorTrail />
+          {/* Radial vignette pra concentrar foco no centro */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                "radial-gradient(ellipse at center, transparent 30%, rgba(255,255,255,0.4) 90%)",
+            }}
+            aria-hidden
+          />
 
           <div className="container relative z-10 mx-auto max-w-7xl px-4 lg:px-8 pt-16 md:pt-24 pb-20 md:pb-32">
             <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-center">
@@ -590,12 +601,12 @@ export default function Home() {
                   price="R$ 297"
                   priceLabel="Plano único mensal"
                   pros={[
-                    "Você sugere os temas — engine pesquisa keywords + concorrência + intenção",
-                    "SEO técnico completo: schema, sitemap, canonical, internal links, GEO",
+                    "Você sugere os temas — engine pesquisa fundo antes de escrever",
+                    "SEO técnico completo (o trabalho que agência cobra caro)",
                     "8 artigos longos + 16 perguntas-respostas/mês (vs 4 da agência)",
-                    "Tracking 24/7 no Google E em ChatGPT, Perplexity, Claude, Gemini",
+                    "Medimos sua marca no Google E nas 4 principais IAs",
                     "Aprovação WhatsApp em 5s ou modo Auto",
-                    "Garantia 90 dias: impressions não cresceram? Devolvemos 100%",
+                    "Garantia 90 dias: não cresceu? Devolvemos 100%",
                   ]}
                 />
               </div>
@@ -703,82 +714,95 @@ export default function Home() {
               </Reveal>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-              {/* Free Trial */}
+            <div className="grid md:grid-cols-3 gap-5 max-w-6xl mx-auto">
+              {/* STARTER */}
               <Reveal variant="left">
-                <div className="p-8 md:p-10 rounded-2xl border-2 border-ddg-ink bg-ddg-paper h-full flex flex-col">
-                  <div className="ddg-bracket mb-4">PRA TESTAR</div>
-                  <div className="text-4xl font-black mb-1">Grátis</div>
-                  <div className="text-ddg-muted text-sm mb-6">14 dias completos · sem cartão</div>
-                  <div className="text-sm text-ddg-muted mb-5 leading-relaxed">
-                    Pra você ver o output real antes de pagar. Roda igual ao Pro, com volume reduzido.
+                <div className="p-8 rounded-2xl border-2 border-ddg-ink bg-ddg-paper h-full flex flex-col">
+                  <div className="ddg-bracket mb-3">PRA COMEÇAR</div>
+                  <div className="text-2xl font-black mb-1">Starter</div>
+                  <div className="flex items-baseline gap-1 mb-1">
+                    <span className="text-lg font-bold text-ddg-muted">R$</span>
+                    <AnimatedCounter
+                      to={97}
+                      duration={1.4}
+                      className="text-4xl md:text-5xl font-black tabular-nums"
+                    />
+                    <span className="text-ddg-muted text-sm">/mês</span>
                   </div>
-                  <ul className="space-y-3 mb-8 flex-1">
+                  <div className="text-ddg-muted text-xs mb-5">PIX ou cartão · cancela quando quiser</div>
+                  <p className="text-sm text-ddg-muted mb-6 leading-relaxed">
+                    Pra ver funcionando antes de escalar. Mesmo motor, volume menor.
+                  </p>
+                  <ul className="space-y-2.5 mb-7 flex-1">
                     {[
-                      "Briefing completo + brand RAG configurado",
-                      "Até 4 posts gerados (você vê o nível)",
-                      "Diagnóstico de visibility em IA (50 prompts)",
-                      "1 site conectado via Cloudflare",
+                      "4 artigos longos + 8 perguntas-respostas/mês",
+                      "Você sugere os temas",
+                      "SEO técnico completo em cada post",
+                      "Tracking básico em 4 IAs (50 prompts/sem)",
+                      "Aprovação WhatsApp ou modo Auto",
+                      "1 site conectado",
                       "Suporte por email",
                     ].map((it) => (
-                      <li key={it} className="flex items-start gap-3 text-sm">
+                      <li key={it} className="flex items-start gap-2.5 text-sm">
                         <Check className="w-4 h-4 text-ddg-lime-deep mt-0.5 shrink-0" />
                         <span>{it}</span>
                       </li>
                     ))}
                   </ul>
                   <Link
-                    href="/signup"
-                    className="ddg-cta-ghost inline-flex items-center justify-center gap-2 rounded-md px-6 py-3.5 text-base w-full"
+                    href="/signup?plan=starter"
+                    className="ddg-cta-ghost inline-flex items-center justify-center gap-2 rounded-md px-5 py-3 text-sm w-full"
                   >
-                    Começar trial grátis
+                    Começar com Starter
                     <ArrowRight className="w-4 h-4" />
                   </Link>
+                  <p className="text-center text-[10px] font-mono uppercase tracking-widest text-ddg-muted/60 mt-3">
+                    14 dias grátis · sem cartão
+                  </p>
                 </div>
               </Reveal>
 
-              {/* Pro */}
-              <Reveal variant="right" delay={0.15}>
-                <div className="relative p-8 md:p-10 rounded-2xl border-2 border-ddg-ink bg-ddg-ink text-ddg-paper h-full flex flex-col shadow-[10px_10px_0_var(--ddg-lime)]">
-                  <div className="absolute -top-3 right-6 ddg-pill-lime text-xs">
-                    MAIS ESCOLHIDO
+              {/* PRO (destaque) */}
+              <Reveal variant="up" delay={0.1}>
+                <div className="relative p-8 rounded-2xl border-2 border-ddg-ink bg-ddg-ink text-ddg-paper h-full flex flex-col shadow-[10px_10px_0_var(--ddg-lime)]">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 ddg-pill-lime text-xs whitespace-nowrap">
+                    MAIS ESCOLHIDO · 2X MAIS VOLUME
                   </div>
-                  <div className="ddg-bracket text-ddg-lime mb-4">PRA RODAR</div>
+                  <div className="ddg-bracket text-ddg-lime mb-3">SWEET SPOT</div>
+                  <div className="text-2xl font-black mb-1 text-ddg-paper">Pro</div>
                   <div className="flex items-baseline gap-1 mb-1">
-                    <span className="text-2xl font-bold text-ddg-paper/60">R$</span>
+                    <span className="text-lg font-bold text-ddg-paper/60">R$</span>
                     <AnimatedCounter
                       to={297}
                       duration={1.4}
-                      className="text-5xl md:text-6xl font-black tabular-nums text-ddg-paper"
+                      className="text-4xl md:text-5xl font-black tabular-nums text-ddg-paper"
                     />
                     <span className="text-ddg-paper/60 text-sm">/mês</span>
                   </div>
-                  <div className="text-ddg-paper/60 text-sm mb-5">PIX ou cartão · cancela quando quiser</div>
+                  <div className="text-ddg-paper/60 text-xs mb-5">PIX ou cartão · cancela quando quiser</div>
 
                   {/* Âncora de comparação */}
-                  <div className="rounded-lg border border-ddg-lime/30 bg-ddg-lime/5 p-3 mb-6">
+                  <div className="rounded-lg border border-ddg-lime/30 bg-ddg-lime/5 p-3 mb-5">
                     <div className="text-[10px] font-mono text-ddg-lime uppercase tracking-widest mb-1.5">Comparado a</div>
                     <div className="space-y-1 text-xs text-ddg-paper/70">
-                      <div className="flex justify-between"><span>Agência média (4 posts/mês)</span><span className="line-through opacity-60">R$ 3.500</span></div>
-                      <div className="flex justify-between"><span>Redator freelancer (4 posts)</span><span className="line-through opacity-60">R$ 1.600</span></div>
-                      <div className="flex justify-between text-ddg-lime font-bold"><span>DDG Engine (8 posts + tracking)</span><span>R$ 297</span></div>
+                      <div className="flex justify-between"><span>Agência (4 posts/mês)</span><span className="line-through opacity-60">R$ 3.500</span></div>
+                      <div className="flex justify-between"><span>Redator freelancer</span><span className="line-through opacity-60">R$ 1.600</span></div>
+                      <div className="flex justify-between text-ddg-lime font-bold"><span>Pro (8 posts + tracking)</span><span>R$ 297</span></div>
                     </div>
                   </div>
 
-                  <ul className="space-y-3 mb-8 flex-1">
+                  <ul className="space-y-2.5 mb-7 flex-1">
                     {[
-                      "Você sugere os temas — engine pesquisa keywords + concorrência",
-                      "SEO técnico completo: schema, sitemap, canonical, internal links, GEO",
                       "8 artigos longos + 16 perguntas-respostas/mês",
-                      "Multi-pass writer: 7 passos editoriais por post",
-                      "Tracking 24/7 no Google + ChatGPT, Perplexity, Claude e Gemini",
-                      "200 perguntas testadas em IAs por semana (relatório toda 6ª)",
+                      "Você sugere os temas com prioridade",
+                      "SEO técnico completo (trabalho de agência)",
+                      "Tracking 24/7 em 4 IAs (200 prompts/sem)",
+                      "Brand RAG avançado (IA aprende sua voz)",
                       "Aprovação WhatsApp em 5s ou modo Auto",
-                      "Brand RAG: IA aprende sua voz, casos, diferenciais",
-                      "Reverse proxy Cloudflare incluído (sem plugin)",
+                      "Relatório semanal de visibility",
                       "Suporte WhatsApp humano (não bot)",
                     ].map((it) => (
-                      <li key={it} className="flex items-start gap-3 text-sm text-ddg-paper/90">
+                      <li key={it} className="flex items-start gap-2.5 text-sm text-ddg-paper/90">
                         <Check className="w-4 h-4 text-ddg-lime mt-0.5 shrink-0" />
                         <span>{it}</span>
                       </li>
@@ -786,15 +810,62 @@ export default function Home() {
                   </ul>
                   <Magnet strength={0.18} className="w-full">
                     <Link
-                      href="/signup"
-                      className="ddg-cta-lime inline-flex items-center justify-center gap-2 rounded-md px-6 py-3.5 text-base w-full"
+                      href="/signup?plan=pro"
+                      className="ddg-cta-lime inline-flex items-center justify-center gap-2 rounded-md px-5 py-3 text-sm w-full"
                     >
                       Começar grátis 14 dias
                       <ArrowRight className="w-4 h-4" />
                     </Link>
                   </Magnet>
-                  <p className="text-center text-xs text-ddg-paper/40 mt-3">
-                    Depois do trial: R$ 297/mês. Cancela em 1 clique.
+                  <p className="text-center text-[10px] font-mono uppercase tracking-widest text-ddg-paper/40 mt-3">
+                    Depois do trial · cancela em 1 clique
+                  </p>
+                </div>
+              </Reveal>
+
+              {/* MULTI */}
+              <Reveal variant="right" delay={0.2}>
+                <div className="p-8 rounded-2xl border-2 border-ddg-ink bg-ddg-paper h-full flex flex-col">
+                  <div className="ddg-bracket mb-3">REDES E FRANQUIAS</div>
+                  <div className="text-2xl font-black mb-1">Multi</div>
+                  <div className="flex items-baseline gap-1 mb-1">
+                    <span className="text-lg font-bold text-ddg-muted">R$</span>
+                    <AnimatedCounter
+                      to={897}
+                      duration={1.4}
+                      className="text-4xl md:text-5xl font-black tabular-nums"
+                    />
+                    <span className="text-ddg-muted text-sm">/mês</span>
+                  </div>
+                  <div className="text-ddg-muted text-xs mb-5">A partir de · escalável por site</div>
+                  <p className="text-sm text-ddg-muted mb-6 leading-relaxed">
+                    Pra agência, rede de franquias, multi-marca. 3 sites com a engine completa rodando.
+                  </p>
+                  <ul className="space-y-2.5 mb-7 flex-1">
+                    {[
+                      "Tudo do Pro × 3 sites simultâneos",
+                      "Brand RAG independente por marca",
+                      "Tracking visibility separado por site",
+                      "Prioridade na fila de publicação",
+                      "Account manager dedicado",
+                      "Suporte WhatsApp prioritário",
+                      "White-label opcional",
+                    ].map((it) => (
+                      <li key={it} className="flex items-start gap-2.5 text-sm">
+                        <Check className="w-4 h-4 text-ddg-lime-deep mt-0.5 shrink-0" />
+                        <span>{it}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    href="/contato"
+                    className="ddg-cta-ghost inline-flex items-center justify-center gap-2 rounded-md px-5 py-3 text-sm w-full"
+                  >
+                    Falar com vendas
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                  <p className="text-center text-[10px] font-mono uppercase tracking-widest text-ddg-muted/60 mt-3">
+                    Volume sob medida · proposta em 24h
                   </p>
                 </div>
               </Reveal>
@@ -803,13 +874,10 @@ export default function Home() {
             <Reveal delay={0.3}>
               <div className="text-center mt-10 space-y-2">
                 <p className="text-sm text-ddg-muted">
-                  Múltiplos sites, time grande ou rede de franquias?{" "}
-                  <Link href="/contato" className="font-medium text-ddg-ink underline underline-offset-4 hover:text-ddg-lime-deep">
-                    Plano Multi sob medida →
-                  </Link>
+                  Todos os planos: <strong className="text-ddg-ink">14 dias grátis</strong> · sem cartão · cancela em 1 clique
                 </p>
                 <p className="text-xs text-ddg-muted/70">
-                  Garantia: se em 90 dias suas impressions no Google não cresceram, devolvemos 100%.
+                  Garantia 90 dias: impressions no Google não cresceram? Devolvemos 100%.
                 </p>
               </div>
             </Reveal>
@@ -862,13 +930,13 @@ export default function Home() {
             </Reveal>
             <Reveal delay={0.1}>
               <h2 className="ddg-display text-5xl md:text-7xl lg:text-8xl text-balance">
-                7 minutos pra configurar.{" "}
-                <span className="block text-ddg-paper/50 mt-2">12 meses pra colher.</span>
+                Configura hoje.{" "}
+                <span className="block text-ddg-paper/50 mt-2">Aparece em IA esse mês.</span>
               </h2>
             </Reveal>
             <Reveal delay={0.25}>
               <p className="text-lg md:text-xl text-ddg-paper/60 max-w-2xl mx-auto mt-7">
-                Cada semana sem publicar é cliente seu virando cliente da concorrência. Comece hoje grátis — sem cartão, sem plugin, sem dor de cabeça.
+                Em 7 minutos sua engine tá rodando. Primeiras citações em IA aparecem em <strong className="text-ddg-paper">30 a 60 dias</strong>. Google segue compondo todo mês. 14 dias grátis pra testar antes de pagar — sem cartão, sem plugin.
               </p>
             </Reveal>
             <Reveal delay={0.4}>
@@ -898,7 +966,7 @@ export default function Home() {
             <div className="md:col-span-2">
               <BrandMark size="lg" />
               <p className="text-sm text-ddg-muted leading-relaxed mt-4 max-w-sm">
-                A engine BR de blog automático + visibility em IA generativa. Pra quem quer ser a resposta — não só ranquear no Google.
+                Posicionamento orgânico no Google + IA generativa, sem agência cara. Você decide os temas, a gente entrega o trabalho técnico.
               </p>
             </div>
             <div>

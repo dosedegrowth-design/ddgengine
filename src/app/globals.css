@@ -30,6 +30,17 @@
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
+
+  /* DDG Brand — Engine BR Disruptivo */
+  --ddg-lime: #c8ff3d;
+  --ddg-lime-bright: #d4ff5e;
+  --ddg-lime-deep: #a8e620;
+  --ddg-ink: #0a0a0a;
+  --ddg-paper: #ffffff;
+  --ddg-cream: #f5f4ef;
+  --ddg-graphite: #1a1a1a;
+  --ddg-stone: #e8e6df;
+  --ddg-muted: #6b6b6b;
 }
 
 .dark {
@@ -87,6 +98,16 @@
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
 
+  --color-ddg-lime: var(--ddg-lime);
+  --color-ddg-lime-bright: var(--ddg-lime-bright);
+  --color-ddg-lime-deep: var(--ddg-lime-deep);
+  --color-ddg-ink: var(--ddg-ink);
+  --color-ddg-paper: var(--ddg-paper);
+  --color-ddg-cream: var(--ddg-cream);
+  --color-ddg-graphite: var(--ddg-graphite);
+  --color-ddg-stone: var(--ddg-stone);
+  --color-ddg-muted: var(--ddg-muted);
+
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
 
@@ -116,4 +137,116 @@
 /* Utilities */
 .text-balance {
   text-wrap: balance;
+}
+
+/* === DDG Engine landing — Brutalist BR === */
+
+/* Bracket label (mono metadata) */
+.ddg-bracket {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ddg-muted);
+}
+.ddg-bracket::before {
+  content: "[ ";
+  color: var(--ddg-lime-deep);
+}
+.ddg-bracket::after {
+  content: " ]";
+  color: var(--ddg-lime-deep);
+}
+
+/* Headline display (Brutalist) */
+.ddg-display {
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+  text-wrap: balance;
+}
+
+/* Stat XL (RANTY serif glow) */
+.ddg-stat {
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-feature-settings: "tnum" 1, "ss01" 1;
+}
+
+/* Lime accent inline pill (used inside headlines) */
+.ddg-pill-lime {
+  display: inline-flex;
+  align-items: center;
+  background: var(--ddg-lime);
+  color: var(--ddg-ink);
+  padding: 0 0.5em;
+  border-radius: 0.25em;
+  font-weight: 800;
+  transform: rotate(-1.5deg);
+  box-shadow: 0 4px 0 var(--ddg-lime-deep);
+}
+
+/* Subtle dot grid background (dark sections) */
+.ddg-grid-dark {
+  background-image: radial-gradient(circle, rgba(200, 255, 61, 0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Subtle dot grid background (light) */
+.ddg-grid-light {
+  background-image: radial-gradient(circle, rgba(10, 10, 10, 0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Lime CTA button base */
+.ddg-cta-lime {
+  background: var(--ddg-lime);
+  color: var(--ddg-ink);
+  font-weight: 700;
+  border: 2px solid var(--ddg-ink);
+  box-shadow: 4px 4px 0 var(--ddg-ink);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.ddg-cta-lime:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--ddg-ink);
+}
+.ddg-cta-lime:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--ddg-ink);
+}
+
+/* Ghost CTA brutal */
+.ddg-cta-ghost {
+  background: transparent;
+  color: var(--ddg-ink);
+  font-weight: 700;
+  border: 2px solid var(--ddg-ink);
+  transition: background 120ms ease;
+}
+.ddg-cta-ghost:hover {
+  background: var(--ddg-ink);
+  color: var(--ddg-paper);
+}
+
+/* Pulse animation pra dot LLM status */
+@keyframes ddg-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.ddg-pulse {
+  animation: ddg-pulse 1.8s ease-in-out infinite;
+}
+
+/* Wordmark XXL (footer) */
+.ddg-wordmark {
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.85;
+}
+
+/* Number counter (used in stats) */
+.ddg-counter {
+  font-variant-numeric: tabular-nums;
 }

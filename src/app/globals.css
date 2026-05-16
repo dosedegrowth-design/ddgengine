@@ -239,6 +239,91 @@
   animation: ddg-pulse 1.8s ease-in-out infinite;
 }
 
+/* Radar ping ring — expanding circle pra "ao vivo" effect */
+@keyframes ddg-ping-ring {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  80%, 100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+.ddg-ping-ring {
+  animation: ddg-ping-ring 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Breathing glow lime — usado em badges com +12.4% */
+@keyframes ddg-breath {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(200, 255, 61, 0);
+  }
+  50% {
+    box-shadow: 0 0 16px 4px rgba(200, 255, 61, 0.35);
+  }
+}
+.ddg-breath {
+  animation: ddg-breath 2.6s ease-in-out infinite;
+}
+
+/* Subtle float — usado em cards/avatares pra parecer "respirando" */
+@keyframes ddg-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.ddg-float {
+  animation: ddg-float 4s ease-in-out infinite;
+}
+
+/* Shimmer band — gradiente que viaja por uma linha (chart line) */
+@keyframes ddg-shimmer-x {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+.ddg-shimmer-x {
+  animation: ddg-shimmer-x 3s ease-in-out infinite;
+}
+
+/* Subtle scanline — usado em background dark sections pra "monitor vivo" */
+@keyframes ddg-scanline {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 28px; }
+}
+.ddg-scanline {
+  animation: ddg-scanline 8s linear infinite;
+}
+
+/* Text shimmer — usado em headlines stat pra refletir luz */
+@keyframes ddg-text-shimmer {
+  0%, 100% { background-position: 200% center; }
+  50% { background-position: -200% center; }
+}
+.ddg-text-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    currentColor 0%,
+    currentColor 40%,
+    rgba(200, 255, 61, 0.8) 50%,
+    currentColor 60%,
+    currentColor 100%
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: ddg-text-shimmer 5s linear infinite;
+}
+
+/* Spin slow — usado em decorações */
+@keyframes ddg-spin-slow {
+  to { transform: rotate(360deg); }
+}
+.ddg-spin-slow {
+  animation: ddg-spin-slow 24s linear infinite;
+}
+
 /* Wordmark XXL (footer) */
 .ddg-wordmark {
   font-weight: 900;

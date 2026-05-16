@@ -255,7 +255,7 @@ export default function Home() {
           />
 
           <div className="container relative z-10 mx-auto max-w-7xl px-4 lg:px-8 py-8 md:py-12 lg:py-14">
-            <div className="grid lg:grid-cols-12 gap-6 lg:gap-10 items-center">
+            <div className="grid lg:grid-cols-12 gap-6 lg:gap-10 items-center lg:items-start">
               {/* Esquerda — copy */}
               <div className="lg:col-span-7 space-y-4 md:space-y-5">
                 <Reveal variant="up" delay={0}>
@@ -346,7 +346,7 @@ export default function Home() {
               </div>
 
               {/* Direita — mockup dashboard */}
-              <Reveal variant="right" delay={0.3} duration={0.8} className="lg:col-span-5 lg:pl-4">
+              <Reveal variant="right" delay={0.3} duration={0.8} className="lg:col-span-5 lg:pl-4 lg:pt-10">
                 <div className="max-w-sm md:max-w-md mx-auto lg:mx-0 lg:max-w-none">
                   <MockupDashboard />
                 </div>

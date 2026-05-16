@@ -72,19 +72,19 @@ export function StickyStackCard({
           transformOrigin: "top center",
         }}
         className={cn(
-          "relative rounded-3xl border-2 p-8 md:p-12 overflow-hidden",
+          "relative rounded-2xl md:rounded-3xl border-2 p-5 sm:p-6 md:p-12 overflow-hidden",
           variant === "old"
             ? "border-ddg-ink bg-ddg-paper text-ddg-ink"
-            : "border-ddg-lime bg-ddg-ink text-ddg-paper shadow-[12px_12px_0_var(--ddg-lime)]"
+            : "border-ddg-lime bg-ddg-ink text-ddg-paper shadow-[6px_6px_0_var(--ddg-lime)] md:shadow-[12px_12px_0_var(--ddg-lime)]"
         )}
       >
-        <div className="grid md:grid-cols-12 gap-6 md:gap-10">
+        <div className="grid md:grid-cols-12 gap-5 md:gap-10">
           {/* Esquerda — badge + título + descrição */}
-          <div className="md:col-span-7 space-y-5">
-            <div className="flex items-center gap-3">
+          <div className="md:col-span-7 space-y-4 md:space-y-5">
+            <div className="flex flex-wrap items-center gap-2">
               <div
                 className={cn(
-                  "ddg-bracket",
+                  "ddg-bracket whitespace-nowrap",
                   variant === "new" && "text-ddg-lime"
                 )}
               >
@@ -92,7 +92,7 @@ export function StickyStackCard({
               </div>
               <div
                 className={cn(
-                  "text-[10px] font-mono px-2 py-0.5 rounded-full uppercase tracking-widest",
+                  "text-[10px] font-mono px-2 py-0.5 rounded-full uppercase tracking-widest whitespace-nowrap",
                   variant === "old"
                     ? "bg-ddg-stone text-ddg-muted"
                     : "bg-ddg-lime text-ddg-ink font-bold"
@@ -104,7 +104,7 @@ export function StickyStackCard({
 
             <h3
               className={cn(
-                "ddg-display text-3xl md:text-5xl",
+                "ddg-display text-2xl sm:text-3xl md:text-5xl",
                 variant === "new" && "text-ddg-paper"
               )}
             >
@@ -150,7 +150,7 @@ export function StickyStackCard({
             </div>
             <div
               className={cn(
-                "ddg-stat text-5xl md:text-7xl font-black",
+                "ddg-stat text-4xl sm:text-5xl md:text-7xl font-black break-words",
                 variant === "old"
                   ? "text-ddg-ink line-through decoration-2 decoration-red-500/50"
                   : "text-ddg-lime"

@@ -250,7 +250,7 @@ export default function Home() {
             className="absolute inset-0 pointer-events-none"
             style={{
               background:
-                "radial-gradient(ellipse at center, transparent 30%, rgba(255,255,255,0.4) 90%)",
+                "radial-gradient(ellipse at center, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.55) 65%, rgba(255,255,255,0.75) 100%)",
             }}
             aria-hidden
           />
@@ -268,7 +268,7 @@ export default function Home() {
                   </div>
                 </Reveal>
 
-                <h1 className="ddg-display text-5xl md:text-7xl lg:text-[5.5rem] leading-[0.95]">
+                <h1 className="ddg-display text-4xl sm:text-5xl md:text-7xl lg:text-[5.5rem] leading-[0.95]">
                   <WordReveal
                     text="Você sugere o tema."
                     delay={0.15}
@@ -284,15 +284,15 @@ export default function Home() {
                   </span>
                   <br />
                   <WordReveal
-                    text="Google e IA fazem"
+                    text="Google e IA fazem o"
                     delay={1.0}
                     stagger={0.05}
                   />{" "}
-                  <span className="relative inline-block">
-                    <WordReveal text="o resto" delay={1.35} stagger={0.05} highlight={["o", "resto"]} />
+                  <span className="relative inline-block whitespace-nowrap">
+                    <WordReveal text="resto" delay={1.35} stagger={0.05} highlight={["resto"]} />
                     <AsteriskMark className="text-ddg-lime-deep" />
+                    <span className="text-ddg-muted">.</span>
                   </span>
-                  <span className="text-ddg-muted">.</span>
                 </h1>
 
                 <Reveal variant="up" delay={1.6}>

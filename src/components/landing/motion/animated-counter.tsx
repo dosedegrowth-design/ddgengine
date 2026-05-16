@@ -25,11 +25,20 @@ export function AnimatedCounter({
   className?: string;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
+  const inView = useInView(ref, { once: true, margin: "0px" });
+  // Fallback: depois de 100ms, força o valor final caso o IntersectionObserver
+  // ainda não tenha disparado (acontece em screenshots, navegadores antigos,
+  // ou quando o elemento renderiza fora do viewport em mobile).
+  const [forceShow, setForceShow] = useState(false);
   const [value, setValue] = useState(from);
 
   useEffect(() => {
-    if (!inView) return;
+    const t = setTimeout(() => setForceShow(true), 1500);
+    return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    if (!inView && !forceShow) return;
     const prefersReduced =
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -43,7 +52,7 @@ export function AnimatedCounter({
       onUpdate: (v) => setValue(v),
     });
     return () => controls.stop();
-  }, [inView, from, to, duration]);
+  }, [inView, forceShow, from, to, duration]);
 
   const formatted = value.toFixed(decimals);
 

@@ -3,6 +3,7 @@ import Link from "next/link";
 const ITEMS = [
   { href: "/settings/profile", label: "Perfil" },
   { href: "/settings/site", label: "Site & Domínio" },
+  { href: "/settings/notifications", label: "Notificações" },
   { href: "/settings/integrations", label: "Integrações" },
   { href: "/settings/billing", label: "Plano e cobrança" },
   { href: "/settings/referrals", label: "Indique e ganhe" },

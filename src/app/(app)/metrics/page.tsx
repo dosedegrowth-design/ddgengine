@@ -1,15 +1,16 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { BarChart3, LineChart, TrendingUp } from "lucide-react";
+import { BarChart3, LineChart as LineIcon, TrendingUp } from "lucide-react";
 import { getCurrentSite } from "@/lib/auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { LineChart } from "@/components/charts/line-chart";
+import { ForecastWidget } from "@/components/dashboard/forecast-widget";
 
 export default async function MetricsPage() {
   const { site, supabase } = await getCurrentSite();
   if (!site) redirect("/onboarding");
 
-  // Últimos 30 dias de métricas
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -20,7 +21,9 @@ export default async function MetricsPage() {
     .gte("date", thirtyDaysAgo.toISOString().slice(0, 10))
     .order("date", { ascending: true });
 
-  const totals = (metrics ?? []).reduce(
+  const list = (metrics ?? []) as any[];
+
+  const totals = list.reduce(
     (acc: any, m: any) => ({
       pageviews: acc.pageviews + (m.pageviews ?? 0),
       sessions: acc.sessions + (m.sessions ?? 0),
@@ -30,7 +33,9 @@ export default async function MetricsPage() {
     { pageviews: 0, sessions: 0, impressions: 0, clicks: 0 }
   );
 
-  const noData = (metrics ?? []).length === 0;
+  const noData = list.length === 0;
+  const trafficSeries = list.map((m: any) => ({ date: m.date, value: m.pageviews ?? 0 }));
+  const impressionsSeries = list.map((m: any) => ({ date: m.date, value: m.gsc_impressions ?? 0 }));
 
   return (
     <div className="container mx-auto max-w-6xl px-6 py-10 space-y-8">
@@ -59,19 +64,35 @@ export default async function MetricsPage() {
       {!noData && (
         <>
           <div className="grid md:grid-cols-4 gap-4">
-            <Kpi label="Visitas (30d)" value={totals.pageviews.toLocaleString("pt-BR")} icon={LineChart} />
+            <Kpi label="Visitas (30d)" value={totals.pageviews.toLocaleString("pt-BR")} icon={LineIcon} />
             <Kpi label="Sessões (30d)" value={totals.sessions.toLocaleString("pt-BR")} icon={TrendingUp} />
             <Kpi label="Impressões GSC" value={totals.impressions.toLocaleString("pt-BR")} icon={BarChart3} />
-            <Kpi label="Cliques GSC" value={totals.clicks.toLocaleString("pt-BR")} icon={LineChart} />
+            <Kpi label="Cliques GSC" value={totals.clicks.toLocaleString("pt-BR")} icon={LineIcon} />
           </div>
+
+          <ForecastWidget history={trafficSeries} />
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Tráfego diário</CardTitle>
+              <CardTitle className="text-base">Tráfego diário</CardTitle>
               <CardDescription>Últimos 30 dias</CardDescription>
             </CardHeader>
             <CardContent>
-              <MiniChart data={(metrics ?? []).map((m: any) => ({ date: m.date, value: m.pageviews ?? 0 }))} />
+              <div className="text-foreground">
+                <LineChart data={trafficSeries.map((d) => ({ ...d }))} height={240} label="Visitas" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Impressões no Google</CardTitle>
+              <CardDescription>Search Console</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-foreground">
+                <LineChart data={impressionsSeries.map((d) => ({ ...d }))} height={200} label="Impressões" />
+              </div>
             </CardContent>
           </Card>
         </>
@@ -101,25 +122,5 @@ function Kpi({
         <div className="text-3xl font-semibold tabular-nums">{value}</div>
       </CardContent>
     </Card>
-  );
-}
-
-function MiniChart({ data }: { data: { date: string; value: number }[] }) {
-  if (data.length === 0) return null;
-  const max = Math.max(...data.map((d) => d.value), 1);
-  return (
-    <div className="flex items-end gap-1 h-32">
-      {data.map((d) => {
-        const h = (d.value / max) * 100;
-        return (
-          <div
-            key={d.date}
-            className="flex-1 bg-foreground/80 hover:bg-foreground transition-colors rounded-sm"
-            style={{ height: `${Math.max(h, 2)}%` }}
-            title={`${d.date}: ${d.value}`}
-          />
-        );
-      })}
-    </div>
   );
 }

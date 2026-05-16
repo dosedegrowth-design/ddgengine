@@ -12,6 +12,7 @@ import { generateWithClaude, parseJsonResponse } from "./claude";
 import { retrieveBrandContext } from "@/lib/rag/brand";
 import { createServiceClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/utils";
+import { dispatchPostPendingReview, dispatchPostPublished } from "@/lib/notifications/dispatcher";
 
 export interface GenerateInput {
   siteId: string;
@@ -269,6 +270,14 @@ Lembre: responda APENAS com o JSON especificado.`;
       .eq("id", post.id);
 
     if (updErr) throw new Error(`Erro ao salvar post: ${updErr.message}`);
+
+    // Dispara notificações (fire-and-forget)
+    const orgId = site.organization_id as string;
+    if (finalStatus === "in_review") {
+      void dispatchPostPendingReview({ orgId, siteId: input.siteId, postId: post.id });
+    } else if (finalStatus === "published") {
+      void dispatchPostPublished({ orgId, siteId: input.siteId, postId: post.id });
+    }
 
     return {
       postId: post.id,

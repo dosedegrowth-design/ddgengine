@@ -17,6 +17,7 @@ import { retrieveBrandContext } from "@/lib/rag/brand";
 import { createServiceClient } from "@/lib/supabase/server";
 import { runAllGates, type QualityGateInput } from "./quality-gates";
 import { slugify } from "@/lib/utils";
+import { dispatchPostPendingReview, dispatchPostPublished } from "@/lib/notifications/dispatcher";
 
 export interface MultiPassInput {
   siteId: string;
@@ -456,6 +457,14 @@ ${briefing.required_disclaimers ? `Disclaimer obrigatório: ${briefing.required_
         generation_passes: passLogs,
       })
       .eq("id", post.id);
+
+    // Dispara notificações (fire-and-forget)
+    const orgId = site.organization_id as string;
+    if (finalStatus === "in_review") {
+      void dispatchPostPendingReview({ orgId, siteId: input.siteId, postId: post.id });
+    } else if (finalStatus === "published") {
+      void dispatchPostPublished({ orgId, siteId: input.siteId, postId: post.id });
+    }
 
     const wordCount = workingDoc.content_markdown.split(/\s+/).filter(Boolean).length;
 

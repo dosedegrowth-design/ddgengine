@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, ExternalLink, Eye } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import { getCurrentSite } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { renderMarkdown } from "@/lib/markdown";
 import { formatDate } from "@/lib/utils";
+import { PostEditor } from "./post-editor";
 
 export default async function PostDetailPage({
   params,
@@ -27,10 +27,14 @@ export default async function PostDetailPage({
 
   if (!post) notFound();
 
-  const html = post.content_markdown ? renderMarkdown(post.content_markdown) : "";
+  // Pega gates do post
+  const { data: gates } = await supabase
+    .from("quality_gate_runs")
+    .select("gate_name, passed, score, threshold, details")
+    .eq("post_id", id);
 
   return (
-    <div className="container mx-auto max-w-4xl px-6 py-10 space-y-8">
+    <div className="container mx-auto max-w-4xl px-6 py-10 space-y-6">
       <header className="flex items-start justify-between gap-4">
         <div>
           <Button asChild variant="ghost" size="sm" className="-ml-3 mb-2">
@@ -45,7 +49,17 @@ export default async function PostDetailPage({
             <Badge variant="outline">
               {post.type === "long_form" ? "Artigo longo" : "FAQ"}
             </Badge>
-            <Badge variant={post.status === "published" ? "success" : "secondary"}>
+            <Badge
+              variant={
+                post.status === "published"
+                  ? "success"
+                  : post.status === "in_review"
+                  ? "warning"
+                  : post.status === "failed"
+                  ? "destructive"
+                  : "secondary"
+              }
+            >
               {post.status}
             </Badge>
             {post.published_at && (
@@ -64,9 +78,10 @@ export default async function PostDetailPage({
         )}
       </header>
 
+      {/* Meta */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Meta</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Meta</CardTitle>
           <CardDescription>{post.meta_description ?? "—"}</CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
@@ -89,20 +104,45 @@ export default async function PostDetailPage({
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Eye className="w-4 h-4" />
-            Preview do conteúdo
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <article
-            className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-semibold prose-headings:tracking-tight"
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
-        </CardContent>
-      </Card>
+      {/* Quality gates */}
+      {gates && gates.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Quality gates</CardTitle>
+            <CardDescription>
+              {gates.filter((g) => g.passed).length} de {gates.length} passes
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+            {gates.map((g: any) => (
+              <div
+                key={g.gate_name}
+                className={
+                  g.passed
+                    ? "border-l-2 border-emerald-500 pl-3 py-1"
+                    : "border-l-2 border-amber-500 pl-3 py-1"
+                }
+              >
+                <div className="text-xs text-muted-foreground capitalize">
+                  {g.gate_name.replace(/_/g, " ")}
+                </div>
+                <div className="font-medium tabular-nums">
+                  {typeof g.score === "number" ? g.score.toFixed(g.score > 1 ? 0 : 2) : "—"}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Editor inline + approve/reject */}
+      <PostEditor
+        postId={id}
+        initialContent={post.content_markdown ?? ""}
+        initialTitle={post.title ?? ""}
+        initialMeta={post.meta_description ?? ""}
+        status={post.status as string}
+      />
     </div>
   );
 }

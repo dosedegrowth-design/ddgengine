@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { generatePost } from "@/lib/ai/generate";
 import { generatePostMultiPass } from "@/lib/ai/multi-pass";
 import { getCurrentSite } from "@/lib/auth";
+import { dispatchPostPublished } from "@/lib/notifications/dispatcher";
 
 export async function generatePostAction(input: {
   type: "long_form" | "faq_page";
@@ -47,7 +48,7 @@ export async function generatePostAction(input: {
 }
 
 export async function approvePostAction(postId: string) {
-  const { site, supabase } = await getCurrentSite();
+  const { site, supabase, org } = await getCurrentSite();
   if (!site) return { error: "Site não configurado" };
 
   const { error } = await supabase
@@ -55,13 +56,18 @@ export async function approvePostAction(postId: string) {
     .update({
       status: "published",
       published_at: new Date().toISOString(),
+      approval_method: "manual_dashboard",
     })
     .eq("id", postId)
     .eq("site_id", site.id);
 
   if (error) return { error: error.message };
 
+  // Fire-and-forget notification
+  void dispatchPostPublished({ orgId: org.id, siteId: site.id, postId });
+
   revalidatePath("/posts");
+  revalidatePath("/inbox");
   revalidatePath(`/posts/${postId}`);
   return { success: true };
 }
@@ -72,7 +78,33 @@ export async function rejectPostAction(postId: string) {
 
   const { error } = await supabase
     .from("posts")
-    .update({ status: "archived" })
+    .update({ status: "archived", approval_method: "manual_dashboard" })
+    .eq("id", postId)
+    .eq("site_id", site.id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/posts");
+  revalidatePath("/inbox");
+  revalidatePath(`/posts/${postId}`);
+  return { success: true };
+}
+
+export async function savePostEdits(
+  postId: string,
+  edits: { title?: string; meta_description?: string; content_markdown?: string }
+) {
+  const { site, supabase } = await getCurrentSite();
+  if (!site) return { error: "Site não configurado" };
+
+  const update: Record<string, unknown> = {};
+  if (edits.title !== undefined) update.title = edits.title;
+  if (edits.meta_description !== undefined) update.meta_description = edits.meta_description;
+  if (edits.content_markdown !== undefined) update.content_markdown = edits.content_markdown;
+
+  const { error } = await supabase
+    .from("posts")
+    .update(update)
     .eq("id", postId)
     .eq("site_id", site.id);
 

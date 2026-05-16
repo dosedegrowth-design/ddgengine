@@ -254,10 +254,10 @@ export default function Home() {
             aria-hidden
           />
 
-          <div className="container relative z-10 mx-auto max-w-7xl px-4 lg:px-8 py-10 md:py-14 lg:py-16">
-            <div className="grid lg:grid-cols-12 gap-6 lg:gap-12 items-center">
+          <div className="container relative z-10 mx-auto max-w-7xl px-4 lg:px-8 py-8 md:py-12 lg:py-14">
+            <div className="grid lg:grid-cols-12 gap-6 lg:gap-10 items-center">
               {/* Esquerda — copy */}
-              <div className="lg:col-span-7 space-y-5 md:space-y-6">
+              <div className="lg:col-span-7 space-y-4 md:space-y-5">
                 <Reveal variant="up" delay={0}>
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-ddg-ink text-ddg-paper">
                     <span className="h-2 w-2 rounded-full bg-ddg-lime ddg-pulse" />
@@ -267,27 +267,28 @@ export default function Home() {
                   </div>
                 </Reveal>
 
-                <h1 className="ddg-display text-4xl sm:text-5xl md:text-6xl lg:text-[4.25rem] xl:text-[5rem] leading-[0.95]">
-                  <WordReveal
-                    text="Você sugere o tema."
-                    delay={0.15}
-                    stagger={0.05}
-                  />
-                  <br />
-                  <span className="text-ddg-muted">
+                <h1 className="ddg-display text-3xl sm:text-4xl md:text-5xl lg:text-[3rem] xl:text-[3.75rem] 2xl:text-[4.25rem] leading-[0.95]">
+                  <span className="block">
+                    <WordReveal
+                      text="Você sugere o tema."
+                      delay={0.15}
+                      stagger={0.05}
+                    />
+                  </span>
+                  <span className="block text-ddg-muted">
                     <WordReveal
                       text="A engine faz o SEO."
                       delay={0.55}
                       stagger={0.05}
                     />
                   </span>
-                  <br />
-                  <span className="inline-flex flex-wrap items-baseline gap-x-3">
+                  <span className="block">
                     <WordReveal
                       text="Google e IA fazem"
                       delay={1.0}
                       stagger={0.05}
                     />
+                    {" "}
                     <span className="relative inline-block whitespace-nowrap">
                       <WordReveal text="o resto" delay={1.35} stagger={0.05} highlight={["resto"]} />
                       <AsteriskMark className="text-ddg-lime-deep" />
@@ -346,7 +347,7 @@ export default function Home() {
 
               {/* Direita — mockup dashboard */}
               <Reveal variant="right" delay={0.3} duration={0.8} className="lg:col-span-5 lg:pl-4">
-                <div className="max-w-md mx-auto lg:mx-0 lg:max-w-none">
+                <div className="max-w-sm md:max-w-md mx-auto lg:mx-0 lg:max-w-none">
                   <MockupDashboard />
                 </div>
               </Reveal>

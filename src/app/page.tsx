@@ -330,8 +330,6 @@ export default function Home() {
                   <div className="flex flex-wrap items-center gap-4 pt-2 text-xs font-mono text-ddg-muted uppercase tracking-widest">
                     <span>14 dias grátis</span>
                     <span className="text-ddg-lime-deep">●</span>
-                    <span>Sem cartão</span>
-                    <span className="text-ddg-lime-deep">●</span>
                     <span>Cancela em 1 clique</span>
                     <span className="text-ddg-lime-deep">●</span>
                     <span>Garantia 90 dias</span>
@@ -1063,7 +1061,7 @@ export default function Home() {
             <Reveal delay={0.3}>
               <div className="text-center mt-10 space-y-2">
                 <p className="text-sm text-ddg-muted">
-                  Todos os planos: <strong className="text-ddg-ink">14 dias grátis</strong> · sem cartão · cancela em 1 clique
+                  Todos os planos: <strong className="text-ddg-ink">14 dias grátis</strong> · cancela em 1 clique
                 </p>
                 <p className="text-xs text-ddg-muted/70">
                   Garantia 90 dias: impressions no Google não cresceram? Devolvemos 100%.
@@ -1171,7 +1169,7 @@ export default function Home() {
 
             <Reveal delay={0.5}>
               <p className="text-sm text-ddg-paper/50 max-w-xl mx-auto mt-6">
-                14 dias grátis pra testar antes de pagar — sem cartão, sem plugin.
+                14 dias grátis pra testar antes de pagar — sem plugin, sem dor de cabeça.
               </p>
             </Reveal>
             <Reveal delay={0.4}>

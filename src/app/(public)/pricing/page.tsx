@@ -146,8 +146,7 @@ export default function PricingPage() {
             Preço transparente. Sem letras miúdas.
           </h1>
           <p className="text-lg text-muted-foreground">
-            Comece com R$ 97. Cresça quando fizer sentido. Cancele quando quiser. 14 dias grátis,
-            sem cartão.
+            Comece com R$ 97. Cresça quando fizer sentido. Cancele quando quiser. 14 dias grátis pra testar.
           </p>
         </section>
 
@@ -262,7 +261,7 @@ export default function PricingPage() {
             </Link>
           </Button>
           <p className="text-sm text-muted-foreground mt-3">
-            Sem cartão · Sem plugin · Cancele quando quiser
+            Sem plugin · Cancele quando quiser
           </p>
         </section>
       </main>

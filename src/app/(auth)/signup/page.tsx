@@ -40,7 +40,7 @@ export default function SignupPage() {
           Comece grátis
         </CardTitle>
         <CardDescription>
-          14 dias, sem cartão. Em 7 minutos seu blog tá rodando.
+          14 dias grátis pra testar. Em 7 minutos seu blog tá rodando.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

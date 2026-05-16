@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { startCheckout } from "./actions";
+import { startCheckout, validateCouponAction } from "./actions";
 
 interface Props {
   orgId: string;
@@ -27,6 +27,8 @@ export function CheckoutForm({ orgId, orgName, userEmail, userName, plan, cycle,
   const [card, setCard] = useState({ number: "", holder: "", expiry: "", ccv: "" });
   const [postalCode, setPostalCode] = useState("");
   const [addressNumber, setAddressNumber] = useState("");
+  const [coupon, setCoupon] = useState("");
+  const [couponState, setCouponState] = useState<{ valid: boolean; discount?: number; finalValue?: number; message?: string } | null>(null);
   const [pending, start] = useTransition();
 
   function handle(e: React.FormEvent) {
@@ -164,11 +166,60 @@ export function CheckoutForm({ orgId, orgName, userEmail, userName, plan, cycle,
         </>
       )}
 
+      {/* Cupom */}
+      <div className="space-y-2">
+        <Label htmlFor="coupon">Cupom de desconto (opcional)</Label>
+        <div className="flex gap-2">
+          <Input
+            id="coupon"
+            value={coupon}
+            onChange={(e) => setCoupon(e.target.value.toUpperCase())}
+            placeholder="BEMVINDO30"
+            disabled={pending}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() =>
+              start(async () => {
+                const r = await validateCouponAction({ code: coupon, plan, baseValue: value });
+                if (!r.valid) {
+                  toast.error(r.reason ?? "Cupom inválido");
+                  setCouponState(null);
+                } else {
+                  setCouponState({
+                    valid: true,
+                    discount: r.discount ?? 0,
+                    finalValue: r.finalValue ?? value,
+                    message: r.coupon?.description ?? "Cupom aplicado",
+                  });
+                  toast.success("Cupom aplicado");
+                }
+              })
+            }
+            disabled={pending || !coupon.trim()}
+          >
+            Aplicar
+          </Button>
+        </div>
+        {couponState?.valid && (
+          <div className="text-sm rounded-md border border-emerald-500/40 bg-emerald-500/5 p-3">
+            <div className="font-medium text-emerald-700 dark:text-emerald-400">
+              ✓ {couponState.message}
+            </div>
+            <div className="text-xs text-muted-foreground mt-1">
+              Desconto R$ {(couponState.discount ?? 0).toFixed(2)} ·
+              Total <strong>R$ {(couponState.finalValue ?? value).toFixed(2)}</strong>
+            </div>
+          </div>
+        )}
+      </div>
+
       <Button type="submit" size="lg" className="w-full" disabled={pending}>
         {pending ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
         {method === "PIX"
-          ? `Pagar R$ ${value.toFixed(2).replace(".", ",")} via PIX`
-          : `Assinar — R$ ${value.toFixed(2).replace(".", ",")}/${cycle === "annual" ? "ano" : "mês"}`}
+          ? `Pagar R$ ${(couponState?.finalValue ?? value).toFixed(2).replace(".", ",")} via PIX`
+          : `Assinar — R$ ${(couponState?.finalValue ?? value).toFixed(2).replace(".", ",")}/${cycle === "annual" ? "ano" : "mês"}`}
       </Button>
 
       <p className="text-xs text-muted-foreground text-center">

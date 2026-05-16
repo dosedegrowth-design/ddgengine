@@ -3,6 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { getCurrentOrg } from "@/lib/auth";
 import { createOrGetCustomer, createSubscription, PLAN_VALUES_BRL } from "@/lib/asaas/api";
+import { validateCoupon } from "@/lib/billing/coupons";
+
+export async function validateCouponAction(args: { code: string; plan: string; baseValue: number }) {
+  const { org } = await getCurrentOrg();
+  return validateCoupon({ ...args, organizationId: org.id });
+}
 
 interface CheckoutInput {
   orgId: string;

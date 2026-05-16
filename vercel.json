@@ -3,7 +3,7 @@
   "crons": [
     {
       "path": "/api/cron/workers-hourly",
-      "schedule": "0 * * * *"
+      "schedule": "0 7 * * *"
     },
     {
       "path": "/api/cron/metrics-daily",

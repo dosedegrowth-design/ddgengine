@@ -324,6 +324,17 @@
   animation: ddg-spin-slow 24s linear infinite;
 }
 
+/* Shiny text — gradiente animado infinito (usado em ShinyText component) */
+@keyframes ddg-shiny-text {
+  0% { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+/* Stack scroll — sticky cards effect helpers */
+.ddg-stack-card {
+  position: sticky;
+}
+
 /* Wordmark XXL (footer) */
 .ddg-wordmark {
   font-weight: 900;

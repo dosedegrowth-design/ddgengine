@@ -24,8 +24,13 @@ import { MockupDashboard } from "@/components/landing/mockup-dashboard";
 import { NumberedStep } from "@/components/landing/numbered-step";
 import { WordmarkXXL } from "@/components/landing/wordmark-xxl";
 import { AnimatedCounter } from "@/components/landing/motion/animated-counter";
+import { Magnet } from "@/components/landing/motion/magnet";
+import { MarqueeRow } from "@/components/landing/motion/marquee-row";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/landing/motion/reveal";
+import { ScrollCharRevealDark } from "@/components/landing/motion/scroll-char-reveal";
 import { ScrollProgress } from "@/components/landing/motion/scroll-progress";
+import { ShinyText } from "@/components/landing/motion/shiny-text";
+import { SpotlightCard } from "@/components/landing/motion/spotlight-card";
 import { WordReveal } from "@/components/landing/motion/word-reveal";
 
 const STEPS = [
@@ -114,6 +119,28 @@ const TESTIMONIALS = [
     name: "Carla P.",
     role: "CMO, SaaS jurídico",
   },
+];
+
+/**
+ * Citações detectadas mockadas — rolam em marquee scroll-driven.
+ * Combinam diferentes verticais pra mostrar versatilidade.
+ */
+const CITATIONS_ROW_1 = [
+  { llm: "ChatGPT", brand: "Nuvemshop", query: "melhor plataforma de e-commerce BR" },
+  { llm: "Perplexity", brand: "Stone", query: "maquininha sem mensalidade" },
+  { llm: "Claude", brand: "Hotmart", query: "como vender curso online" },
+  { llm: "Gemini", brand: "Asaas", query: "alternativa ao PagSeguro" },
+  { llm: "ChatGPT", brand: "Cobli", query: "rastreamento de frota com IA" },
+  { llm: "Perplexity", brand: "Conta Azul", query: "ERP pra pequena empresa" },
+];
+
+const CITATIONS_ROW_2 = [
+  { llm: "Claude", brand: "Olist", query: "vender em marketplace múltiplo" },
+  { llm: "Gemini", brand: "Vindi", query: "cobrança recorrente PIX" },
+  { llm: "ChatGPT", brand: "Resultados Digitais", query: "automação de marketing BR" },
+  { llm: "Perplexity", brand: "Loft", query: "comprar apto em SP" },
+  { llm: "Claude", brand: "Buser", query: "viagem de ônibus barata" },
+  { llm: "Gemini", brand: "Quinto Andar", query: "alugar sem fiador" },
 ];
 
 const FAQ = [
@@ -217,20 +244,24 @@ export default function Home() {
 
                 <Reveal variant="up" delay={1.4}>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-2">
-                    <Link
-                      href="/signup"
-                      className="ddg-cta-lime inline-flex items-center gap-2 rounded-md px-6 py-3.5 text-base"
-                    >
-                      Ver minha visibility grátis
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
-                    <Link
-                      href="#como-funciona"
-                      className="ddg-cta-ghost inline-flex items-center gap-2 rounded-md px-6 py-3.5 text-base"
-                    >
-                      Como funciona
-                      <ArrowUpRight className="w-4 h-4" />
-                    </Link>
+                    <Magnet strength={0.25}>
+                      <Link
+                        href="/signup"
+                        className="ddg-cta-lime inline-flex items-center gap-2 rounded-md px-6 py-3.5 text-base"
+                      >
+                        Ver minha visibility grátis
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    </Magnet>
+                    <Magnet strength={0.2}>
+                      <Link
+                        href="#como-funciona"
+                        className="ddg-cta-ghost inline-flex items-center gap-2 rounded-md px-6 py-3.5 text-base"
+                      >
+                        Como funciona
+                        <ArrowUpRight className="w-4 h-4" />
+                      </Link>
+                    </Magnet>
                   </div>
                 </Reveal>
 
@@ -253,15 +284,29 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ===== TRUST STRIP ===== */}
-        <section className="border-y-2 border-ddg-ink bg-ddg-cream">
-          <div className="container mx-auto max-w-7xl px-4 lg:px-8 py-8">
+        {/* ===== TRUST STRIP + MARQUEE CITATIONS ===== */}
+        <section className="border-y-2 border-ddg-ink bg-ddg-cream overflow-hidden">
+          <div className="py-6 md:py-8">
             <Reveal variant="fade">
-              <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-10">
+              <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-10 px-4 mb-6 md:mb-8">
                 <div className="ddg-bracket whitespace-nowrap">Monitoramos sua marca em</div>
                 <LLMTrustStrip variant="light" />
               </div>
             </Reveal>
+
+            {/* Marquee row 1 — rolando pra esquerda */}
+            <MarqueeRow direction="left" speed={300} className="mb-3">
+              {CITATIONS_ROW_1.map((c, i) => (
+                <CitationChip key={`r1-${i}`} {...c} />
+              ))}
+            </MarqueeRow>
+
+            {/* Marquee row 2 — rolando pra direita */}
+            <MarqueeRow direction="right" speed={300}>
+              {CITATIONS_ROW_2.map((c, i) => (
+                <CitationChip key={`r2-${i}`} {...c} />
+              ))}
+            </MarqueeRow>
           </div>
         </section>
 
@@ -269,7 +314,7 @@ export default function Home() {
         <section className="relative bg-ddg-ink text-ddg-paper overflow-hidden">
           <div className="absolute inset-0 ddg-grid-dark pointer-events-none" aria-hidden />
           <div className="container relative mx-auto max-w-7xl px-4 lg:px-8 py-24 md:py-32">
-            <div className="max-w-3xl mb-14 md:mb-20">
+            <div className="max-w-3xl mb-10 md:mb-14">
               <Reveal>
                 <div className="ddg-bracket text-ddg-lime mb-5">O CENÁRIO</div>
               </Reveal>
@@ -281,14 +326,25 @@ export default function Home() {
               </Reveal>
             </div>
 
+            {/* Parágrafo com scroll char reveal */}
+            <div className="max-w-3xl mb-14 md:mb-20">
+              <ScrollCharRevealDark
+                text="Cada vez mais gente abre o ChatGPT antes do Google. Pergunta direto pra IA quem é o melhor fornecedor, o melhor app, a melhor agência. Se sua marca não está nessa resposta, você desapareceu — mesmo que continue ranqueando no Google."
+                className="text-xl md:text-2xl leading-relaxed font-medium"
+                highlightWords={["desapareceu"]}
+              />
+            </div>
+
             <StaggerGroup className="grid md:grid-cols-3 gap-10 md:gap-16">
               <StaggerItem>
                 <div className="space-y-3">
                   <div
-                    className="ddg-stat text-7xl md:text-8xl text-ddg-paper"
+                    className="ddg-stat text-7xl md:text-8xl"
                     style={{ fontFamily: 'ui-serif, "Times New Roman", serif' }}
                   >
-                    <AnimatedCounter to={73} suffix="%" duration={2} />
+                    <ShinyText variant="lime" duration={4}>
+                      <AnimatedCounter to={73} suffix="%" duration={2} />
+                    </ShinyText>
                   </div>
                   <div className="text-sm uppercase tracking-widest font-bold text-ddg-paper/80">
                     Das buscas B2B
@@ -413,14 +469,16 @@ export default function Home() {
                 const Icon = f.icon;
                 return (
                   <StaggerItem key={f.title}>
-                    <FeatureCard
-                      label={f.label}
-                      title={f.title}
-                      description={f.description}
-                      visual={
-                        <Icon className="w-14 h-14 text-ddg-ink opacity-30 group-hover:opacity-100 group-hover:text-ddg-lime-deep transition-all duration-300 group-hover:scale-110" />
-                      }
-                    />
+                    <SpotlightCard className="rounded-xl h-full">
+                      <FeatureCard
+                        label={f.label}
+                        title={f.title}
+                        description={f.description}
+                        visual={
+                          <Icon className="w-14 h-14 text-ddg-ink opacity-30 group-hover:opacity-100 group-hover:text-ddg-lime-deep transition-all duration-300 group-hover:scale-110" />
+                        }
+                      />
+                    </SpotlightCard>
                   </StaggerItem>
                 );
               })}
@@ -539,13 +597,15 @@ export default function Home() {
                       </li>
                     ))}
                   </ul>
-                  <Link
-                    href="/signup"
-                    className="ddg-cta-lime inline-flex items-center justify-center gap-2 rounded-md px-6 py-3.5 text-base w-full"
-                  >
-                    Começar grátis 14 dias
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
+                  <Magnet strength={0.18} className="w-full">
+                    <Link
+                      href="/signup"
+                      className="ddg-cta-lime inline-flex items-center justify-center gap-2 rounded-md px-6 py-3.5 text-base w-full"
+                    >
+                      Começar grátis 14 dias
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </Magnet>
                 </div>
               </Reveal>
             </div>
@@ -613,13 +673,15 @@ export default function Home() {
             </Reveal>
             <Reveal delay={0.4}>
               <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link
-                  href="/signup"
-                  className="ddg-cta-lime inline-flex items-center gap-2 rounded-md px-8 py-4 text-lg"
-                >
-                  Começar agora
-                  <ArrowRight className="w-5 h-5" />
-                </Link>
+                <Magnet strength={0.3}>
+                  <Link
+                    href="/signup"
+                    className="ddg-cta-lime inline-flex items-center gap-2 rounded-md px-8 py-4 text-lg"
+                  >
+                    Começar agora
+                    <ArrowRight className="w-5 h-5" />
+                  </Link>
+                </Magnet>
                 <div className="flex items-center gap-3 text-sm font-mono text-ddg-paper/40 uppercase tracking-widest">
                   <LLMBadge name="ChatGPT" status="live" variant="dark" />
                 </div>
@@ -685,6 +747,35 @@ export default function Home() {
       <div className="sr-only">
         <BrandMarkInverted />
       </div>
+    </div>
+  );
+}
+
+/**
+ * CitationChip — pill usado no marquee de citações detectadas.
+ * Mostra LLM + marca citada + query.
+ */
+function CitationChip({
+  llm,
+  brand,
+  query,
+}: {
+  llm: string;
+  brand: string;
+  query: string;
+}) {
+  return (
+    <div className="inline-flex items-center gap-3 px-4 py-2.5 rounded-full border-2 border-ddg-ink bg-ddg-paper shrink-0">
+      <span className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-widest text-ddg-muted">
+        <span className="h-1.5 w-1.5 rounded-full bg-ddg-lime ddg-pulse" />
+        {llm}
+      </span>
+      <span className="text-xs text-ddg-muted">citou</span>
+      <span className="font-black text-sm text-ddg-ink">{brand}</span>
+      <span className="text-xs text-ddg-muted">em</span>
+      <span className="text-xs italic text-ddg-ink/80 max-w-[260px] truncate">
+        &ldquo;{query}&rdquo;
+      </span>
     </div>
   );
 }

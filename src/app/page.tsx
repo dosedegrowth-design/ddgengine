@@ -987,11 +987,12 @@ export default function Home() {
                       </p>
                       <ul className="space-y-2 text-xs">
                         {[
-                          "Conteúdo ilimitado por mês",
+                          "Até 60 artigos longos + 120 perguntas-respostas/mês",
                           "Até 30 sites simultâneos",
                           "White-label completo (logo + domínio painel)",
                           "API pra automação custom",
                           "Account manager dedicado",
+                          "Volumes maiores sob consulta comercial",
                         ].map((it) => (
                           <li key={it} className="flex items-start gap-2">
                             <Check className="w-3.5 h-3.5 text-ddg-lime-deep mt-0.5 shrink-0" />

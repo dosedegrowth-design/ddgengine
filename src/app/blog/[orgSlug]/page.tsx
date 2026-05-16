@@ -71,13 +71,27 @@ export default async function BlogIndexPage({
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto max-w-4xl px-6 py-16">
-        <header className="mb-12 text-center">
+        <header className="mb-12 text-center space-y-4">
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
             Blog · {org.name}
           </h1>
-          <p className="text-muted-foreground mt-2">
+          <p className="text-muted-foreground">
             Conteúdo gerado e otimizado pra Google e ChatGPT
           </p>
+          <form method="GET" action={`/blog/${org.slug}/search`} className="flex gap-2 max-w-md mx-auto pt-2">
+            <input
+              type="search"
+              name="q"
+              placeholder="Buscar no blog..."
+              className="flex-1 h-10 rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            />
+            <button
+              type="submit"
+              className="h-10 px-4 rounded-md bg-foreground text-background text-sm font-medium"
+            >
+              Buscar
+            </button>
+          </form>
         </header>
 
         {list.length === 0 ? (

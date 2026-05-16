@@ -330,23 +330,37 @@
   100% { background-position: -200% center; }
 }
 
-/* Aurora — auroras orgânicas fluindo no background (signup/login) */
-@keyframes ddg-aurora-flow-1 {
-  0%, 100% { transform: translate(0%, 0%) rotate(0deg) scale(1); }
-  25% { transform: translate(8%, -5%) rotate(45deg) scale(1.15); }
-  50% { transform: translate(-5%, 8%) rotate(90deg) scale(1.05); }
-  75% { transform: translate(-8%, -3%) rotate(135deg) scale(1.2); }
+/* Aurora — blobs lime fluindo VISIVELMENTE no background (signup/login) */
+@keyframes ddg-aurora-blob-1 {
+  0%, 100% { transform: translate(0vw, 0vh) scale(1); }
+  25% { transform: translate(40vw, 15vh) scale(1.2); }
+  50% { transform: translate(60vw, 50vh) scale(0.9); }
+  75% { transform: translate(20vw, 70vh) scale(1.15); }
 }
 
-@keyframes ddg-aurora-flow-2 {
-  0%, 100% { transform: translate(0%, 0%) rotate(0deg) scale(1.1); }
-  33% { transform: translate(-10%, 6%) rotate(-60deg) scale(1.25); }
-  66% { transform: translate(7%, -8%) rotate(-120deg) scale(0.95); }
+@keyframes ddg-aurora-blob-2 {
+  0%, 100% { transform: translate(0vw, 0vh) scale(1); }
+  33% { transform: translate(-50vw, -30vh) scale(1.3); }
+  66% { transform: translate(-20vw, -60vh) scale(0.85); }
 }
 
-@keyframes ddg-aurora-flow-3 {
-  0%, 100% { transform: translate(0%, 0%) scale(1); }
-  50% { transform: translate(5%, -5%) scale(1.3); }
+@keyframes ddg-aurora-blob-3 {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  20% { transform: translate(-20%, -70%) scale(1.25); }
+  40% { transform: translate(-80%, -30%) scale(0.9); }
+  60% { transform: translate(-30%, -10%) scale(1.15); }
+  80% { transform: translate(-70%, -50%) scale(1.05); }
+}
+
+@keyframes ddg-aurora-blob-4 {
+  0%, 100% { transform: translate(0vw, 0vh) scale(1); }
+  50% { transform: translate(-70vw, 40vh) scale(1.3); }
+}
+
+@keyframes ddg-aurora-blob-5 {
+  0%, 100% { transform: translate(0vw, 0vh) scale(1); }
+  33% { transform: translate(50vw, -40vh) scale(1.4); }
+  66% { transform: translate(25vw, -10vh) scale(0.9); }
 }
 
 /* Stack scroll — sticky cards effect helpers */

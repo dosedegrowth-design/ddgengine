@@ -1,13 +1,12 @@
 /**
- * AuroraBackground — efeito aurora fluindo continuamente no fundo
- * Inspirado em referência tipo signup Vercel/Linear com aurora colorida.
+ * AuroraBackground — auroras lime fluindo visivelmente no fundo
  *
- * Usa SVG com filtros gauss + animação CSS transform pra simular
- * gradientes orgânicos fluindo. Cores DDG (lime + dark) em vez do
- * arco-íris da referência — fica fiel à identidade.
+ * Estratégia revista: blobs grandes mas com movimento DRAMÁTICO
+ * (translate 30-60% ao invés de 5-8%), blur reduzido (50-70px) pra
+ * blob shapes distintos e perceptíveis. Movimento orgânico via
+ * 4 keyframes que combinam translate + scale + rotate.
  *
- * Performance: SVG estático com transforms via keyframes (GPU).
- * Sem JS animation loop. Respeita prefers-reduced-motion.
+ * Paleta DDG estrita: lime + limeBright + limeDeep + ink base.
  */
 "use client";
 
@@ -20,81 +19,99 @@ export function AuroraBackground({
 }) {
   const reduced = useReducedMotion();
 
-  // Paleta DDG estrita — apenas tons de lime + ink
-  const palette = {
-    limeBright: "#d4ff5e",
-    lime: "#c8ff3d",
-    limeDeep: "#a8e620",
-  };
-
   return (
     <div
       className={`absolute inset-0 overflow-hidden bg-ddg-ink ${className ?? ""}`}
       aria-hidden
     >
-      {/* Layer 1 — aurora principal grande rolando (lime forte) */}
+      {/* Blob 1 — lime forte, canto superior-esquerdo viajando */}
       <div
-        className="absolute -inset-[40%]"
+        className="absolute h-[55vw] w-[55vw] rounded-full"
         style={{
-          animation: reduced ? undefined : "ddg-aurora-flow-1 28s ease-in-out infinite",
-          willChange: "transform",
-        }}
-      >
-        <div
-          className="absolute inset-0 rounded-[50%]"
-          style={{
-            background: `radial-gradient(ellipse at 30% 40%, ${palette.lime}99 0%, transparent 52%), radial-gradient(ellipse at 70% 60%, ${palette.limeDeep}77 0%, transparent 55%)`,
-            filter: "blur(90px)",
-          }}
-        />
-      </div>
-
-      {/* Layer 2 — aurora secundária em sentido oposto (lime bright) */}
-      <div
-        className="absolute -inset-[30%]"
-        style={{
-          animation: reduced ? undefined : "ddg-aurora-flow-2 36s ease-in-out infinite reverse",
-          willChange: "transform",
-        }}
-      >
-        <div
-          className="absolute inset-0 rounded-[50%]"
-          style={{
-            background: `radial-gradient(ellipse at 60% 30%, ${palette.limeBright}66 0%, transparent 60%), radial-gradient(ellipse at 20% 80%, ${palette.lime}88 0%, transparent 55%)`,
-            filter: "blur(110px)",
-          }}
-        />
-      </div>
-
-      {/* Layer 3 — wisp lateral suave (lime deep) */}
-      <div
-        className="absolute -inset-[20%]"
-        style={{
-          animation: reduced ? undefined : "ddg-aurora-flow-3 22s ease-in-out infinite",
-          willChange: "transform",
-        }}
-      >
-        <div
-          className="absolute inset-0 rounded-[50%]"
-          style={{
-            background: `radial-gradient(ellipse at 80% 50%, ${palette.limeDeep}55 0%, transparent 62%), radial-gradient(ellipse at 10% 20%, ${palette.lime}44 0%, transparent 58%)`,
-            filter: "blur(130px)",
-          }}
-        />
-      </div>
-
-      {/* Vinheta nas bordas pra concentrar o foco */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
+          left: "-15%",
+          top: "-15%",
           background:
-            "radial-gradient(ellipse at center, transparent 30%, rgba(10,10,10,0.55) 75%, rgba(10,10,10,0.85) 100%)",
+            "radial-gradient(circle at center, #c8ff3d 0%, #c8ff3d99 30%, transparent 70%)",
+          filter: "blur(60px)",
+          mixBlendMode: "screen",
+          animation: reduced ? undefined : "ddg-aurora-blob-1 18s ease-in-out infinite",
+          willChange: "transform",
         }}
       />
 
-      {/* Grain sutil */}
+      {/* Blob 2 — lime bright, canto inferior-direito */}
+      <div
+        className="absolute h-[50vw] w-[50vw] rounded-full"
+        style={{
+          right: "-12%",
+          bottom: "-12%",
+          background:
+            "radial-gradient(circle at center, #d4ff5e 0%, #d4ff5e88 35%, transparent 75%)",
+          filter: "blur(55px)",
+          mixBlendMode: "screen",
+          animation: reduced ? undefined : "ddg-aurora-blob-2 22s ease-in-out infinite",
+          willChange: "transform",
+        }}
+      />
+
+      {/* Blob 3 — lime deep, no meio rolando */}
+      <div
+        className="absolute h-[45vw] w-[45vw] rounded-full"
+        style={{
+          left: "50%",
+          top: "30%",
+          transform: "translate(-50%, -50%)",
+          background:
+            "radial-gradient(circle at center, #a8e620 0%, #a8e62077 40%, transparent 75%)",
+          filter: "blur(70px)",
+          mixBlendMode: "screen",
+          animation: reduced ? undefined : "ddg-aurora-blob-3 26s ease-in-out infinite",
+          willChange: "transform",
+        }}
+      />
+
+      {/* Blob 4 — lime médio, viajando da direita pra esquerda */}
+      <div
+        className="absolute h-[40vw] w-[40vw] rounded-full"
+        style={{
+          right: "-8%",
+          top: "20%",
+          background:
+            "radial-gradient(circle at center, #c8ff3d 0%, #c8ff3d66 40%, transparent 75%)",
+          filter: "blur(50px)",
+          mixBlendMode: "screen",
+          animation: reduced ? undefined : "ddg-aurora-blob-4 20s ease-in-out infinite",
+          willChange: "transform",
+        }}
+      />
+
+      {/* Blob 5 — pequeno, accent rápido no fundo */}
+      <div
+        className="absolute h-[30vw] w-[30vw] rounded-full"
+        style={{
+          left: "10%",
+          bottom: "10%",
+          background:
+            "radial-gradient(circle at center, #d4ff5e 0%, #d4ff5e55 50%, transparent 80%)",
+          filter: "blur(40px)",
+          mixBlendMode: "screen",
+          animation: reduced ? undefined : "ddg-aurora-blob-5 16s ease-in-out infinite",
+          willChange: "transform",
+        }}
+      />
+
+      {/* Camada dark por cima pra reduzir saturação geral */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse at center, rgba(10,10,10,0.4) 0%, rgba(10,10,10,0.75) 70%, rgba(10,10,10,0.92) 100%)",
+        }}
+      />
+
+      {/* SVG noise grain — toque editorial */}
       <svg
-        className="absolute inset-0 w-full h-full opacity-[0.12] mix-blend-overlay"
+        className="absolute inset-0 w-full h-full opacity-[0.10] mix-blend-overlay pointer-events-none"
         preserveAspectRatio="none"
       >
         <filter id="ddg-aurora-grain">

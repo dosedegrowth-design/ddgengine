@@ -1,3 +1,9 @@
+/**
+ * Sidebar — navegação lateral do painel com identidade DDG
+ *
+ * Visual: dark ink + lime accents, BrandMark no topo,
+ * active state com borda lime + bg lime/10, hover sutil.
+ */
 "use client";
 
 import Link from "next/link";
@@ -11,18 +17,37 @@ import {
   Sparkles,
   LogOut,
   Inbox,
+  Activity,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { BrandMarkInverted } from "@/components/brand/brand-mark";
 
-const NAV = [
-  { href: "/dashboard", label: "Visão geral", icon: LayoutDashboard },
-  { href: "/posts", label: "Conteúdo", icon: FileText },
-  { href: "/inbox", label: "Inbox", icon: Inbox },
-  { href: "/metrics", label: "Métricas", icon: BarChart3 },
-  { href: "/visibility", label: "AI Visibility", icon: Sparkles },
-  { href: "/briefing", label: "Briefing", icon: ClipboardList },
-  { href: "/settings", label: "Configurações", icon: Settings },
+const NAV_GROUPS: Array<{
+  label: string;
+  items: Array<{ href: string; label: string; icon: typeof LayoutDashboard }>;
+}> = [
+  {
+    label: "Visão geral",
+    items: [
+      { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/inbox", label: "Inbox", icon: Inbox },
+      { href: "/activity", label: "Atividade", icon: Activity },
+    ],
+  },
+  {
+    label: "Conteúdo",
+    items: [
+      { href: "/posts", label: "Posts", icon: FileText },
+      { href: "/briefing", label: "Briefing", icon: ClipboardList },
+    ],
+  },
+  {
+    label: "Performance",
+    items: [
+      { href: "/visibility", label: "Visibility em IA", icon: Sparkles },
+      { href: "/metrics", label: "Métricas", icon: BarChart3 },
+    ],
+  },
 ];
 
 interface SidebarProps {
@@ -33,54 +58,117 @@ interface SidebarProps {
 
 export function Sidebar({ orgName, plan, userEmail }: SidebarProps) {
   const pathname = usePathname();
+  const initials = (userEmail || "")
+    .split("@")[0]
+    .split(/[._-]/)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase() ?? "")
+    .join("") || "U";
 
   return (
-    <aside className="hidden md:flex flex-col w-60 border-r bg-card/30 h-screen sticky top-0">
-      <div className="h-16 px-5 flex items-center border-b">
-        <Link href="/dashboard" className="font-semibold tracking-tight">
-          DDG Engine
+    <aside className="hidden md:flex flex-col w-64 bg-ddg-ink border-r-2 border-ddg-paper/10 h-screen sticky top-0 z-20">
+      {/* Logo */}
+      <div className="h-16 px-5 flex items-center border-b border-ddg-paper/10">
+        <Link href="/dashboard" aria-label="Dashboard">
+          <BrandMarkInverted size="md" />
         </Link>
       </div>
 
-      <div className="px-3 py-4 border-b">
-        <div className="px-2">
-          <div className="text-sm font-medium truncate">{orgName}</div>
-          <div className="text-xs text-muted-foreground capitalize">{plan}</div>
+      {/* Org + plan */}
+      <div className="px-5 py-4 border-b border-ddg-paper/10">
+        <div className="text-[10px] font-mono uppercase tracking-widest text-ddg-paper/40 mb-1">
+          Organização
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <div className="text-sm font-bold text-ddg-paper truncate">
+            {orgName}
+          </div>
+          <span className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-ddg-lime/15 border border-ddg-lime/40 text-[9px] font-mono font-bold uppercase tracking-widest text-ddg-lime">
+            {plan}
+          </span>
         </div>
       </div>
 
-      <nav className="flex-1 px-2 py-4 space-y-0.5">
-        {NAV.map(({ href, label, icon: Icon }) => {
-          const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
-                active
-                  ? "bg-accent text-foreground font-medium"
-                  : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
-              )}
-            >
-              <Icon className="w-4 h-4" />
-              {label}
-            </Link>
-          );
-        })}
+      {/* Nav groups */}
+      <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto">
+        {NAV_GROUPS.map((group) => (
+          <div key={group.label}>
+            <div className="px-2 mb-2 text-[10px] font-mono uppercase tracking-widest text-ddg-paper/40">
+              {group.label}
+            </div>
+            <ul className="space-y-0.5">
+              {group.items.map(({ href, label, icon: Icon }) => {
+                const active =
+                  pathname === href ||
+                  (href !== "/dashboard" && pathname.startsWith(href));
+                return (
+                  <li key={href}>
+                    <Link
+                      href={href}
+                      className={cn(
+                        "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all group/item",
+                        active
+                          ? "bg-ddg-lime/10 border border-ddg-lime/30 text-ddg-paper font-bold"
+                          : "text-ddg-paper/60 border border-transparent hover:bg-ddg-paper/5 hover:text-ddg-paper hover:border-ddg-paper/10"
+                      )}
+                    >
+                      <Icon
+                        className={cn(
+                          "w-4 h-4 transition-colors",
+                          active
+                            ? "text-ddg-lime"
+                            : "text-ddg-paper/40 group-hover/item:text-ddg-paper/80"
+                        )}
+                      />
+                      {label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
       </nav>
 
-      <div className="border-t p-3 space-y-2">
-        <div className="px-2 text-xs text-muted-foreground truncate">{userEmail}</div>
-        <form action="/logout" method="POST">
-          <button
-            type="submit"
-            className="flex items-center gap-3 px-3 py-2 w-full rounded-md text-sm text-muted-foreground hover:bg-accent/50 hover:text-foreground transition-colors"
-          >
-            <LogOut className="w-4 h-4" />
-            Sair
-          </button>
-        </form>
+      {/* Footer */}
+      <div className="border-t border-ddg-paper/10 p-3 space-y-2">
+        <Link
+          href="/settings"
+          className={cn(
+            "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all group/item",
+            pathname.startsWith("/settings")
+              ? "bg-ddg-lime/10 border border-ddg-lime/30 text-ddg-paper font-bold"
+              : "text-ddg-paper/60 border border-transparent hover:bg-ddg-paper/5 hover:text-ddg-paper hover:border-ddg-paper/10"
+          )}
+        >
+          <Settings
+            className={cn(
+              "w-4 h-4",
+              pathname.startsWith("/settings")
+                ? "text-ddg-lime"
+                : "text-ddg-paper/40 group-hover/item:text-ddg-paper/80"
+            )}
+          />
+          Configurações
+        </Link>
+
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-ddg-paper/[0.03]">
+          <div className="shrink-0 h-7 w-7 rounded-full bg-ddg-lime flex items-center justify-center text-ddg-ink text-xs font-bold">
+            {initials}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-xs text-ddg-paper truncate">{userEmail}</div>
+          </div>
+          <form action="/logout" method="POST">
+            <button
+              type="submit"
+              aria-label="Sair"
+              className="shrink-0 p-1.5 rounded-md text-ddg-paper/40 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
+          </form>
+        </div>
       </div>
     </aside>
   );

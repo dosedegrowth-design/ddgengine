@@ -6,9 +6,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const { org, user } = await getCurrentOrg();
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar orgName={org.name} plan={org.plan} userEmail={user.email ?? ""} />
-      <main className="flex-1 min-w-0 pb-16 md:pb-0">{children}</main>
+    <div className="flex min-h-screen bg-ddg-paper text-ddg-ink">
+      <Sidebar
+        orgName={org.name}
+        plan={org.plan ?? "trial"}
+        userEmail={user.email ?? ""}
+      />
+      <main className="flex-1 min-w-0 pb-16 md:pb-0 bg-ddg-cream/30">
+        {children}
+      </main>
       <MobileNav />
     </div>
   );

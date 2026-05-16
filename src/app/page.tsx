@@ -297,7 +297,7 @@ export default function Home() {
 
                 <Reveal variant="up" delay={1.6}>
                   <p className="text-lg md:text-xl text-ddg-muted max-w-2xl leading-relaxed">
-                    Trabalho de <span className="text-ddg-ink font-semibold">SEO técnico profundo</span> que agência cobraria R$ 5 mil — automatizado. Você sugere os temas que importam, a engine pesquisa keywords, escreve, otimiza, publica e <span className="text-ddg-ink font-semibold">mede sua marca no Google E em 4 IAs</span> (ChatGPT, Perplexity, Claude, Gemini). Por <span className="text-ddg-lime-deep font-bold">R$ 297/mês</span>.
+                    Trabalho de <span className="text-ddg-ink font-semibold">SEO técnico profundo</span> que agência cobraria R$ 5 mil — automatizado. Você sugere os temas que importam, a engine pesquisa, escreve, otimiza, publica e <span className="text-ddg-ink font-semibold">mede sua marca no Google E em 4 IAs</span> (ChatGPT, Perplexity, Claude, Gemini). A partir de <span className="text-ddg-lime-deep font-bold">R$ 97/mês</span>.
                   </p>
                 </Reveal>
 
@@ -597,9 +597,9 @@ export default function Home() {
                   variant="new"
                   badge="A virada"
                   title="DDG Engine: você decide os temas. A engine entrega o resto."
-                  description="Configura em 7 minutos. Toda semana você sugere temas que importam pro seu negócio — a engine pesquisa keywords, escreve, otimiza tecnicamente, publica no Google E mede sua marca em 4 IAs. Sem agência. Sem contratação. Você no controle do que conta, automação no que cansa."
-                  price="R$ 297"
-                  priceLabel="Plano único mensal"
+                  description="Configura em 7 minutos. Toda semana você sugere temas que importam pro seu negócio — a engine pesquisa, escreve, otimiza tecnicamente, publica no Google E mede sua marca em 4 IAs. Sem agência. Sem contratação. Você no controle do que conta, automação no que cansa."
+                  price="R$ 97+"
+                  priceLabel="A partir de · 4 planos"
                   pros={[
                     "Você sugere os temas — engine pesquisa fundo antes de escrever",
                     "SEO técnico completo (o trabalho que agência cobra caro)",
@@ -702,173 +702,299 @@ export default function Home() {
               </Reveal>
               <Reveal delay={0.1}>
                 <h2 className="ddg-display text-4xl md:text-6xl text-balance">
-                  R$ 9,90 por dia<br />
-                  <span className="text-ddg-muted">pra ter</span>{" "}
-                  <span className="ddg-pill-lime">agência inteira.</span>
+                  A partir de R$ 97/mês.<br />
+                  <span className="text-ddg-muted">Plano</span>{" "}
+                  <span className="ddg-pill-lime">pra cada tamanho.</span>
                 </h2>
               </Reveal>
               <Reveal delay={0.2}>
                 <p className="text-lg text-ddg-muted mt-5 max-w-2xl mx-auto">
-                  SEO técnico profundo + escrita editorial + tracking Google + tracking 4 IAs. Tudo por menos do que uma hora do estagiário de marketing.
+                  4 planos self-service pra você começar e escalar no seu ritmo. 2 planos enterprise pra agência ou integração custom. Todos com <strong className="text-ddg-ink">14 dias grátis</strong> e cancelamento em 1 clique.
                 </p>
               </Reveal>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-5 max-w-6xl mx-auto">
+            {/* Grid principal — 4 planos self-service */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto mb-10">
               {/* STARTER */}
-              <Reveal variant="left">
-                <div className="p-8 rounded-2xl border-2 border-ddg-ink bg-ddg-paper h-full flex flex-col">
+              <Reveal variant="up" delay={0}>
+                <div className="p-6 rounded-2xl border-2 border-ddg-ink bg-ddg-paper h-full flex flex-col">
                   <div className="ddg-bracket mb-3">PRA COMEÇAR</div>
-                  <div className="text-2xl font-black mb-1">Starter</div>
+                  <div className="text-xl font-black mb-1">Starter</div>
                   <div className="flex items-baseline gap-1 mb-1">
-                    <span className="text-lg font-bold text-ddg-muted">R$</span>
+                    <span className="text-base font-bold text-ddg-muted">R$</span>
                     <AnimatedCounter
                       to={97}
                       duration={1.4}
-                      className="text-4xl md:text-5xl font-black tabular-nums"
+                      className="text-4xl font-black tabular-nums"
                     />
-                    <span className="text-ddg-muted text-sm">/mês</span>
+                    <span className="text-ddg-muted text-xs">/mês</span>
                   </div>
-                  <div className="text-ddg-muted text-xs mb-5">PIX ou cartão · cancela quando quiser</div>
-                  <p className="text-sm text-ddg-muted mb-6 leading-relaxed">
-                    Pra ver funcionando antes de escalar. Mesmo motor, volume menor.
+                  <div className="text-ddg-muted text-[11px] mb-5">PIX ou cartão</div>
+                  <p className="text-xs text-ddg-muted mb-5 leading-relaxed min-h-[40px]">
+                    Pra ver funcionando antes de escalar.
                   </p>
-                  <ul className="space-y-2.5 mb-7 flex-1">
+                  <ul className="space-y-2 mb-6 flex-1 text-xs">
+                    <li className="font-bold text-ddg-ink">4 artigos + 8 perguntas-respostas/mês</li>
                     {[
-                      "4 artigos longos + 8 perguntas-respostas/mês",
-                      "Você sugere os temas",
-                      "SEO técnico completo em cada post",
-                      "Tracking básico em 4 IAs (50 prompts/sem)",
-                      "Aprovação WhatsApp ou modo Auto",
                       "1 site conectado",
+                      "Modo Auto (publica sozinho)",
+                      "Visibility básico: 50 prompts × 2 IAs",
+                      "Brand RAG básico",
                       "Suporte por email",
                     ].map((it) => (
-                      <li key={it} className="flex items-start gap-2.5 text-sm">
-                        <Check className="w-4 h-4 text-ddg-lime-deep mt-0.5 shrink-0" />
-                        <span>{it}</span>
+                      <li key={it} className="flex items-start gap-2">
+                        <Check className="w-3.5 h-3.5 text-ddg-lime-deep mt-0.5 shrink-0" />
+                        <span className="text-ddg-muted">{it}</span>
                       </li>
                     ))}
                   </ul>
                   <Link
                     href="/signup?plan=starter"
-                    className="ddg-cta-ghost inline-flex items-center justify-center gap-2 rounded-md px-5 py-3 text-sm w-full"
+                    className="ddg-cta-ghost inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm w-full"
                   >
-                    Começar com Starter
-                    <ArrowRight className="w-4 h-4" />
+                    Começar
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
-                  <p className="text-center text-[10px] font-mono uppercase tracking-widest text-ddg-muted/60 mt-3">
-                    14 dias grátis · sem cartão
+                </div>
+              </Reveal>
+
+              {/* LIGHT */}
+              <Reveal variant="up" delay={0.08}>
+                <div className="p-6 rounded-2xl border-2 border-ddg-ink bg-ddg-paper h-full flex flex-col">
+                  <div className="ddg-bracket mb-3">MAIS VOLUME</div>
+                  <div className="text-xl font-black mb-1">Light</div>
+                  <div className="flex items-baseline gap-1 mb-1">
+                    <span className="text-base font-bold text-ddg-muted">R$</span>
+                    <AnimatedCounter
+                      to={197}
+                      duration={1.4}
+                      className="text-4xl font-black tabular-nums"
+                    />
+                    <span className="text-ddg-muted text-xs">/mês</span>
+                  </div>
+                  <div className="text-ddg-muted text-[11px] mb-5">PIX ou cartão</div>
+                  <p className="text-xs text-ddg-muted mb-5 leading-relaxed min-h-[40px]">
+                    Quem quer mais conteúdo no ar todo mês.
                   </p>
+                  <ul className="space-y-2 mb-6 flex-1 text-xs">
+                    <li className="font-bold text-ddg-ink">6 artigos + 12 perguntas-respostas/mês</li>
+                    {[
+                      "1 site conectado",
+                      "Modo Auto",
+                      "Visibility médio: 100 prompts × 3 IAs",
+                      "Brand RAG médio",
+                      "Suporte por email",
+                    ].map((it) => (
+                      <li key={it} className="flex items-start gap-2">
+                        <Check className="w-3.5 h-3.5 text-ddg-lime-deep mt-0.5 shrink-0" />
+                        <span className="text-ddg-muted">{it}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    href="/signup?plan=light"
+                    className="ddg-cta-ghost inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm w-full"
+                  >
+                    Escolher Light
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
               </Reveal>
 
               {/* PRO (destaque) */}
-              <Reveal variant="up" delay={0.1}>
-                <div className="relative p-8 rounded-2xl border-2 border-ddg-ink bg-ddg-ink text-ddg-paper h-full flex flex-col shadow-[10px_10px_0_var(--ddg-lime)]">
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 ddg-pill-lime text-xs whitespace-nowrap">
-                    MAIS ESCOLHIDO · 2X MAIS VOLUME
+              <Reveal variant="up" delay={0.16}>
+                <div className="relative p-6 rounded-2xl border-2 border-ddg-ink bg-ddg-ink text-ddg-paper h-full flex flex-col shadow-[8px_8px_0_var(--ddg-lime)]">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 ddg-pill-lime text-[10px] whitespace-nowrap">
+                    MAIS ESCOLHIDO
                   </div>
                   <div className="ddg-bracket text-ddg-lime mb-3">SWEET SPOT</div>
-                  <div className="text-2xl font-black mb-1 text-ddg-paper">Pro</div>
+                  <div className="text-xl font-black mb-1 text-ddg-paper">Pro</div>
                   <div className="flex items-baseline gap-1 mb-1">
-                    <span className="text-lg font-bold text-ddg-paper/60">R$</span>
+                    <span className="text-base font-bold text-ddg-paper/60">R$</span>
                     <AnimatedCounter
                       to={297}
                       duration={1.4}
-                      className="text-4xl md:text-5xl font-black tabular-nums text-ddg-paper"
+                      className="text-4xl font-black tabular-nums text-ddg-paper"
                     />
-                    <span className="text-ddg-paper/60 text-sm">/mês</span>
+                    <span className="text-ddg-paper/60 text-xs">/mês</span>
                   </div>
-                  <div className="text-ddg-paper/60 text-xs mb-5">PIX ou cartão · cancela quando quiser</div>
-
-                  {/* Âncora de comparação */}
-                  <div className="rounded-lg border border-ddg-lime/30 bg-ddg-lime/5 p-3 mb-5">
-                    <div className="text-[10px] font-mono text-ddg-lime uppercase tracking-widest mb-1.5">Comparado a</div>
-                    <div className="space-y-1 text-xs text-ddg-paper/70">
-                      <div className="flex justify-between"><span>Agência (4 posts/mês)</span><span className="line-through opacity-60">R$ 3.500</span></div>
-                      <div className="flex justify-between"><span>Redator freelancer</span><span className="line-through opacity-60">R$ 1.600</span></div>
-                      <div className="flex justify-between text-ddg-lime font-bold"><span>Pro (8 posts + tracking)</span><span>R$ 297</span></div>
-                    </div>
-                  </div>
-
-                  <ul className="space-y-2.5 mb-7 flex-1">
+                  <div className="text-ddg-paper/60 text-[11px] mb-5">PIX ou cartão</div>
+                  <p className="text-xs text-ddg-paper/60 mb-5 leading-relaxed min-h-[40px]">
+                    Sweet spot. Melhor relação preço × valor.
+                  </p>
+                  <ul className="space-y-2 mb-6 flex-1 text-xs">
+                    <li className="font-bold text-ddg-paper">8 artigos + 16 perguntas-respostas/mês</li>
                     {[
-                      "8 artigos longos + 16 perguntas-respostas/mês",
-                      "Você sugere os temas com prioridade",
-                      "SEO técnico completo (trabalho de agência)",
-                      "Tracking 24/7 em 4 IAs (200 prompts/sem)",
-                      "Brand RAG avançado (IA aprende sua voz)",
-                      "Aprovação WhatsApp em 5s ou modo Auto",
-                      "Relatório semanal de visibility",
-                      "Suporte WhatsApp humano (não bot)",
+                      "1 site conectado",
+                      "Auto + Aprovação WhatsApp",
+                      "Visibility completo: 200 × 4 IAs",
+                      "Brand RAG completo",
+                      "Suporte WhatsApp humano",
                     ].map((it) => (
-                      <li key={it} className="flex items-start gap-2.5 text-sm text-ddg-paper/90">
-                        <Check className="w-4 h-4 text-ddg-lime mt-0.5 shrink-0" />
-                        <span>{it}</span>
+                      <li key={it} className="flex items-start gap-2">
+                        <Check className="w-3.5 h-3.5 text-ddg-lime mt-0.5 shrink-0" />
+                        <span className="text-ddg-paper/80">{it}</span>
                       </li>
                     ))}
                   </ul>
                   <Magnet strength={0.18} className="w-full">
                     <Link
                       href="/signup?plan=pro"
-                      className="ddg-cta-lime inline-flex items-center justify-center gap-2 rounded-md px-5 py-3 text-sm w-full"
+                      className="ddg-cta-lime inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm w-full"
                     >
-                      Começar grátis 14 dias
-                      <ArrowRight className="w-4 h-4" />
+                      Escolher Pro
+                      <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
                   </Magnet>
-                  <p className="text-center text-[10px] font-mono uppercase tracking-widest text-ddg-paper/40 mt-3">
-                    Depois do trial · cancela em 1 clique
-                  </p>
                 </div>
               </Reveal>
 
               {/* MULTI */}
-              <Reveal variant="right" delay={0.2}>
-                <div className="p-8 rounded-2xl border-2 border-ddg-ink bg-ddg-paper h-full flex flex-col">
-                  <div className="ddg-bracket mb-3">REDES E FRANQUIAS</div>
-                  <div className="text-2xl font-black mb-1">Multi</div>
+              <Reveal variant="up" delay={0.24}>
+                <div className="p-6 rounded-2xl border-2 border-ddg-ink bg-ddg-paper h-full flex flex-col">
+                  <div className="ddg-bracket mb-3">REDES · FRANQUIAS</div>
+                  <div className="text-xl font-black mb-1">Multi</div>
                   <div className="flex items-baseline gap-1 mb-1">
-                    <span className="text-lg font-bold text-ddg-muted">R$</span>
+                    <span className="text-base font-bold text-ddg-muted">R$</span>
                     <AnimatedCounter
                       to={897}
                       duration={1.4}
-                      className="text-4xl md:text-5xl font-black tabular-nums"
+                      className="text-4xl font-black tabular-nums"
                     />
-                    <span className="text-ddg-muted text-sm">/mês</span>
+                    <span className="text-ddg-muted text-xs">/mês</span>
                   </div>
-                  <div className="text-ddg-muted text-xs mb-5">A partir de · escalável por site</div>
-                  <p className="text-sm text-ddg-muted mb-6 leading-relaxed">
-                    Pra agência, rede de franquias, multi-marca. 3 sites com a engine completa rodando.
+                  <div className="text-ddg-muted text-[11px] mb-5">PIX ou cartão</div>
+                  <p className="text-xs text-ddg-muted mb-5 leading-relaxed min-h-[40px]">
+                    Redes, franquias, multi-marca, multi-unidade.
                   </p>
-                  <ul className="space-y-2.5 mb-7 flex-1">
+                  <ul className="space-y-2 mb-6 flex-1 text-xs">
+                    <li className="font-bold text-ddg-ink">16 artigos + 32 perguntas-respostas</li>
                     {[
-                      "Tudo do Pro × 3 sites simultâneos",
+                      "3 sites simultâneos",
+                      "Auto + WhatsApp",
+                      "Visibility × 3 sites (200 × 4 IAs cada)",
                       "Brand RAG independente por marca",
-                      "Tracking visibility separado por site",
-                      "Prioridade na fila de publicação",
-                      "Account manager dedicado",
-                      "Suporte WhatsApp prioritário",
-                      "White-label opcional",
+                      "Suporte prioritário",
                     ].map((it) => (
-                      <li key={it} className="flex items-start gap-2.5 text-sm">
-                        <Check className="w-4 h-4 text-ddg-lime-deep mt-0.5 shrink-0" />
-                        <span>{it}</span>
+                      <li key={it} className="flex items-start gap-2">
+                        <Check className="w-3.5 h-3.5 text-ddg-lime-deep mt-0.5 shrink-0" />
+                        <span className="text-ddg-muted">{it}</span>
                       </li>
                     ))}
                   </ul>
                   <Link
-                    href="/contato"
-                    className="ddg-cta-ghost inline-flex items-center justify-center gap-2 rounded-md px-5 py-3 text-sm w-full"
+                    href="/signup?plan=multi"
+                    className="ddg-cta-ghost inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm w-full"
                   >
-                    Falar com vendas
-                    <ArrowRight className="w-4 h-4" />
+                    Escolher Multi
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
-                  <p className="text-center text-[10px] font-mono uppercase tracking-widest text-ddg-muted/60 mt-3">
-                    Volume sob medida · proposta em 24h
-                  </p>
                 </div>
               </Reveal>
+            </div>
+
+            {/* Enterprise / Custom — Agência + Native */}
+            <div className="max-w-7xl mx-auto">
+              <Reveal>
+                <div className="text-center mb-6">
+                  <div className="ddg-bracket inline-block">PRA OPERAÇÕES GRANDES</div>
+                  <h3 className="ddg-display text-2xl md:text-3xl mt-3">
+                    Agência, white-label ou integração custom
+                  </h3>
+                </div>
+              </Reveal>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                {/* AGÊNCIA */}
+                <Reveal variant="left">
+                  <div className="p-6 md:p-8 rounded-2xl border-2 border-ddg-ink bg-ddg-cream h-full flex flex-col md:flex-row gap-6 items-start">
+                    <div className="flex-1 min-w-0">
+                      <div className="ddg-bracket mb-2">AGÊNCIA · WHITE-LABEL</div>
+                      <h4 className="text-xl font-black mb-2">Agência</h4>
+                      <div className="flex items-baseline gap-1 mb-3">
+                        <span className="text-base font-bold text-ddg-muted">R$</span>
+                        <AnimatedCounter
+                          to={1997}
+                          duration={1.4}
+                          className="text-3xl md:text-4xl font-black tabular-nums"
+                        />
+                        <span className="text-ddg-muted text-xs">/mês</span>
+                      </div>
+                      <p className="text-sm text-ddg-muted leading-relaxed mb-4">
+                        Pra agências e consultorias que revendem sob a própria marca.
+                      </p>
+                      <ul className="space-y-2 text-xs">
+                        {[
+                          "Conteúdo ilimitado por mês",
+                          "Até 30 sites simultâneos",
+                          "White-label completo (logo + domínio painel)",
+                          "API pra automação custom",
+                          "Account manager dedicado",
+                        ].map((it) => (
+                          <li key={it} className="flex items-start gap-2">
+                            <Check className="w-3.5 h-3.5 text-ddg-lime-deep mt-0.5 shrink-0" />
+                            <span>{it}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <Link
+                      href="/contato?plan=agencia"
+                      className="ddg-cta-ghost inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm shrink-0 self-stretch md:self-center"
+                    >
+                      Falar com vendas
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                </Reveal>
+
+                {/* NATIVE */}
+                <Reveal variant="right" delay={0.1}>
+                  <div className="p-6 md:p-8 rounded-2xl border-2 border-ddg-ink bg-ddg-cream h-full flex flex-col md:flex-row gap-6 items-start">
+                    <div className="flex-1 min-w-0">
+                      <div className="ddg-bracket mb-2">INTEGRAÇÃO NATIVA</div>
+                      <h4 className="text-xl font-black mb-2">Native</h4>
+                      <div className="flex items-baseline gap-1 mb-1">
+                        <span className="text-base font-bold text-ddg-muted">R$</span>
+                        <AnimatedCounter
+                          to={2497}
+                          duration={1.4}
+                          className="text-3xl md:text-4xl font-black tabular-nums"
+                        />
+                        <span className="text-ddg-muted text-xs">setup</span>
+                      </div>
+                      <div className="text-sm text-ddg-muted mb-3">
+                        + <strong className="text-ddg-ink">R$ 1.497/mês</strong> · 7-14 dias implantação
+                      </div>
+                      <p className="text-sm text-ddg-muted leading-relaxed mb-4">
+                        Integração técnica direta no seu site (não reverse proxy). Pra quem quer setup auditado e customizado.
+                      </p>
+                      <ul className="space-y-2 text-xs">
+                        {[
+                          "Integração nativa no seu domínio principal",
+                          "Auditoria SEO profunda na implantação",
+                          "Volume customizado por contrato",
+                          "Account manager dedicado",
+                          "Limite: 30-50 clientes simultâneos (vagas limitadas)",
+                        ].map((it) => (
+                          <li key={it} className="flex items-start gap-2">
+                            <Check className="w-3.5 h-3.5 text-ddg-lime-deep mt-0.5 shrink-0" />
+                            <span>{it}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <Link
+                      href="/contato?plan=native"
+                      className="ddg-cta-ghost inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm shrink-0 self-stretch md:self-center"
+                    >
+                      Falar com vendas
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                </Reveal>
+              </div>
             </div>
 
             <Reveal delay={0.3}>

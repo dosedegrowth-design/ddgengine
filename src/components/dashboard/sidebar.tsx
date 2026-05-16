@@ -10,12 +10,14 @@ import {
   BarChart3,
   Sparkles,
   LogOut,
+  Inbox,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV = [
   { href: "/dashboard", label: "Visão geral", icon: LayoutDashboard },
   { href: "/posts", label: "Conteúdo", icon: FileText },
+  { href: "/inbox", label: "Inbox", icon: Inbox },
   { href: "/metrics", label: "Métricas", icon: BarChart3 },
   { href: "/visibility", label: "AI Visibility", icon: Sparkles },
   { href: "/briefing", label: "Briefing", icon: ClipboardList },

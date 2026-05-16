@@ -42,19 +42,27 @@ export async function generateMetadata({
 
   if (!post) return { title: "Post não encontrado" };
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const ogImage = `${baseUrl}/blog/${orgSlug}/${slug}/og`;
+  const canonicalUrl = `${baseUrl}/blog/${orgSlug}/${slug}`;
+
   return {
     title: post.title,
     description: post.meta_description,
+    alternates: { canonical: canonicalUrl },
     openGraph: {
-      title: post.title,
-      description: post.meta_description,
+      title: post.title ?? "",
+      description: post.meta_description ?? "",
       type: "article",
-      publishedTime: post.published_at,
+      publishedTime: post.published_at ?? undefined,
+      url: canonicalUrl,
+      images: [{ url: ogImage, width: 1200, height: 630 }],
     },
     twitter: {
       card: "summary_large_image",
-      title: post.title,
-      description: post.meta_description,
+      title: post.title ?? "",
+      description: post.meta_description ?? "",
+      images: [ogImage],
     },
   };
 }

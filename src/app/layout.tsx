@@ -43,12 +43,14 @@ export const metadata: Metadata = {
     description:
       "A primeira plataforma brasileira de visibilidade em IA + Google. Setup em 7 minutos, sem plugin, sem código.",
     siteName: "DDG Engine",
+    images: [{ url: "/og", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
     title: "DDG Engine",
     description:
       "Visibilidade automática no Google e ChatGPT. Setup em 7 minutos, sem plugin.",
+    images: ["/og"],
   },
 };
 

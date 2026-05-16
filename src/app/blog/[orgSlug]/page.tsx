@@ -1,0 +1,119 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { createServiceClient } from "@/lib/supabase/server";
+import { formatDate } from "@/lib/utils";
+
+interface Params {
+  orgSlug: string;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<Params>;
+}) {
+  const { orgSlug } = await params;
+  const supabase = createServiceClient();
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("name")
+    .eq("slug", orgSlug)
+    .maybeSingle();
+
+  return {
+    title: org ? `${org.name} · Blog` : "Blog",
+    description: org ? `Conteúdo de ${org.name}` : "Blog",
+  };
+}
+
+export default async function BlogIndexPage({
+  params,
+}: {
+  params: Promise<Params>;
+}) {
+  const { orgSlug } = await params;
+  const supabase = createServiceClient();
+
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("id, name, slug")
+    .eq("slug", orgSlug)
+    .maybeSingle();
+
+  if (!org) notFound();
+
+  const { data: sites } = await supabase
+    .from("sites")
+    .select("id")
+    .eq("organization_id", org.id);
+
+  const siteIds = ((sites ?? []) as Array<{ id: string }>).map((s) => s.id);
+
+  type PostListItem = {
+    id: string;
+    slug: string;
+    title: string | null;
+    meta_description: string | null;
+    type: string;
+    published_at: string | null;
+  };
+
+  const { data: posts } = await supabase
+    .from("posts")
+    .select("id, slug, title, meta_description, type, published_at")
+    .in("site_id", siteIds)
+    .eq("status", "published")
+    .order("published_at", { ascending: false })
+    .limit(50);
+
+  const list = (posts ?? []) as PostListItem[];
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto max-w-4xl px-6 py-16">
+        <header className="mb-12 text-center">
+          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
+            Blog · {org.name}
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Conteúdo gerado e otimizado pra Google e ChatGPT
+          </p>
+        </header>
+
+        {list.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            Nenhum post publicado ainda. Volte em breve.
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {list.map((p) => (
+              <Link
+                key={p.id}
+                href={`/blog/${org.slug}/${p.slug}`}
+                className="block p-6 rounded-lg border bg-card hover:shadow-md transition-all"
+              >
+                <div className="flex items-center gap-2 mb-2 text-xs text-muted-foreground">
+                  <span>{p.type === "long_form" ? "Artigo" : "FAQ"}</span>
+                  {p.published_at && (
+                    <>
+                      <span>·</span>
+                      <span>{formatDate(p.published_at)}</span>
+                    </>
+                  )}
+                </div>
+                <h2 className="text-xl font-semibold tracking-tight mb-2">
+                  {p.title}
+                </h2>
+                {p.meta_description && (
+                  <p className="text-muted-foreground leading-relaxed">
+                    {p.meta_description}
+                  </p>
+                )}
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

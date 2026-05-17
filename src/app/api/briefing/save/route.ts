@@ -193,15 +193,23 @@ export async function POST(req: NextRequest) {
  * Mapeia RefinedBrief → colunas legadas usadas pelo Visibility Tracker.
  */
 function mapRefinedToLegacy(brief: RefinedBrief) {
+  // IMPORTANTE: nomes precisam bater com colunas REAIS de ddg_engine.briefings:
+  // business_description, services (jsonb), region, competitors (jsonb),
+  // target_keywords (array), faq_questions (jsonb), differentiator (text singular),
+  // tone_formal/casual/technical/didactic (integers 0-10 não usados aqui).
+  //
+  // O texto humano de tom de voz vive em refined_brief.voice.tone (jsonb).
   return {
     business_description: brief.identity?.description ?? null,
     services: brief.positioning?.differentials ?? [],
-    region: null, // não temos esse campo nas 12 perguntas; preencher depois
+    region: null,
     competitors: brief.market?.competitors ?? [],
     target_keywords: brief.seo?.primary_keywords ?? [],
     faq_questions: brief.visibility_goal?.target_questions ?? [],
-    tone_of_voice: brief.voice?.tone ?? null,
-    differentials: brief.positioning?.differentials ?? [],
+    differentiator:
+      brief.positioning?.unique_value ||
+      brief.positioning?.differentials?.[0] ||
+      null,
   };
 }
 

@@ -138,7 +138,7 @@ export default async function BriefingPage() {
           )}
         </Section>
 
-        <Section title="Visibility em IA" icon={Sparkles}>
+        <Section title="Aparições em IA" icon={Sparkles}>
           <Field
             label="Perguntas-alvo"
             value={brief.visibility_goal?.target_questions?.join("\n")}

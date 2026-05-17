@@ -43,7 +43,7 @@ export default async function VisibilityPage() {
   return (
     <div>
       <PageHeader
-        bracket="AI VISIBILITY"
+        bracket="APARIÇÕES EM IA"
         title="Sua marca nas IAs"
         subtitle="Quantas vezes você apareceu em ChatGPT, Perplexity, Claude e Gemini esta semana."
         actions={<RunVisibilityButton siteId={site.id} />}
@@ -53,8 +53,8 @@ export default async function VisibilityPage() {
         {!latest ? (
           <EmptyState
             icon={Sparkles}
-            title="Nenhum tracking rodado ainda"
-            description='Clica em "Rodar tracking" pra fazer o primeiro snapshot. Toda semana o sistema vai rodar automaticamente.'
+            title="Ainda não rodamos nenhuma análise"
+            description='Clica em "Rodar análise" pra fazer o primeiro mapeamento. Depois, o sistema repete sozinho toda semana.'
           />
         ) : (
           <>
@@ -67,17 +67,17 @@ export default async function VisibilityPage() {
                 accent
               />
               <KpiCard
-                label="Share of Voice"
+                label="Sua participação"
                 value={`${((shareOfVoice.brand ?? 0) * 100).toFixed(1)}%`}
                 hint="vs concorrentes"
               />
               <KpiCard
-                label="LLMs"
+                label="IAs monitoradas"
                 value={Object.keys(citationsByLlm).length || "—"}
-                hint="monitoradas"
+                hint="nesta análise"
               />
               <KpiCard
-                label="Custo do run"
+                label="Custo da análise"
                 value={`US$ ${Number(latest.cost_usd ?? 0).toFixed(2)}`}
                 hint={`${formatRelativeTime(latest.completed_at ?? latest.started_at)}`}
               />
@@ -87,7 +87,7 @@ export default async function VisibilityPage() {
             <div className="grid lg:grid-cols-2 gap-4 md:gap-5">
               <div className="rounded-2xl border-2 border-ddg-ink bg-ddg-paper p-5 md:p-6">
                 <div className="mb-4">
-                  <div className="ddg-bracket mb-1">CITAÇÕES POR LLM</div>
+                  <div className="ddg-bracket mb-1">CITAÇÕES POR IA</div>
                   <h2 className="text-lg font-black text-ddg-ink">
                     Distribuição esta semana
                   </h2>
@@ -139,7 +139,7 @@ export default async function VisibilityPage() {
                   aria-hidden
                 />
                 <div className="relative mb-4">
-                  <div className="ddg-bracket text-ddg-lime mb-1">SHARE OF VOICE</div>
+                  <div className="ddg-bracket text-ddg-lime mb-1">PARTICIPAÇÃO</div>
                   <h2 className="text-lg font-black text-ddg-paper">
                     Você vs concorrentes
                   </h2>
@@ -184,7 +184,7 @@ export default async function VisibilityPage() {
             <div className="rounded-2xl border-2 border-ddg-ink bg-ddg-paper p-5 md:p-6">
               <div className="mb-4">
                 <div className="ddg-bracket mb-1">HISTÓRICO</div>
-                <h2 className="text-lg font-black text-ddg-ink">Runs anteriores</h2>
+                <h2 className="text-lg font-black text-ddg-ink">Análises anteriores</h2>
               </div>
 
               <ul className="space-y-2">

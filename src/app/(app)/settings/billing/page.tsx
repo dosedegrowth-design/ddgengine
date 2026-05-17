@@ -7,9 +7,9 @@ import { PLAN_VALUES_BRL } from "@/lib/asaas/api";
 
 const PLAN_FEATURES: Record<string, string[]> = {
   trial: ["14 dias grátis", "2 posts gerados"],
-  starter: ["4 artigos + 8 FAQs", "Auto-publish", "AI Visibility básico"],
-  light: ["6 artigos + 12 FAQs", "Auto-publish", "AI Visibility médio"],
-  pro: ["8 artigos + 16 FAQs", "Aprovação WhatsApp", "AI Visibility completo"],
+  starter: ["4 artigos + 8 FAQs", "Auto-publish", "Aparições em IA básico"],
+  light: ["6 artigos + 12 FAQs", "Auto-publish", "Aparições em IA médio"],
+  pro: ["8 artigos + 16 FAQs", "Aprovação WhatsApp", "Aparições em IA completo"],
   multi: ["16 artigos + 32 FAQs × 3 sites", "Brand RAG avançado", "Suporte prioritário"],
   agency: ["Ilimitado em 30 sites", "White-label", "API + dedicado"],
 };

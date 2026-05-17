@@ -146,12 +146,12 @@ export default async function DashboardPage() {
           />
           <KpiCard
             icon={Sparkles}
-            label="Share IA"
+            label="Aparições em IA"
             value={`${(brandSov * 100).toFixed(0)}%`}
             hint={
               latestVisibility
                 ? `${latestVisibility.total_citations} citações esta semana`
-                : "Ative tracking"
+                : "Configurar rastreamento"
             }
             href="/visibility"
             accent
@@ -236,12 +236,12 @@ export default async function DashboardPage() {
             {!latestVisibility ? (
               <div className="relative text-center py-6 text-sm text-ddg-paper/60">
                 <Sparkles className="w-8 h-8 mx-auto mb-3 text-ddg-lime opacity-50" />
-                <p className="mb-4">Nenhum tracking rodado ainda.</p>
+                <p className="mb-4">Ainda não rodamos nenhuma análise.</p>
                 <Link
                   href="/visibility"
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-ddg-lime text-ddg-ink font-bold text-xs border-2 border-ddg-ink shadow-[2px_2px_0_var(--ddg-ink)] hover:-translate-y-0.5 hover:shadow-[3px_3px_0_var(--ddg-ink)] transition-all"
                 >
-                  Rodar primeiro tracking
+                  Rodar primeira análise
                 </Link>
               </div>
             ) : (

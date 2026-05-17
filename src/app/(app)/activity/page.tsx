@@ -13,7 +13,7 @@ const EVENT_LABELS: Record<
 > = {
   site_audited: { label: "Site analisado", tone: "info" },
   worker_deployed: { label: "Integração ativada", tone: "success" },
-  visibility_run_completed: { label: "Tracking IA concluído", tone: "success" },
+  visibility_run_completed: { label: "Análise de IA concluída", tone: "success" },
   post_approved_whatsapp: { label: "Post aprovado (WhatsApp)", tone: "success" },
   post_published: { label: "Post publicado", tone: "success" },
   post_generated: { label: "Post gerado", tone: "info" },

@@ -67,7 +67,7 @@ export default async function WebhooksPage() {
             <EventRow event="post.published" desc="Quando um post é publicado no blog" />
             <EventRow event="post.failed" desc="Quando geração de post falha" />
             <EventRow event="post.scheduled" desc="Quando post é agendado pra publicar" />
-            <EventRow event="visibility.run.completed" desc="Tracking IA semanal concluído" />
+            <EventRow event="visibility.run.completed" desc="Análise semanal de aparições em IA concluída" />
             <EventRow event="metrics.threshold" desc="Milestone atingido (visitas, posições)" />
           </div>
           <div className="mt-6 p-4 rounded-md bg-muted/40 border text-xs space-y-2">

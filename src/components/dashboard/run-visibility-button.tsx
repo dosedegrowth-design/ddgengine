@@ -12,7 +12,7 @@ export function RunVisibilityButton({ siteId: _siteId }: { siteId: string }) {
     <Button
       onClick={() =>
         start(async () => {
-          toast.info("Iniciando AI Visibility Tracking... pode levar 5-10 min");
+          toast.info("Iniciando análise de aparições em IA… pode levar 5-10 min");
           const r = await runVisibilityAction();
           if ("error" in r && r.error) toast.error(r.error);
           else if ("success" in r && r.success) {
@@ -23,7 +23,7 @@ export function RunVisibilityButton({ siteId: _siteId }: { siteId: string }) {
       disabled={pending}
     >
       {pending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-      Rodar tracking
+      Rodar análise
     </Button>
   );
 }

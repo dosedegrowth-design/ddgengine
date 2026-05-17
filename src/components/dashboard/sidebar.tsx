@@ -44,7 +44,7 @@ const NAV_GROUPS: Array<{
   {
     label: "Performance",
     items: [
-      { href: "/visibility", label: "Visibility em IA", icon: Sparkles },
+      { href: "/visibility", label: "Aparições em IA", icon: Sparkles },
       { href: "/metrics", label: "Métricas", icon: BarChart3 },
     ],
   },

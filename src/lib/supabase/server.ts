@@ -2,6 +2,7 @@
  * Supabase client para uso no SERVIDOR (Server Components, Server Actions, Route Handlers).
  */
 import { createServerClient } from "@supabase/ssr";
+import { createClient as createSupaClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
 export async function createClient() {
@@ -41,8 +42,6 @@ export function createServiceClient() {
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error("SUPABASE_SERVICE_ROLE_KEY não configurada");
   }
-
-  const { createClient: createSupaClient } = require("@supabase/supabase-js");
 
   return createSupaClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

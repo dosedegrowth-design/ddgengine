@@ -67,6 +67,19 @@ OUTPUT obrigatório: JSON válido com este schema exato:
 Retorne APENAS o JSON, sem markdown, sem comentários.`;
 
 export async function refineBriefing(raw: RawAnswers): Promise<RefinedBrief> {
+  // Tenta Claude primeiro — se falhar (sem créditos, timeout, JSON inválido),
+  // cai pra fallback determinístico que mapeia raw → refined campo a campo.
+  // O user revisa/edita tudo na tela de Revisão, então não perdemos info.
+  try {
+    return await refineWithClaude(raw);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn("[refineBriefing] Claude falhou, usando fallback determinístico:", msg);
+    return buildFallbackBrief(raw);
+  }
+}
+
+async function refineWithClaude(raw: RawAnswers): Promise<RefinedBrief> {
   // Monta input legível pro Claude
   const input = Object.entries(raw)
     .filter(([_, ans]) => ans?.value)
@@ -92,20 +105,80 @@ export async function refineBriefing(raw: RawAnswers): Promise<RefinedBrief> {
   });
 
   // Parse JSON do output
-  let parsed: RefinedBrief;
-  try {
-    const cleaned = result.text
-      .trim()
-      .replace(/^```json\s*/, "")
-      .replace(/```$/, "");
-    parsed = JSON.parse(cleaned);
-  } catch (err) {
-    throw new Error(
-      `Claude retornou JSON inválido: ${err instanceof Error ? err.message : "unknown"}\n\nOutput: ${result.text.slice(0, 500)}`
-    );
-  }
+  const cleaned = result.text
+    .trim()
+    .replace(/^```json\s*/, "")
+    .replace(/```$/, "");
+  return JSON.parse(cleaned) as RefinedBrief;
+}
 
-  return parsed;
+/**
+ * Fallback determinístico — mapeia raw_answers → RefinedBrief sem IA.
+ * Usado quando Claude tá indisponível. Empresário edita tudo na revisão.
+ */
+function buildFallbackBrief(raw: RawAnswers): RefinedBrief {
+  const v = (id: string): string => raw[id]?.value?.trim() ?? "";
+  const list = (id: string): string[] =>
+    v(id)
+      .split(/\r?\n|,/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+  // Tone of voice pode ser multichoice (CSV) ou texto livre
+  const toneRaw = v("tone_of_voice");
+  const toneMap: Record<string, string> = {
+    formal: "Formal e técnica",
+    casual: "Casual e descontraída",
+    premium: "Premium e sofisticada",
+    didatica: "Didática e explicativa",
+    irreverente: "Irreverente e direta",
+    consultiva: "Consultiva e profissional",
+  };
+  const toneLabel =
+    toneRaw
+      .split(",")
+      .map((t) => toneMap[t.trim()] ?? t.trim())
+      .filter(Boolean)
+      .join(" · ") || toneRaw;
+
+  return {
+    identity: {
+      company_name: v("company_name"),
+      description: v("what_we_do"),
+      elevator_pitch: v("what_we_do"),
+    },
+    audience: {
+      ideal_customer: v("ideal_customer"),
+      demographics: "",
+      main_pain: v("main_pain"),
+    },
+    positioning: {
+      differentials: list("differentials"),
+      unique_value: v("differentials").split("\n")[0]?.trim() ?? "",
+    },
+    voice: {
+      tone: toneLabel,
+      style_notes: v("unique_voice"),
+      expressions_to_use: [],
+      expressions_to_avoid: [],
+    },
+    seo: {
+      primary_keywords: list("target_keywords").slice(0, 8),
+      secondary_keywords: list("target_keywords").slice(8),
+    },
+    visibility_goal: {
+      target_questions: list("ai_visibility_goal"),
+    },
+    market: {
+      competitors: list("competitors"),
+    },
+    storytelling: {
+      case_summaries: v("client_case") ? [v("client_case")] : [],
+    },
+    migration: {
+      existing_urls: list("existing_content"),
+    },
+  };
 }
 
 export { CLAUDE_MODEL };

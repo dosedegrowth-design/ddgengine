@@ -212,7 +212,7 @@ export function OnboardingFlow({ initialBriefing, initialSite, userName }: Props
           <div className="grid md:grid-cols-3 gap-3 mb-8">
             <ModeCard
               icon={ListChecks}
-              title="Quiz guiado"
+              title="Perguntas guiadas"
               desc="12 perguntas curtas. Pode complementar cada uma com áudio."
               active={mode === "guided"}
               onClick={() => setMode("guided")}
@@ -306,7 +306,7 @@ export function OnboardingFlow({ initialBriefing, initialSite, userName }: Props
                 disabled={!siteUrl.trim()}
                 className="inline-flex items-center gap-2 h-11 px-6 rounded-lg bg-ddg-lime text-ddg-ink font-bold text-sm border-2 border-ddg-ink shadow-[3px_3px_0_var(--ddg-ink)] hover:shadow-[5px_5px_0_var(--ddg-ink)] hover:-translate-y-0.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-[3px_3px_0_var(--ddg-ink)] disabled:hover:translate-y-0"
               >
-                {mode === "audio_free" ? "Gravar briefing" : "Começar quiz"}
+                {mode === "audio_free" ? "Gravar briefing" : "Começar perguntas"}
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -677,7 +677,7 @@ export function OnboardingFlow({ initialBriefing, initialSite, userName }: Props
               className="inline-flex items-center gap-1.5 text-sm text-ddg-paper/60 hover:text-ddg-paper"
             >
               <ArrowLeft className="w-4 h-4" />
-              Voltar pro quiz
+              Voltar pras perguntas
             </button>
             <Magnet strength={0.15}>
               <button

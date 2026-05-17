@@ -9,6 +9,7 @@
  * - Output sempre JSON válido tipado
  */
 import { generateWithClaude, CLAUDE_MODEL } from "@/lib/ai/claude";
+import { generateWithOpenAI } from "@/lib/ai/openai-chat";
 import { QUESTIONS_BY_ID, type RawAnswers, type RefinedBrief } from "./questions";
 
 const SYSTEM_PROMPT = `Você é um editor sênior brasileiro especializado em organizar briefings de marca pra alimentar uma engine de SEO + IA Visibility.
@@ -67,31 +68,55 @@ OUTPUT obrigatório: JSON válido com este schema exato:
 Retorne APENAS o JSON, sem markdown, sem comentários.`;
 
 export async function refineBriefing(raw: RawAnswers): Promise<RefinedBrief> {
-  // Tenta Claude primeiro — se falhar (sem créditos, timeout, JSON inválido),
-  // cai pra fallback determinístico que mapeia raw → refined campo a campo.
-  // O user revisa/edita tudo na tela de Revisão, então não perdemos info.
+  // Encadeamento de providers:
+  //   1) Claude Sonnet 4.5 (preferido — entrega melhor refino)
+  //   2) GPT-4o-mini (fallback se Claude sem créditos / timeout / JSON inválido)
+  //   3) buildFallbackBrief() — mapeamento determinístico sem IA
+  // O user edita tudo na tela de Revisão, nada se perde.
+  const input = buildInputBlock(raw);
+
+  // Tentativa 1 — Claude
   try {
-    return await refineWithClaude(raw);
+    return await refineWithClaude(input);
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.warn("[refineBriefing] Claude falhou, usando fallback determinístico:", msg);
-    return buildFallbackBrief(raw);
+    console.warn(
+      "[refineBriefing] Claude falhou, tentando OpenAI:",
+      err instanceof Error ? err.message : String(err)
+    );
   }
+
+  // Tentativa 2 — OpenAI
+  try {
+    return await refineWithOpenAI(input);
+  } catch (err) {
+    console.warn(
+      "[refineBriefing] OpenAI falhou, usando fallback determinístico:",
+      err instanceof Error ? err.message : String(err)
+    );
+  }
+
+  // Tentativa 3 — determinístico
+  return buildFallbackBrief(raw);
 }
 
-async function refineWithClaude(raw: RawAnswers): Promise<RefinedBrief> {
-  // Monta input legível pro Claude
-  const input = Object.entries(raw)
+function buildInputBlock(raw: RawAnswers): string {
+  return Object.entries(raw)
     .filter(([_, ans]) => ans?.value)
     .map(([qid, ans]) => {
       const q = QUESTIONS_BY_ID[qid];
       const label = q?.label ?? qid;
       const sourceTag =
-        ans.source === "audio" ? " [áudio transcrito]" : ans.source === "mixed" ? " [texto + áudio]" : "";
+        ans.source === "audio"
+          ? " [áudio transcrito]"
+          : ans.source === "mixed"
+          ? " [texto + áudio]"
+          : "";
       return `### ${label}${sourceTag}\n${ans.value.trim()}`;
     })
     .join("\n\n");
+}
 
+async function refineWithClaude(input: string): Promise<RefinedBrief> {
   const result = await generateWithClaude({
     system: SYSTEM_PROMPT,
     messages: [
@@ -104,12 +129,28 @@ async function refineWithClaude(raw: RawAnswers): Promise<RefinedBrief> {
     temperature: 0.3,
   });
 
-  // Parse JSON do output
   const cleaned = result.text
     .trim()
     .replace(/^```json\s*/, "")
     .replace(/```$/, "");
   return JSON.parse(cleaned) as RefinedBrief;
+}
+
+async function refineWithOpenAI(input: string): Promise<RefinedBrief> {
+  const result = await generateWithOpenAI({
+    system: SYSTEM_PROMPT,
+    messages: [
+      {
+        role: "user",
+        content: `Aqui estão as respostas brutas do briefing. Organize no schema RefinedBrief:\n\n${input}`,
+      },
+    ],
+    max_tokens: 4000,
+    temperature: 0.3,
+    json: true, // força response_format: json_object
+  });
+
+  return JSON.parse(result.text) as RefinedBrief;
 }
 
 /**

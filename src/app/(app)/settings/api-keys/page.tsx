@@ -1,11 +1,19 @@
+import { redirect } from "next/navigation";
 import { getCurrentOrg } from "@/lib/auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ApiKeysManager } from "./api-keys-manager";
 import { formatRelativeTime } from "@/lib/utils";
 
+const POWER_PLANS = new Set(["agency", "native"]);
+
 export default async function ApiKeysPage() {
   const { org, supabase } = await getCurrentOrg();
+
+  // Gate de plano: API Keys só pra Agência/Native
+  if (!POWER_PLANS.has(org.plan ?? "trial")) {
+    redirect("/settings/billing");
+  }
 
   const { data: keys } = await supabase
     .from("api_keys")

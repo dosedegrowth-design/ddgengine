@@ -5,6 +5,13 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight, BarChart3, FileText, Sparkles, Zap, MessageCircle, Globe } from "lucide-react";
 import { getCurrentSite } from "@/lib/auth";
 import { formatRelativeTime } from "@/lib/utils";
+import { FirstUseHero } from "@/components/dashboard/first-use-hero";
+
+interface RefinedBriefShape {
+  positioning?: { differentials?: string[]; unique_value?: string };
+  seo?: { primary_keywords?: string[] };
+  visibility_goal?: { target_questions?: string[] };
+}
 
 export default async function DashboardPage() {
   const { site, supabase, org } = await getCurrentSite();
@@ -78,6 +85,18 @@ export default async function DashboardPage() {
 
   const brandSov = (((latestVisibility?.share_of_voice as Record<string, number>) ?? {}).brand ?? 0);
 
+  // Carrega briefing pra extrair sugestões do FirstUseHero (quando 0 posts)
+  const noPostsYet = (totalPosts ?? 0) === 0;
+  let briefSugestoes: RefinedBriefShape | null = null;
+  if (noPostsYet) {
+    const { data: briefing } = await supabase
+      .from("briefings")
+      .select("refined_brief")
+      .eq("organization_id", org.id)
+      .maybeSingle();
+    briefSugestoes = (briefing?.refined_brief as RefinedBriefShape | null) ?? null;
+  }
+
   return (
     <div className="min-h-screen">
       {/* Header */}
@@ -120,6 +139,18 @@ export default async function DashboardPage() {
       </header>
 
       <div className="container mx-auto max-w-7xl px-6 py-8 md:py-10 space-y-8">
+        {/* Primeiro uso — sugestões prontas baseadas no briefing */}
+        {noPostsYet && (
+          <FirstUseHero
+            primaryKeyword={briefSugestoes?.seo?.primary_keywords?.[0]}
+            targetQuestion={briefSugestoes?.visibility_goal?.target_questions?.[0]}
+            differentialTopic={
+              briefSugestoes?.positioning?.unique_value ||
+              briefSugestoes?.positioning?.differentials?.[0]
+            }
+          />
+        )}
+
         {/* KPIs */}
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           <KpiCard

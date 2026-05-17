@@ -18,6 +18,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { embed } from "@/lib/ai/embeddings";
+import { slugify } from "@/lib/utils";
 import type { RawAnswers, RefinedBrief } from "@/lib/briefing/questions";
 
 export const runtime = "nodejs";
@@ -71,12 +72,25 @@ export async function POST(req: NextRequest) {
 
     // Se site_url veio e ainda não há site, cria
     if (!site && body.site_url) {
+      const domain = extractDomain(body.site_url);
+      // tenant_slug é UNIQUE global — usa org slug + domain + entropy
+      const { data: orgData } = await supabase
+        .from("organizations")
+        .select("slug")
+        .eq("id", orgId)
+        .single();
+      const orgSlug = orgData?.slug ?? "org";
+      const tenantSlug = `${slugify(orgSlug)}-${domain.replace(/\./g, "-")}-${Math.random()
+        .toString(36)
+        .slice(2, 6)}`;
+
       const { data: newSite, error } = await supabase
         .from("sites")
         .insert({
           organization_id: orgId,
-          url: body.site_url,
-          name: extractDomain(body.site_url),
+          domain,
+          tenant_slug: tenantSlug,
+          status: "pending",
         })
         .select("id")
         .single();
@@ -143,9 +157,17 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ briefing_id: briefingId, site_id: site?.id });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Erro desconhecido";
-    console.error("[/api/briefing/save]", msg);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    // PostgrestError não é instanceof Error — extrai campos manualmente
+    const isPgError = typeof err === "object" && err !== null && "message" in err;
+    const pgErr = isPgError ? (err as { message?: string; code?: string; details?: string; hint?: string }) : null;
+    const msg = pgErr?.message ?? (err instanceof Error ? err.message : "Erro desconhecido");
+    console.error("[/api/briefing/save]", JSON.stringify({
+      message: msg,
+      code: pgErr?.code,
+      details: pgErr?.details,
+      hint: pgErr?.hint,
+    }));
+    return NextResponse.json({ error: msg, code: pgErr?.code }, { status: 500 });
   }
 }
 

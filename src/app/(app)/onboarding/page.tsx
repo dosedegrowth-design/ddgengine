@@ -13,14 +13,19 @@ export default async function OnboardingPage() {
 
   const { data: site } = await supabase
     .from("sites")
-    .select("id, url")
+    .select("id, domain")
     .eq("organization_id", org.id)
     .maybeSingle();
+
+  // Normaliza pra forma que o OnboardingFlow espera (initialSite.url)
+  const initialSite = site
+    ? { id: site.id, url: site.domain ? `https://${site.domain}` : "" }
+    : null;
 
   return (
     <OnboardingFlow
       initialBriefing={briefing}
-      initialSite={site}
+      initialSite={initialSite}
       userName={user.email?.split("@")[0] ?? ""}
     />
   );

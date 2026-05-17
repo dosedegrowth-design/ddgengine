@@ -34,21 +34,31 @@ export async function signupWithEmail(formData: FormData) {
   }
 
   // Cria org + membership via SERVICE ROLE (bypass RLS).
-  // O user pode estar com sessão ainda não-ativa (email confirmation),
-  // ou com sessão recém-criada — em ambos casos service role é seguro
-  // porque só rodamos isso uma vez no signup.
   if (data.user) {
     await criarOrganizacaoInicial(data.user.id, name);
   }
 
-  revalidatePath("/", "layout");
-
-  // Se email confirmation está ativo, session será null aqui — manda pro login
-  // com mensagem explicativa. Senão, manda pro onboarding direto.
+  // Garante sessão ativa: mesmo com trigger auto-confirm em auth.users,
+  // o signUp do Supabase respeita o flag "Confirm email" do projeto e
+  // pode retornar session=null. Fazemos signInWithPassword pra forçar
+  // a sessão e setar cookies do user logado.
   if (!data.session) {
-    redirect("/login?confirmed=pending");
+    const { error: signInErr } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (signInErr) {
+      console.error("[signup] signIn pós-signup falhou:", JSON.stringify({
+        message: signInErr.message,
+        code: signInErr.code,
+      }));
+      // Email confirmation realmente bloqueando — manda pro login
+      revalidatePath("/", "layout");
+      redirect("/login?confirmed=pending");
+    }
   }
 
+  revalidatePath("/", "layout");
   redirect("/onboarding");
 }
 

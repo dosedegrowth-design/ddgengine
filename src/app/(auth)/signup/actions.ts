@@ -79,16 +79,31 @@ async function criarOrganizacaoInicial(userId: string, userName: string) {
       .single();
 
     if (!error && org) {
-      await admin.from("org_memberships").insert({
+      const { error: memErr } = await admin.from("org_memberships").insert({
         organization_id: org.id,
         user_id: userId,
         role: "owner",
       });
+      if (memErr) {
+        console.error("[signup] erro ao criar membership:", JSON.stringify({
+          message: memErr.message,
+          code: memErr.code,
+          details: memErr.details,
+          hint: memErr.hint,
+        }));
+      }
       return org;
     }
 
     if (error && !error.message.includes("duplicate")) {
-      console.error("[signup] erro ao criar org:", error.message);
+      console.error("[signup] erro ao criar org:", JSON.stringify({
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+        slug,
+        userId,
+      }));
       return null;
     }
   }

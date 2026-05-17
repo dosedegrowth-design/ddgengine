@@ -20,7 +20,7 @@ const EVENT_LABELS: Record<string, { label: string; desc: string }> = {
   monthly_report: { label: "Relatório mensal", desc: "PDF executivo + recomendações no dia 1" },
   ai_visibility_milestone: { label: "Milestone de IA", desc: "Quando bate marcos de citação em IA" },
   billing: { label: "Cobrança e pagamento", desc: "Recibos, falhas, próximas cobranças" },
-  technical_issue: { label: "Problema técnico", desc: "Worker offline, erro de sync, etc" },
+  technical_issue: { label: "Problema técnico", desc: "Integração com problema, falha de sincronização, etc" },
 };
 
 export function NotificationPrefsForm({

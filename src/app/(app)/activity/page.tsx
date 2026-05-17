@@ -11,8 +11,8 @@ const EVENT_LABELS: Record<
   string,
   { label: string; tone: "success" | "info" | "warning" | "neutral" }
 > = {
-  site_audited: { label: "Site auditado", tone: "info" },
-  worker_deployed: { label: "Worker deployado", tone: "success" },
+  site_audited: { label: "Site analisado", tone: "info" },
+  worker_deployed: { label: "Integração ativada", tone: "success" },
   visibility_run_completed: { label: "Tracking IA concluído", tone: "success" },
   post_approved_whatsapp: { label: "Post aprovado (WhatsApp)", tone: "success" },
   post_published: { label: "Post publicado", tone: "success" },

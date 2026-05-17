@@ -1,3 +1,10 @@
+/**
+ * /settings/site — Status da integração do site do cliente.
+ *
+ * IMPORTANTE: copy deliberadamente NEUTRA. Não mencionar Cloudflare,
+ * Worker, reverse proxy, tenant_slug, env vars ou qualquer detalhe
+ * de stack. Pro cliente isso é só "sua integração com a engine".
+ */
 import { redirect } from "next/navigation";
 import { getCurrentSite } from "@/lib/auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,65 +12,96 @@ import { Badge } from "@/components/ui/badge";
 import { SiteSettingsForm } from "./site-form";
 import { ImportWordPressForm } from "./import-wp";
 
+const STATUS_LABEL: Record<string, { label: string; variant: "success" | "warning" | "secondary" }> = {
+  active: { label: "Conectado", variant: "success" },
+  configuring: { label: "Configurando", variant: "warning" },
+  pending: { label: "Aguardando", variant: "secondary" },
+  auditing: { label: "Analisando seu site", variant: "warning" },
+  paused: { label: "Pausada", variant: "secondary" },
+  error: { label: "Atenção", variant: "warning" },
+};
+
 export default async function SiteSettingsPage() {
   const { site, supabase } = await getCurrentSite();
   if (!site) redirect("/onboarding");
 
   const { data: worker } = await supabase
     .from("cloudflare_workers")
-    .select("*")
+    .select("status, last_health_check_at, last_response_ms")
     .eq("site_id", site.id)
     .maybeSingle();
+
+  const statusInfo = STATUS_LABEL[site.status] ?? STATUS_LABEL.pending;
+  const integrationActive = worker?.status === "deployed";
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Site conectado</CardTitle>
+          <CardTitle>Seu site</CardTitle>
           <CardDescription>
-            {site.domain} · Status: <Badge variant={site.status === "active" ? "success" : "secondary"}>{site.status}</Badge>
+            {site.domain} ·{" "}
+            <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
-          <Row label="Stack detectada" value={site.stack_detected ?? "—"} />
-          <Row label="Cloudflare" value={site.has_cloudflare ? "Ativo" : "Não detectado"} />
-          <Row label="Método" value={site.proxy_method ?? "—"} />
-          <Row label="Path do blog" value={site.proxy_path ?? "/blog"} />
-          <Row label="Score auditoria" value={`${site.audit_score ?? 0}/100`} />
-          <Row label="Tenant slug" value={<code className="text-xs">{site.tenant_slug}</code>} />
+          <Row label="Endereço" value={site.domain} />
+          <Row label="Pasta do blog" value={site.proxy_path ?? "/blog"} />
+          <Row
+            label="Análise técnica"
+            value={
+              site.audit_score
+                ? `${site.audit_score}/100`
+                : "—"
+            }
+          />
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Reverse Proxy (Cloudflare Worker)</CardTitle>
+          <CardTitle>Integração</CardTitle>
           <CardDescription>
-            Deploy do Worker que serve seu blog em {site.domain}{site.proxy_path ?? "/blog"}
+            Conexão entre a engine e {site.domain}
+            {site.proxy_path ?? "/blog"} — onde seus posts vão aparecer.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          {worker ? (
+          {integrationActive ? (
             <>
-              <Row label="Worker" value={<code className="text-xs">{worker.worker_name}</code>} />
-              <Row label="Rota" value={<code className="text-xs">{worker.worker_route}</code>} />
-              <Row label="Status" value={<Badge variant={worker.status === "deployed" ? "success" : "warning"}>{worker.status}</Badge>} />
-              <Row label="Último check" value={worker.last_health_check_at ? new Date(worker.last_health_check_at).toLocaleString("pt-BR") : "—"} />
-              <Row label="Latência" value={worker.last_response_ms ? `${worker.last_response_ms}ms` : "—"} />
+              <Row
+                label="Status"
+                value={<Badge variant="success">Ativa</Badge>}
+              />
+              <Row
+                label="Última verificação"
+                value={
+                  worker?.last_health_check_at
+                    ? new Date(worker.last_health_check_at).toLocaleString("pt-BR")
+                    : "—"
+                }
+              />
+              <Row
+                label="Tempo de resposta"
+                value={worker?.last_response_ms ? `${worker.last_response_ms}ms` : "—"}
+              />
             </>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Worker ainda não foi deployado. Configure CLOUDFLARE_API_TOKEN nas envs.
+              Estamos preparando sua integração. Em breve seu blog estará no ar — você
+              será avisado por e-mail quando estiver tudo pronto.
             </p>
           )}
-          <SiteSettingsForm siteId={site.id} hasWorker={!!worker} />
+          <SiteSettingsForm siteId={site.id} hasWorker={integrationActive} />
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Importar de WordPress</CardTitle>
+          <CardTitle>Importar conteúdo antigo</CardTitle>
           <CardDescription>
-            Tem um blog antigo? Importe posts via REST API. Eles ficam arquivados pra você re-otimizar com IA.
+            Tem um blog antigo no WordPress? Importe os posts pra a engine
+            re-otimizar com IA.
           </CardDescription>
         </CardHeader>
         <CardContent>

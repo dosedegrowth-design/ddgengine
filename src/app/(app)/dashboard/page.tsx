@@ -303,8 +303,8 @@ export default async function DashboardPage() {
           />
           <ActionCard
             icon={Globe}
-            label="Reverse Proxy"
-            title="Configurar Cloudflare"
+            label="Integração"
+            title="Status do seu site"
             href="/settings/site"
           />
         </section>

@@ -18,26 +18,26 @@ export function SiteSettingsForm({ siteId, hasWorker }: { siteId: string; hasWor
           start(async () => {
             const r = await redoAudit(siteId);
             if ("error" in r && r.error) toast.error(r.error);
-            else toast.success("Auditoria refeita");
+            else toast.success("Análise refeita");
           })
         }
         disabled={pending}
       >
-        {pending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Refazer auditoria"}
+        {pending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Reanalisar site"}
       </Button>
       <Button
         size="sm"
         onClick={() =>
           start(async () => {
-            toast.info("Deployando Worker no Cloudflare...");
+            toast.info("Preparando integração…");
             const r = await deployWorker(siteId);
             if ("error" in r && r.error) toast.error(r.error);
-            else toast.success(`Worker deployado: ${r.workerName}`);
+            else toast.success("Integração pronta");
           })
         }
         disabled={pending}
       >
-        {hasWorker ? "Re-deployar Worker" : "Deployar Worker"}
+        {hasWorker ? "Reativar integração" : "Ativar integração"}
       </Button>
     </div>
   );

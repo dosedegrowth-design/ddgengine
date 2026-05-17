@@ -11,6 +11,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { recordCommission } from "@/lib/billing/referrals";
 
 export const dynamic = "force-dynamic";
 
@@ -70,6 +71,32 @@ export async function POST(request: NextRequest) {
             event_type: "payment_received",
             event_data: { subscription_id: subscriptionId, amount: body.payment?.value },
           });
+
+          // Sistema de afiliados: se essa org foi indicada e o programa está
+          // ativo (REFERRAL_COMMISSION_PCT > 0), registra comissão pro indicador.
+          // Falha silenciosa — não pode bloquear o webhook.
+          try {
+            const paymentValueBrl = Number(body.payment?.value ?? 0);
+            const paymentId = String(body.payment?.id ?? `${subscriptionId}-${Date.now()}`);
+            const paidAt = String(
+              body.payment?.confirmedDate ??
+                body.payment?.paymentDate ??
+                new Date().toISOString()
+            );
+            if (paymentValueBrl > 0) {
+              await recordCommission({
+                referredOrgId: sub.organization_id,
+                paymentId,
+                amountCents: Math.round(paymentValueBrl * 100),
+                paidAt,
+              });
+            }
+          } catch (err) {
+            console.warn(
+              "[asaas webhook] recordCommission falhou:",
+              err instanceof Error ? err.message : String(err)
+            );
+          }
         }
         break;
       }

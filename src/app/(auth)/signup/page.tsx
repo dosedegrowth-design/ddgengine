@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Magnet } from "@/components/landing/motion/magnet";
 import { signupWithEmail } from "./actions";
 import { signInWithGoogle } from "../login/actions";
+import { RefCapture } from "./ref-capture";
 
 export default function SignupPage() {
   const [loading, setLoading] = useState(false);
@@ -33,6 +34,7 @@ export default function SignupPage() {
 
   return (
     <div className="relative">
+      <RefCapture />
       {/* Glass card */}
       <div className="relative rounded-2xl border-2 border-ddg-lime/30 bg-ddg-ink/70 backdrop-blur-2xl shadow-[0_24px_80px_-12px_rgba(0,0,0,0.6)] p-5 md:p-6">
         {/* Header */}

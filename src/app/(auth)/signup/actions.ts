@@ -2,8 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/utils";
+import { attachReferralOnSignup } from "@/lib/billing/referrals";
 
 export async function signupWithEmail(formData: FormData) {
   const name = formData.get("name")?.toString();
@@ -34,8 +36,28 @@ export async function signupWithEmail(formData: FormData) {
   }
 
   // Cria org + membership via SERVICE ROLE (bypass RLS).
+  let createdOrg: { id: string } | null = null;
   if (data.user) {
-    await criarOrganizacaoInicial(data.user.id, name);
+    createdOrg = await criarOrganizacaoInicial(data.user.id, name);
+  }
+
+  // Captura indicação (cookie ddg_ref setado por /signup?ref=CODE).
+  // Falha silenciosa — não pode quebrar o signup.
+  if (createdOrg) {
+    try {
+      const cookieStore = await cookies();
+      const refCode = cookieStore.get("ddg_ref")?.value;
+      if (refCode) {
+        await attachReferralOnSignup(refCode, createdOrg.id);
+        // Limpa o cookie pra não re-associar em logins futuros
+        cookieStore.set("ddg_ref", "", { maxAge: 0, path: "/" });
+      }
+    } catch (err) {
+      console.warn(
+        "[signup] referral attach falhou:",
+        err instanceof Error ? err.message : String(err)
+      );
+    }
   }
 
   // Garante sessão ativa: mesmo com trigger auto-confirm em auth.users,

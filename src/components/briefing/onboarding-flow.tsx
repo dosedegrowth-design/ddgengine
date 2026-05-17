@@ -68,7 +68,6 @@ export function OnboardingFlow({ initialBriefing, initialSite, userName }: Props
   const [mode, setMode] = useState<Mode>(initialBriefing?.mode ?? "guided");
   const [siteUrl, setSiteUrl] = useState(initialSite?.url ?? "");
   const [answers, setAnswers] = useState<RawAnswers>(initialBriefing?.raw_answers ?? {});
-  const [stepIndex, setStepIndex] = useState(0);
   const [refined, setRefined] = useState<RefinedBrief | null>(initialBriefing?.refined_brief ?? null);
   const [refining, setRefining] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -78,6 +77,27 @@ export function OnboardingFlow({ initialBriefing, initialSite, userName }: Props
     if (mode === "minimal") return REQUIRED_QUESTIONS;
     return BRIEFING_QUESTIONS;
   }, [mode]);
+
+  // Resume — pula stepIndex pra primeira pergunta SEM resposta.
+  // Se todas respondidas, fica na última (UI mostra "Revisar" no botão).
+  const initialStepIndex = useMemo(() => {
+    const initialAnswers = initialBriefing?.raw_answers ?? {};
+    const firstUnanswered = questions.findIndex((q) => {
+      const a = initialAnswers[q.id];
+      return !a?.value?.trim();
+    });
+    return firstUnanswered === -1 ? Math.max(0, questions.length - 1) : firstUnanswered;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // só na primeira render — depois é o user navegando
+  const [stepIndex, setStepIndex] = useState(initialStepIndex);
+
+  // Conta quantas respostas já estavam salvas — pra mostrar banner "Continuando"
+  const resumedAnswersCount = useMemo(() => {
+    const initialAnswers = initialBriefing?.raw_answers ?? {};
+    return Object.values(initialAnswers).filter((a) => a?.value?.trim()).length;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const isResuming = resumedAnswersCount > 0;
 
   // ===== EFFECTS (no topo, fora de condicionais — regra dos hooks) =====
 
@@ -396,6 +416,22 @@ export function OnboardingFlow({ initialBriefing, initialSite, userName }: Props
             total={3 + questions.length}
             label="Briefing"
           />
+
+          {/* Banner "Continuando de onde parou" — só aparece se voltou com respostas */}
+          {isResuming && stepIndex === initialStepIndex && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4 flex items-center gap-3 rounded-lg border border-ddg-lime/30 bg-ddg-lime/5 px-4 py-2.5"
+            >
+              <CheckCircle2 className="w-4 h-4 text-ddg-lime shrink-0" />
+              <p className="text-xs text-ddg-paper/80">
+                <strong className="text-ddg-paper">Continuando de onde você parou.</strong>{" "}
+                {resumedAnswersCount} {resumedAnswersCount === 1 ? "resposta salva" : "respostas salvas"} —
+                pode editar voltando se precisar.
+              </p>
+            </motion.div>
+          )}
 
           <div className="mt-8">
             <AnimatePresence mode="wait">

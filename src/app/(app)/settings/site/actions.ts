@@ -36,10 +36,10 @@ export async function deployWorker(siteId: string) {
   try {
     const result = await deployWorkerForSite(siteId);
     revalidatePath("/settings/site");
-    if (!result.success) return { error: result.error ?? "Falha no deploy" };
+    if (!result.success) return { error: result.error ?? "Falha ao preparar integração" };
     return { success: true, workerName: result.workerName };
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Erro no deploy do Worker" };
+    return { error: err instanceof Error ? err.message : "Erro ao preparar integração" };
   }
 }
 

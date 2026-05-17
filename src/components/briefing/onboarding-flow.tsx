@@ -270,7 +270,7 @@ export function OnboardingFlow({ initialBriefing, initialSite, userName }: Props
             </h2>
             <p className="text-sm text-ddg-paper/60 mb-6">
               Pode ser o site atual, blog, ou landing. A engine vai analisar pra entender o
-              contexto e configurar o reverse proxy depois.
+              contexto e preparar a integração depois.
             </p>
 
             <input

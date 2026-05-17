@@ -62,40 +62,58 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Pega site da org (assumimos 1 site por org no MVP)
-    let { data: site } = await supabase
-      .from("sites")
-      .select("id")
-      .eq("organization_id", orgId)
-      .limit(1)
-      .maybeSingle();
+    // Resolve site: se body.site_url veio, procura pelo (org, domain) exato
+    // (constraint UNIQUE) e reusa. Se não existir, cria. Se não veio site_url
+    // mas a org já tem algum site, usa o primeiro.
+    let site: { id: string } | null = null;
 
-    // Se site_url veio e ainda não há site, cria
-    if (!site && body.site_url) {
+    if (body.site_url) {
       const domain = extractDomain(body.site_url);
-      // tenant_slug é UNIQUE global — usa org slug + domain + entropy
-      const { data: orgData } = await supabase
-        .from("organizations")
-        .select("slug")
-        .eq("id", orgId)
-        .single();
-      const orgSlug = orgData?.slug ?? "org";
-      const tenantSlug = `${slugify(orgSlug)}-${domain.replace(/\./g, "-")}-${Math.random()
-        .toString(36)
-        .slice(2, 6)}`;
 
-      const { data: newSite, error } = await supabase
+      // 1) Procura site EXATO por (org, domain) — reusa se já existe
+      const { data: existing } = await supabase
         .from("sites")
-        .insert({
-          organization_id: orgId,
-          domain,
-          tenant_slug: tenantSlug,
-          status: "pending",
-        })
         .select("id")
-        .single();
-      if (error) throw error;
-      site = newSite;
+        .eq("organization_id", orgId)
+        .eq("domain", domain)
+        .maybeSingle();
+
+      if (existing) {
+        site = existing;
+      } else {
+        // 2) Não existe esse domain — cria
+        const { data: orgData } = await supabase
+          .from("organizations")
+          .select("slug")
+          .eq("id", orgId)
+          .single();
+        const orgSlug = orgData?.slug ?? "org";
+        const tenantSlug = `${slugify(orgSlug)}-${domain.replace(/\./g, "-")}-${Math.random()
+          .toString(36)
+          .slice(2, 6)}`;
+
+        const { data: newSite, error } = await supabase
+          .from("sites")
+          .insert({
+            organization_id: orgId,
+            domain,
+            tenant_slug: tenantSlug,
+            status: "pending",
+          })
+          .select("id")
+          .single();
+        if (error) throw error;
+        site = newSite;
+      }
+    } else {
+      // Sem site_url no body — pega qualquer site existente da org pra anexar briefing
+      const { data: anySite } = await supabase
+        .from("sites")
+        .select("id")
+        .eq("organization_id", orgId)
+        .limit(1)
+        .maybeSingle();
+      site = anySite;
     }
 
     // Mapeia refined_brief pra colunas legadas (compatível com Visibility Tracker)

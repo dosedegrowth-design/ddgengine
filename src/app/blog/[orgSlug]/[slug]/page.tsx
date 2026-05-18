@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
 import { createServiceClient } from "@/lib/supabase/server";
 import { renderMarkdown } from "@/lib/markdown";
 import { formatDate } from "@/lib/utils";
@@ -104,6 +103,17 @@ export default async function BlogPostPage({
 
   if (!post || !post.content_markdown) notFound();
 
+  // Categoria do post (se houver) — pra breadcrumb e link "ver mais"
+  let category: { name: string; slug: string } | null = null;
+  if (post.category_id) {
+    const { data: cat } = await supabase
+      .from("blog_categories")
+      .select("name, slug")
+      .eq("id", post.category_id)
+      .maybeSingle();
+    if (cat) category = cat;
+  }
+
   const html = renderMarkdown(post.content_markdown);
   const schemas = Array.isArray(post.schema_markup)
     ? post.schema_markup
@@ -131,13 +141,23 @@ export default async function BlogPostPage({
       ))}
 
       <div className="container mx-auto max-w-3xl px-6 py-16">
-        <Link
-          href={`/blog/${org.slug}`}
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-8"
-        >
-          <ChevronLeft className="w-4 h-4" />
-          Todos os posts
-        </Link>
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-8" aria-label="Breadcrumb">
+          <Link href={`/blog/${org.slug}`} className="hover:text-foreground transition-colors">
+            Blog
+          </Link>
+          {category && (
+            <>
+              <span>/</span>
+              <Link
+                href={`/blog/${org.slug}/categoria/${category.slug}`}
+                className="hover:text-foreground transition-colors"
+              >
+                {category.name}
+              </Link>
+            </>
+          )}
+        </nav>
 
         <header className="mb-8 space-y-3">
           <div className="text-xs text-muted-foreground uppercase tracking-wide">
@@ -145,6 +165,17 @@ export default async function BlogPostPage({
             {post.published_at && ` · ${formatDate(post.published_at)}`}
             {" · "}
             {formatReadingTime(reading.minutes)}
+            {category && (
+              <>
+                {" · "}
+                <Link
+                  href={`/blog/${org.slug}/categoria/${category.slug}`}
+                  className="text-foreground hover:underline"
+                >
+                  {category.name}
+                </Link>
+              </>
+            )}
           </div>
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-balance">
             {post.title}

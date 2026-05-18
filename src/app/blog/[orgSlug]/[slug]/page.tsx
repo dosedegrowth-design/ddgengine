@@ -8,6 +8,8 @@ import { findRelatedPosts } from "@/lib/posts/related";
 import { ReadingProgress } from "@/components/blog/reading-progress";
 import { SocialShare } from "@/components/blog/social-share";
 import { NewsletterForm } from "@/components/blog/newsletter-form";
+import { BlogShell } from "@/components/blog/blog-shell";
+import { loadBlogShellContext } from "@/lib/blog/load-shell-context";
 
 interface Params {
   orgSlug: string;
@@ -87,11 +89,7 @@ export default async function BlogPostPage({
 
   if (!org) notFound();
 
-  const { data: sites } = await supabase
-    .from("sites")
-    .select("id, domain")
-    .eq("organization_id", org.id);
-  const siteIds = ((sites ?? []) as Array<{ id: string; domain: string }>).map((s) => s.id);
+  const { template, tokens, siteIds } = await loadBlogShellContext(org.id);
 
   const { data: post } = await supabase
     .from("posts")
@@ -128,7 +126,7 @@ export default async function BlogPostPage({
   const fullUrl = `${baseUrl}/blog/${org.slug}/${slug}`;
 
   return (
-    <article className="min-h-screen bg-background">
+    <BlogShell template={template} tokens={tokens} orgSlug={org.slug} orgName={org.name}>
       <ReadingProgress />
 
       {/* Schema markup */}
@@ -140,7 +138,7 @@ export default async function BlogPostPage({
         />
       ))}
 
-      <div className="container mx-auto max-w-3xl px-6 py-16">
+      <article className="container mx-auto max-w-3xl px-6 py-12 md:py-16">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-8" aria-label="Breadcrumb">
           <Link href={`/blog/${org.slug}`} className="hover:text-foreground transition-colors">
@@ -160,7 +158,7 @@ export default async function BlogPostPage({
         </nav>
 
         <header className="mb-8 space-y-3">
-          <div className="text-xs text-muted-foreground uppercase tracking-wide">
+          <div className="text-xs opacity-60 uppercase tracking-wide">
             {post.type === "long_form" ? "Artigo" : "FAQ"}
             {post.published_at && ` · ${formatDate(post.published_at)}`}
             {" · "}
@@ -170,18 +168,19 @@ export default async function BlogPostPage({
                 {" · "}
                 <Link
                   href={`/blog/${org.slug}/categoria/${category.slug}`}
-                  className="text-foreground hover:underline"
+                  className="opacity-100 hover:underline"
+                  style={{ color: "var(--blog-accent)" }}
                 >
                   {category.name}
                 </Link>
               </>
             )}
           </div>
-          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-balance">
+          <h1 className="text-4xl md:text-5xl tracking-tight text-balance">
             {post.title}
           </h1>
           {post.meta_description && (
-            <p className="text-lg text-muted-foreground leading-relaxed">
+            <p className="text-lg opacity-70 leading-relaxed">
               {post.meta_description}
             </p>
           )}
@@ -190,8 +189,19 @@ export default async function BlogPostPage({
           </div>
         </header>
 
+        {/* Hero image (gerada pela IA ou upload manual) */}
+        {post.og_image_url && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={post.og_image_url as string}
+            alt={(post.title as string) ?? ""}
+            className="w-full h-auto rounded-xl border border-current/10 mb-10"
+            loading="lazy"
+          />
+        )}
+
         <div
-          className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-semibold prose-headings:tracking-tight prose-h2:mt-12 prose-h2:mb-4 prose-h3:mt-8 prose-h3:mb-3 prose-p:leading-relaxed prose-a:text-foreground prose-a:underline prose-a:underline-offset-2 prose-code:before:hidden prose-code:after:hidden"
+          className="prose prose-neutral dark:prose-invert max-w-none prose-headings:tracking-tight prose-h2:mt-12 prose-h2:mb-4 prose-h3:mt-8 prose-h3:mb-3 prose-p:leading-relaxed prose-a:underline prose-a:underline-offset-2 prose-code:before:hidden prose-code:after:hidden"
           dangerouslySetInnerHTML={{ __html: html }}
         />
 
@@ -202,23 +212,37 @@ export default async function BlogPostPage({
 
         {/* Related posts */}
         {related.length > 0 && (
-          <section className="mt-16 pt-8 border-t">
-            <h2 className="text-xl font-semibold tracking-tight mb-6">
-              Continue lendo
-            </h2>
+          <section className="mt-16 pt-8 border-t border-current/10">
+            <h2 className="text-xl tracking-tight mb-6">Continue lendo</h2>
             <div className="grid md:grid-cols-3 gap-4">
-              {related.map((r) => (
-                <Link
-                  key={r.id}
-                  href={`/blog/${org.slug}/${r.slug}`}
-                  className="block p-4 rounded-lg border hover:shadow-md transition-shadow"
-                >
-                  <div className="text-xs text-muted-foreground mb-1">
-                    {r.type === "long_form" ? "Artigo" : "FAQ"}
-                  </div>
-                  <div className="font-medium leading-tight">{r.title}</div>
-                </Link>
-              ))}
+              {related.map((r) => {
+                const img = (r as { og_image_url?: string | null }).og_image_url;
+                return (
+                  <Link
+                    key={r.id}
+                    href={`/blog/${org.slug}/${r.slug}`}
+                    className="blog-card block rounded-lg border border-current/10 overflow-hidden hover:opacity-90 transition-all"
+                  >
+                    {img && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={img}
+                        alt=""
+                        className="w-full h-32 object-cover"
+                        loading="lazy"
+                      />
+                    )}
+                    <div className="p-4">
+                      <div className="text-xs opacity-60 mb-1">
+                        {r.type === "long_form" ? "Artigo" : "FAQ"}
+                      </div>
+                      <div className="font-medium leading-tight line-clamp-3">
+                        {r.title}
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </section>
         )}
@@ -227,17 +251,7 @@ export default async function BlogPostPage({
         <div className="mt-12">
           <NewsletterForm orgSlug={org.slug as string} orgName={org.name as string} />
         </div>
-
-        <footer className="mt-16 pt-8 border-t text-sm text-muted-foreground space-y-2">
-          <div>Publicado por {org.name}</div>
-          <div>
-            Conteúdo gerado com{" "}
-            <Link href="/" className="underline hover:text-foreground">
-              DDG Engine
-            </Link>
-          </div>
-        </footer>
-      </div>
-    </article>
+      </article>
+    </BlogShell>
   );
 }

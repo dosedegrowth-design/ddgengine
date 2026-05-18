@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { auditSite, type AuditResult } from "@/lib/audit";
 import { getCurrentOrg } from "@/lib/auth";
 import { slugify } from "@/lib/utils";
+import { detectBrandTokensFromUrl } from "@/lib/blog/detect-brand";
 
 export async function auditAndCreateSite(
   orgId: string,
@@ -22,6 +23,10 @@ export async function auditAndCreateSite(
     return { error: err instanceof Error ? err.message : "Erro ao auditar site" };
   }
 
+  // Detecta brand tokens (cor + fonte) do HTML do site.
+  // Falha silenciosa — se não conseguir, BlogShell usa defaults do template.
+  const brandTokens = await detectBrandTokensFromUrl(rawUrl).catch(() => ({}));
+
   // Cria ou atualiza site
   const tenantSlug = `${slugify(org.slug)}-${audit.domain.replace(/\./g, "-")}-${Math.random()
     .toString(36)
@@ -37,6 +42,10 @@ export async function auditAndCreateSite(
 
   let siteId: string;
 
+  // Só inclui brand_tokens no payload se detectamos algo (evita overwrite com {} num re-audit)
+  const tokensPayload =
+    Object.keys(brandTokens).length > 0 ? { brand_tokens: brandTokens } : {};
+
   if (existing) {
     const { error } = await supabase
       .from("sites")
@@ -47,6 +56,7 @@ export async function auditAndCreateSite(
         stack_detected: audit.checks.stack.detected,
         has_cloudflare: audit.checks.cloudflare.detected,
         status: "configuring",
+        ...tokensPayload,
       })
       .eq("id", existing.id);
     if (error) return { error: error.message };
@@ -65,6 +75,7 @@ export async function auditAndCreateSite(
         has_cloudflare: audit.checks.cloudflare.detected,
         status: "configuring",
         proxy_method: audit.checks.cloudflare.detected ? "reverse_proxy" : "subdomain",
+        ...tokensPayload,
       })
       .select("id")
       .single();

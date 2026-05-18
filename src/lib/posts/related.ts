@@ -14,6 +14,7 @@ export interface RelatedPost {
   meta_description: string | null;
   type: string;
   published_at: string | null;
+  og_image_url?: string | null;
   similarity?: number;
 }
 
@@ -62,7 +63,7 @@ export async function findRelatedPosts(
   // Fallback: posts mais recentes do mesmo site, mesmo tipo
   const { data: fallback } = await supabase
     .from("posts")
-    .select("id, slug, title, meta_description, type, published_at")
+    .select("id, slug, title, meta_description, type, published_at, og_image_url")
     .eq("site_id", post.site_id)
     .eq("status", "published")
     .neq("id", postId)

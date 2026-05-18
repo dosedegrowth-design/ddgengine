@@ -33,7 +33,7 @@ export default async function PostsPage() {
 
   const { data: posts } = await supabase
     .from("posts")
-    .select("id, slug, title, type, status, created_at, published_at, cost_usd")
+    .select("id, slug, title, type, status, created_at, published_at")
     .eq("site_id", site.id)
     .order("created_at", { ascending: false })
     .limit(50);
@@ -121,11 +121,6 @@ export default async function PostsPage() {
                         {p.status === "published" && p.published_at
                           ? `Publicado ${formatRelativeTime(p.published_at)}`
                           : `Criado ${formatRelativeTime(p.created_at)}`}
-                        {p.cost_usd != null && (
-                          <span className="ml-2">
-                            ● Custo US$ {Number(p.cost_usd).toFixed(3)}
-                          </span>
-                        )}
                       </div>
                     </div>
                     {p.status === "published" && p.slug && org.slug && (

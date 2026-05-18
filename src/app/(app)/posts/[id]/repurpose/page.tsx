@@ -31,8 +31,8 @@ export default async function RepurposePage({
             <ArrowLeft className="w-4 h-4" /> Voltar pro post
           </Link>
         </Button>
-        <h1 className="text-3xl font-semibold tracking-tight">Repurpose</h1>
-        <p className="text-muted-foreground mt-1">
+        <h1 className="ddg-display text-2xl md:text-3xl text-ddg-ink">Reaproveitar</h1>
+        <p className="text-sm text-ddg-muted mt-1">
           Transforme este post em outros formatos: newsletter, LinkedIn, X, Instagram, PDF, traduções.
         </p>
       </header>

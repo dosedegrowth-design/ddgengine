@@ -77,9 +77,9 @@ export default async function VisibilityPage() {
                 hint="nesta análise"
               />
               <KpiCard
-                label="Custo da análise"
-                value={`US$ ${Number(latest.cost_usd ?? 0).toFixed(2)}`}
-                hint={`${formatRelativeTime(latest.completed_at ?? latest.started_at)}`}
+                label="Última análise"
+                value={formatRelativeTime(latest.completed_at ?? latest.started_at)}
+                hint="rodamos semanalmente"
               />
             </div>
 

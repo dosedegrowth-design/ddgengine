@@ -79,6 +79,43 @@ export async function findZoneByDomain(domain: string) {
 }
 
 /**
+ * Cria zona pra domínio na conta master da DDG.
+ * Retorna {id, name, name_servers, status}. NS são os 2 nameservers
+ * Cloudflare que o cliente precisa configurar no registrador dele.
+ */
+export async function createZone(domain: string): Promise<{
+  id: string;
+  name: string;
+  name_servers: string[];
+  status: string;
+}> {
+  const { accountId } = getCredentials();
+  const clean = domain.replace(/^www\./, "").trim();
+  return cfFetch("/zones", {
+    method: "POST",
+    body: {
+      name: clean,
+      account: { id: accountId },
+      type: "full",
+    },
+  });
+}
+
+/**
+ * Lê estado atual de uma zona. status='active' = DNS propagado e
+ * Cloudflare validou os nameservers no registrador do cliente.
+ */
+export async function getZone(zoneId: string): Promise<{
+  id: string;
+  name: string;
+  status: string;
+  name_servers: string[];
+  original_name_servers: string[] | null;
+}> {
+  return cfFetch(`/zones/${zoneId}`);
+}
+
+/**
  * Upload de Worker Script (apenas JavaScript ES modules).
  */
 export async function uploadWorkerScript(name: string, script: string): Promise<{ id: string }> {

@@ -26,6 +26,7 @@ export default async function SettingsLayout({
   const items = [
     { href: "/settings/profile", label: "Perfil", icon: "User" as const },
     { href: "/settings/site", label: "Site & domínio", icon: "Globe" as const },
+    { href: "/settings/integration", label: "Conectar domínio", icon: "Link" as const },
     { href: "/settings/categories", label: "Categorias do blog", icon: "Tag" as const },
     { href: "/settings/notifications", label: "Notificações", icon: "Bell" as const },
     { href: "/settings/integrations", label: "Integrações", icon: "Plug" as const },

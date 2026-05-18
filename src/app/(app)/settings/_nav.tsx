@@ -13,6 +13,7 @@ import {
   KeyRound,
   Webhook,
   Tag,
+  Link as LinkIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +28,7 @@ const ICON_MAP = {
   KeyRound,
   Webhook,
   Tag,
+  Link: LinkIcon,
 } as const;
 
 type IconName = keyof typeof ICON_MAP;

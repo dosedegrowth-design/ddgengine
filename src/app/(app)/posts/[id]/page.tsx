@@ -5,6 +5,7 @@ import { getCurrentSite } from "@/lib/auth";
 import { formatDate } from "@/lib/utils";
 import { PostEditor } from "./post-editor";
 import { DeleteFailedPostButton } from "./failed-actions";
+import { HeroImagePicker } from "./hero-image-picker";
 import { StatusBadge } from "@/components/dashboard/status-badge";
 
 export default async function PostDetailPage({
@@ -92,16 +93,13 @@ export default async function PostDetailPage({
         </div>
       )}
 
-      {/* Hero image (gerada pela IA) */}
-      {post.og_image_url && post.status !== "failed" && (
-        <div className="rounded-2xl border-2 border-ddg-ink overflow-hidden bg-ddg-stone">
-          <img
-            src={post.og_image_url}
-            alt={post.title ?? "Imagem do post"}
-            className="w-full h-auto block"
-            loading="lazy"
-          />
-        </div>
+      {/* Hero image — gerada pela IA OU upload manual do cliente */}
+      {post.status !== "failed" && (
+        <HeroImagePicker
+          postId={id}
+          initialUrl={post.og_image_url ?? null}
+          postTitle={post.title ?? null}
+        />
       )}
 
       {/* Meta description (visível e útil) */}

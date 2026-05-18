@@ -105,5 +105,113 @@ export function parseJsonResponse<T = unknown>(text: string): T {
   }
 
   const candidate = cleaned.slice(firstBrace);
-  return JSON.parse(candidate);
+
+  // Tenta parse direto primeiro
+  try {
+    return JSON.parse(candidate);
+  } catch (err) {
+    // Fallback: tenta recuperar JSON truncado (max_tokens cortou no meio).
+    // Estratégia: balanceia chaves/strings cortadas no final.
+    return parseJsonWithRecovery<T>(candidate, err);
+  }
+}
+
+/**
+ * Recupera JSON truncado fechando strings e objetos pendentes.
+ * Útil quando o LLM atinge max_tokens no meio do output.
+ */
+function parseJsonWithRecovery<T>(raw: string, originalErr: unknown): T {
+  let s = raw;
+
+  // Remove trailing garbage não-JSON (linha incompleta no final)
+  // Encontra última `,` ou `}` que pode ser limite seguro
+  // Estratégia 1: balanceia { } e [ ] adicionando fechamento
+  let inString = false;
+  let escape = false;
+  const stack: Array<"{" | "["> = [];
+
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (escape) {
+      escape = false;
+      continue;
+    }
+    if (c === "\\" && inString) {
+      escape = true;
+      continue;
+    }
+    if (c === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString) continue;
+    if (c === "{" || c === "[") stack.push(c);
+    else if (c === "}" || c === "]") stack.pop();
+  }
+
+  // Se está dentro de string: fecha aspas + remove campo incompleto
+  if (inString) {
+    // Encontra última vírgula fora de string pra cortar campo incompleto
+    let lastCommaIdx = -1;
+    inString = false;
+    escape = false;
+    for (let i = 0; i < s.length; i++) {
+      const c = s[i];
+      if (escape) {
+        escape = false;
+        continue;
+      }
+      if (c === "\\" && inString) {
+        escape = true;
+        continue;
+      }
+      if (c === '"') inString = !inString;
+      else if (!inString && c === ",") lastCommaIdx = i;
+    }
+    if (lastCommaIdx > 0) {
+      s = s.slice(0, lastCommaIdx);
+    } else {
+      s = s + '"'; // se nem vírgula tem, tenta só fechar a string
+    }
+  }
+
+  // Re-conta stack após truncar
+  const stack2: Array<"{" | "["> = [];
+  inString = false;
+  escape = false;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (escape) {
+      escape = false;
+      continue;
+    }
+    if (c === "\\" && inString) {
+      escape = true;
+      continue;
+    }
+    if (c === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString) continue;
+    if (c === "{" || c === "[") stack2.push(c);
+    else if (c === "}" || c === "]") stack2.pop();
+  }
+
+  // Fecha chaves/colchetes pendentes
+  while (stack2.length > 0) {
+    const open = stack2.pop();
+    s += open === "{" ? "}" : "]";
+  }
+
+  try {
+    return JSON.parse(s);
+  } catch {
+    // Não recuperou — propaga o erro original com contexto
+    const msg = originalErr instanceof Error ? originalErr.message : String(originalErr);
+    throw new Error(
+      `JSON inválido do LLM (não foi possível recuperar): ${msg}. ` +
+        `Provavelmente max_tokens muito baixo pro tamanho do post.`
+    );
+  }
 }

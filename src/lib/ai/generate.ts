@@ -194,7 +194,9 @@ Lembre: responda APENAS com o JSON especificado.`;
     const result = await generateWithClaude({
       system: input.type === "long_form" ? SYSTEM_LONG : SYSTEM_FAQ,
       messages: [{ role: "user", content: userPrompt }],
-      max_tokens: input.type === "long_form" ? 8000 : 3000,
+      // 16K pra artigo longo (3500 palavras + JSON wrapper + outline + FAQs)
+      // 4K pra FAQ (mais enxuto)
+      max_tokens: input.type === "long_form" ? 16000 : 4000,
       temperature: 0.7,
     });
 

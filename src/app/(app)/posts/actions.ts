@@ -11,6 +11,9 @@ export async function generatePostAction(input: {
   topic?: string;
   targetKeyword?: string;
   targetQuestion?: string;
+  /** Notas extras do cliente (texto livre ou áudio transcrito) sobre
+   *  o que quer ver no post — entra como contexto adicional no prompt */
+  extraNotes?: string;
   mode?: "single_pass" | "multi_pass";
 }) {
   const { site } = await getCurrentSite();
@@ -18,20 +21,27 @@ export async function generatePostAction(input: {
 
   const mode = input.mode ?? "multi_pass"; // default = multi-pass (qualidade)
 
+  // Se cliente deu notas extras, anexa ao topic pra incluir no prompt
+  const enrichedTopic = input.extraNotes?.trim()
+    ? [input.topic, `Detalhes do cliente: ${input.extraNotes.trim()}`]
+        .filter(Boolean)
+        .join("\n\n")
+    : input.topic;
+
   try {
     const result =
       mode === "multi_pass"
         ? await generatePostMultiPass({
             siteId: site.id,
             type: input.type,
-            topic: input.topic,
+            topic: enrichedTopic,
             targetKeyword: input.targetKeyword,
             targetQuestion: input.targetQuestion,
           })
         : await generatePost({
             siteId: site.id,
             type: input.type,
-            topic: input.topic,
+            topic: enrichedTopic,
             targetKeyword: input.targetKeyword,
             targetQuestion: input.targetQuestion,
           });

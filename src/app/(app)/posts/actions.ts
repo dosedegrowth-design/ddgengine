@@ -72,6 +72,35 @@ export async function approvePostAction(postId: string) {
   return { success: true };
 }
 
+export async function deletePostAction(postId: string) {
+  const { site, supabase } = await getCurrentSite();
+  if (!site) return { error: "Site não configurado" };
+
+  // Só permite deletar posts em status NÃO publicado (falhou, draft, generating, archived)
+  const { data: post } = await supabase
+    .from("posts")
+    .select("status")
+    .eq("id", postId)
+    .eq("site_id", site.id)
+    .maybeSingle();
+  if (!post) return { error: "Post não encontrado" };
+  if (post.status === "published") {
+    return { error: "Não dá pra apagar post já publicado. Arquive primeiro." };
+  }
+
+  const { error } = await supabase
+    .from("posts")
+    .delete()
+    .eq("id", postId)
+    .eq("site_id", site.id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/posts");
+  revalidatePath("/dashboard");
+  return { success: true };
+}
+
 export async function rejectPostAction(postId: string) {
   const { site, supabase } = await getCurrentSite();
   if (!site) return { error: "Site não configurado" };

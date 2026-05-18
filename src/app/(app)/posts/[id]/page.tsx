@@ -4,6 +4,7 @@ import { ArrowLeft, ExternalLink, Sparkles, AlertTriangle } from "lucide-react";
 import { getCurrentSite } from "@/lib/auth";
 import { formatDate } from "@/lib/utils";
 import { PostEditor } from "./post-editor";
+import { DeleteFailedPostButton } from "./failed-actions";
 import { StatusBadge } from "@/components/dashboard/status-badge";
 
 export default async function PostDetailPage({
@@ -87,12 +88,7 @@ export default async function PostDetailPage({
               </p>
             </div>
           </div>
-          <Link
-            href="/posts"
-            className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-ddg-ink text-ddg-paper text-sm font-bold hover:bg-ddg-graphite transition-colors"
-          >
-            Gerar de novo
-          </Link>
+          <DeleteFailedPostButton postId={id} />
         </div>
       )}
 

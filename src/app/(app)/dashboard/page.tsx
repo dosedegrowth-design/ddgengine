@@ -6,6 +6,8 @@ import { ArrowRight, ArrowUpRight, BarChart3, FileText, Sparkles, Zap, MessageCi
 import { getCurrentSite } from "@/lib/auth";
 import { formatRelativeTime } from "@/lib/utils";
 import { FirstUseHero } from "@/components/dashboard/first-use-hero";
+import { SuggestionsBar } from "@/components/dashboard/suggestions-bar";
+import { suggestTopics } from "@/lib/briefing/suggest-topics";
 
 interface RefinedBriefShape {
   identity?: { company_name?: string; description?: string };
@@ -99,6 +101,9 @@ export default async function DashboardPage() {
     briefSugestoes = (briefing?.refined_brief as RefinedBriefShape | null) ?? null;
   }
 
+  // Sugestões pra dashboard de user com posts — barra compacta
+  const ongoingSuggestions = noPostsYet ? [] : await suggestTopics(org.id, site.id);
+
   return (
     <div className="min-h-screen">
       {/* Header */}
@@ -186,6 +191,11 @@ export default async function DashboardPage() {
         {/* Métricas — só aparecem quando já tem post (não polui empty state) */}
         {!noPostsYet && (
         <>
+        {/* Sugestões "próximas ideias" no topo do dashboard com posts */}
+        {ongoingSuggestions.length > 0 && (
+          <SuggestionsBar suggestions={ongoingSuggestions} />
+        )}
+
         {/* KPIs */}
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           <KpiCard

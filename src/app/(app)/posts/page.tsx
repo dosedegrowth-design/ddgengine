@@ -6,10 +6,12 @@ import { redirect } from "next/navigation";
 import { ArrowRight, FileText, Sparkles, ExternalLink } from "lucide-react";
 import { getCurrentSite } from "@/lib/auth";
 import { GeneratePostButton } from "@/components/dashboard/generate-post-button";
+import { SuggestionsBar } from "@/components/dashboard/suggestions-bar";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { StatusBadge } from "@/components/dashboard/status-badge";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { formatRelativeTime } from "@/lib/utils";
+import { suggestTopics } from "@/lib/briefing/suggest-topics";
 
 const TYPE_LABEL: Record<string, string> = {
   long_form: "Artigo",
@@ -38,6 +40,12 @@ export default async function PostsPage() {
     .order("created_at", { ascending: false })
     .limit(50);
 
+  // Sugestões SEMPRE visíveis no topo (se briefing completo) — filtradas
+  // pra não repetir tópicos já gerados / arquivados.
+  const suggestions = briefingReady
+    ? await suggestTopics(org.id, site.id)
+    : [];
+
   return (
     <div>
       <PageHeader
@@ -65,6 +73,11 @@ export default async function PostsPage() {
       />
 
       <div className="container mx-auto max-w-7xl px-6 py-8 space-y-6">
+        {/* Sugestões SEMPRE no topo (quando briefing pronto e há ideias filtradas) */}
+        {briefingReady && suggestions.length > 0 && (
+          <SuggestionsBar suggestions={suggestions} />
+        )}
+
         {!briefingReady && (
           <div className="rounded-xl border-2 border-amber-300 bg-amber-50 p-4 flex items-center gap-3">
             <Sparkles className="w-5 h-5 text-amber-700 shrink-0" />

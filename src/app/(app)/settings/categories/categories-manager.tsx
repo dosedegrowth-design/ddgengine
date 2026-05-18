@@ -3,11 +3,12 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2, Plus, Pencil, Trash2, Check, X, Tag } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, Check, X, Tag, Sparkles } from "lucide-react";
 import {
   createCategoryAction,
   updateCategoryAction,
   deleteCategoryAction,
+  suggestCategoriesAction,
 } from "./actions";
 
 interface Category {
@@ -65,6 +66,23 @@ export function CategoriesManager({ initial }: { initial: Category[] }) {
     });
   }
 
+  function handleSuggest() {
+    start(async () => {
+      const r = await suggestCategoriesAction();
+      if ("error" in r && r.error) {
+        toast.error(r.error);
+        return;
+      }
+      const count = "count" in r ? r.count : 0;
+      if (count === 0 && "message" in r) {
+        toast.info(r.message ?? "Nada novo pra adicionar");
+      } else {
+        toast.success(`${count} ${count === 1 ? "categoria criada" : "categorias criadas"} pela IA!`);
+      }
+      router.refresh();
+    });
+  }
+
   function handleDelete(c: Category) {
     const msg = c.postCount
       ? `Apagar "${c.name}"? ${c.postCount} post${c.postCount > 1 ? "s ficam" : " fica"} sem categoria.`
@@ -83,7 +101,45 @@ export function CategoriesManager({ initial }: { initial: Category[] }) {
 
   return (
     <div className="space-y-4">
-      {/* Add new */}
+      {/* Sugerir com IA */}
+      {initial.length === 0 && (
+        <div className="rounded-2xl border-2 border-ddg-ink bg-ddg-lime/10 p-5">
+          <div className="flex items-start gap-3 mb-3">
+            <div className="shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-lg bg-ddg-lime border-2 border-ddg-ink">
+              <Sparkles className="w-5 h-5 text-ddg-ink" strokeWidth={2.5} />
+            </div>
+            <div>
+              <h3 className="font-bold text-sm text-ddg-ink mb-0.5">
+                Deixa a IA sugerir 5 categorias
+              </h3>
+              <p className="text-xs text-ddg-muted leading-relaxed">
+                A engine usa seu briefing pra montar 5 categorias relevantes pro
+                seu nicho. Você pode editar / remover / adicionar depois.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleSuggest}
+            disabled={pending}
+            className="inline-flex items-center gap-2 px-4 h-10 rounded-lg bg-ddg-lime text-ddg-ink font-bold text-sm border-2 border-ddg-ink shadow-[3px_3px_0_var(--ddg-ink)] hover:shadow-[5px_5px_0_var(--ddg-ink)] hover:-translate-y-0.5 transition-all disabled:opacity-50"
+          >
+            {pending ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Sugerindo…
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4" />
+                Sugerir 5 categorias com IA
+              </>
+            )}
+          </button>
+        </div>
+      )}
+
+      {/* Add new manual */}
       <div className="rounded-2xl border-2 border-dashed border-ddg-stone bg-ddg-cream/30 p-4">
         <div className="flex gap-2">
           <input
@@ -104,7 +160,7 @@ export function CategoriesManager({ initial }: { initial: Category[] }) {
             type="button"
             onClick={handleAdd}
             disabled={pending || !newName.trim()}
-            className="inline-flex items-center gap-2 px-4 h-10 rounded-lg bg-ddg-lime text-ddg-ink font-bold text-sm border-2 border-ddg-ink shadow-[3px_3px_0_var(--ddg-ink)] hover:shadow-[5px_5px_0_var(--ddg-ink)] hover:-translate-y-0.5 transition-all disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 h-10 rounded-lg bg-ddg-ink text-ddg-paper font-bold text-sm hover:bg-ddg-graphite transition-colors disabled:opacity-50"
           >
             {pending ? (
               <Loader2 className="w-4 h-4 animate-spin" />

@@ -12,7 +12,8 @@
  * Cada pass usa o output do anterior como input.
  * Custos rastreados por pass.
  */
-import { generateWithClaude, parseJsonResponse } from "./claude";
+import { parseJsonResponse } from "./claude";
+import { generateLLMWithFallback as generateWithClaude } from "./with-fallback";
 import { retrieveBrandContext } from "@/lib/rag/brand";
 import { createServiceClient } from "@/lib/supabase/server";
 import { runAllGates, type QualityGateInput } from "./quality-gates";

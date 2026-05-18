@@ -1,8 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getCurrentSite } from "@/lib/auth";
+import { getCurrentSite, getCurrentOrg } from "@/lib/auth";
 import { slugify } from "@/lib/utils";
+import { suggestCategories } from "@/lib/blog/suggest-categories";
 
 interface CategoryInput {
   name: string;
@@ -98,6 +99,77 @@ export async function deleteCategoryAction(id: string) {
   revalidatePath("/settings/categories");
   revalidatePath("/posts");
   return { success: true };
+}
+
+/**
+ * Sugere 5 categorias com IA baseado no briefing + insere as que não
+ * existem ainda no site. Idempotente — clicar 2x não duplica.
+ *
+ * Usado pelo botão "Sugerir 5 com IA" em /settings/categories pra clientes
+ * que não passaram pelo step novo do onboarding.
+ */
+export async function suggestCategoriesAction() {
+  const { site, supabase } = await getCurrentSite();
+  if (!site) return { error: "Site não configurado" };
+
+  const { org } = await getCurrentOrg();
+
+  // Lê briefing pra extrair seeds
+  const { data: briefing } = await supabase
+    .from("briefings")
+    .select("refined_brief")
+    .eq("organization_id", org.id)
+    .maybeSingle();
+
+  if (!briefing?.refined_brief) {
+    return {
+      error:
+        "Termine o briefing primeiro — a IA usa as informações dele pra sugerir.",
+    };
+  }
+
+  const suggestions = await suggestCategories(
+    briefing.refined_brief as Record<string, unknown>
+  );
+
+  if (suggestions.length === 0) {
+    return { error: "IA não conseguiu gerar sugestões. Tente de novo." };
+  }
+
+  // Categorias que já existem (pra não duplicar slug)
+  const { data: existing } = await supabase
+    .from("blog_categories")
+    .select("slug")
+    .eq("site_id", site.id);
+  const existingSlugs = new Set((existing ?? []).map((c) => c.slug));
+
+  const toInsert = suggestions
+    .filter((s) => !existingSlugs.has(s.slug))
+    .map((s, idx) => ({
+      site_id: site.id,
+      name: s.name,
+      slug: s.slug,
+      description: s.description || null,
+      display_order: existingSlugs.size + idx,
+      source: "ai_suggested",
+    }));
+
+  if (toInsert.length === 0) {
+    return {
+      success: true,
+      count: 0,
+      message: "Todas as sugestões da IA já existem.",
+    };
+  }
+
+  const { error: insErr } = await supabase
+    .from("blog_categories")
+    .insert(toInsert);
+  if (insErr) return { error: insErr.message };
+
+  revalidatePath("/settings/categories");
+  revalidatePath("/posts");
+  return { success: true, count: toInsert.length };
 }
 
 /**

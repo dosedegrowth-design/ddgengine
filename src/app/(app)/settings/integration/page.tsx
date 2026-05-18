@@ -21,6 +21,7 @@ import {
   Clock,
   HelpCircle,
   ChevronRight,
+  MessageCircle,
 } from "lucide-react";
 import { IntegrationWizard } from "./wizard";
 
@@ -57,8 +58,57 @@ export default async function IntegrationPage() {
         nameservers={nameservers}
       />
 
+      {/* Suporte ao vivo */}
+      <WhatsAppSupportBox domain={site.domain ?? ""} state={state} />
+
       {/* FAQ rápido */}
       <FAQ />
+    </div>
+  );
+}
+
+/**
+ * Card de suporte ao vivo. Botão pré-formatado WhatsApp com domain
+ * + estado atual, pra equipe DDG já chegar com contexto.
+ */
+function WhatsAppSupportBox({ domain, state }: { domain: string; state: string }) {
+  const supportPhone = process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP ?? "5511999999999";
+  const stateLabel: Record<string, string> = {
+    preview: "ainda não comecei",
+    zone_created: "preciso trocar nameservers",
+    verifying: "esperando propagação DNS",
+    error: "deu erro",
+    active: "tudo ativo",
+  };
+  const message = encodeURIComponent(
+    `Oi! Preciso de ajuda pra conectar meu domínio ${domain} no DDG Engine. Estado atual: ${stateLabel[state] ?? state}.`
+  );
+  const url = `https://wa.me/${supportPhone}?text=${message}`;
+
+  return (
+    <div className="rounded-2xl border-2 border-ddg-ink bg-ddg-lime/10 p-5">
+      <div className="flex items-start gap-3">
+        <div className="shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-lg bg-ddg-lime border-2 border-ddg-ink">
+          <MessageCircle className="w-5 h-5 text-ddg-ink" strokeWidth={2.5} />
+        </div>
+        <div className="flex-1">
+          <h3 className="font-bold text-sm text-ddg-ink mb-0.5">
+            Travou em algum passo? Chama a gente no WhatsApp
+          </h3>
+          <p className="text-xs text-ddg-muted leading-relaxed mb-3">
+            Time DDG configura junto com você em ~15 min — gratuito em todos
+            os planos enquanto estamos em beta.
+          </p>
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-ddg-ink text-ddg-paper font-bold text-sm hover:bg-ddg-graphite transition-colors"
+          >
+            <MessageCircle className="w-4 h-4" /> Falar com a equipe DDG
+          </a>
+        </div>
+      </div>
     </div>
   );
 }

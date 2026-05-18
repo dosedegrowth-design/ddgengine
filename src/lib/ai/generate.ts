@@ -61,6 +61,7 @@ OUTPUT: Responda APENAS com JSON neste formato:
   "title": "Título do post (50-65 caracteres, com keyword principal)",
   "meta_description": "Descrição (140-160 caracteres)",
   "slug": "url-friendly-slug-do-post",
+  "category_slug": "slug-da-categoria-escolhida (se categorias foram fornecidas)",
   "outline": ["H2 1", "H2 2", "H2 3", ...],
   "content_markdown": "# Título\\n\\nConteúdo completo em markdown...",
   "schema_faqs": [
@@ -95,7 +96,8 @@ OUTPUT: Responda APENAS com JSON neste formato:
     {"question": "Pergunta principal", "answer": "Resposta direta"},
     {"question": "Pergunta relacionada 1", "answer": "..."},
     ...
-  ]
+  ],
+  "category_slug": "slug-da-categoria-escolhida (se categorias foram fornecidas)"
 }`;
 
 export async function generatePost(input: GenerateInput): Promise<GenerationOutput> {
@@ -155,6 +157,20 @@ ${briefing.required_disclaimers ? `Disclaimer obrigatório: ${briefing.required_
 ${ragContext}
 `.trim();
 
+  // Carrega categorias do site pra IA classificar o post automaticamente.
+  // Se não houver, pula classificação (post fica category_id=null).
+  const { data: siteCategories } = await supabase
+    .from("blog_categories")
+    .select("id, name, slug, description")
+    .eq("site_id", input.siteId)
+    .order("display_order", { ascending: true });
+
+  const categoriesBlock =
+    siteCategories && siteCategories.length > 0
+      ? `\n\nCATEGORIAS DO BLOG (escolha UMA pra classificar este post — retorne o slug no campo "category_slug" do JSON):
+${siteCategories.map((c) => `- ${c.slug} — ${c.name}${c.description ? ` (${c.description})` : ""}`).join("\n")}`
+      : "";
+
   const userPrompt =
     input.type === "long_form"
       ? `Escreva um artigo long-form completo sobre: **${topic}**
@@ -162,12 +178,12 @@ ${ragContext}
 ${input.targetKeyword ? `Palavra-chave principal alvo: "${input.targetKeyword}"` : ""}
 ${input.targetQuestion ? `Pergunta principal a responder: "${input.targetQuestion}"` : ""}
 
-${briefingSummary}
+${briefingSummary}${categoriesBlock}
 
 Lembre: responda APENAS com o JSON especificado.`
       : `Escreva uma FAQ page que responde a pergunta: **${input.targetQuestion ?? topic}**
 
-${briefingSummary}
+${briefingSummary}${categoriesBlock}
 
 Lembre: responda APENAS com o JSON especificado.`;
 
@@ -209,7 +225,15 @@ Lembre: responda APENAS com o JSON especificado.`;
       content_markdown: string;
       schema_faqs?: { question: string; answer: string }[];
       target_entities?: string[];
+      /** Slug da categoria escolhida pela IA (pode vir vazio) */
+      category_slug?: string;
     }>(result.text);
+
+    // Resolve category_id a partir do slug que a IA escolheu
+    const categoryId =
+      parsed.category_slug && siteCategories
+        ? siteCategories.find((c) => c.slug === parsed.category_slug)?.id ?? null
+        : null;
 
     const wordCount = parsed.content_markdown.split(/\s+/).filter(Boolean).length;
 
@@ -254,6 +278,7 @@ Lembre: responda APENAS com o JSON especificado.`;
         content_markdown: parsed.content_markdown,
         content_html: null, // renderizado on-the-fly
         schema_markup: schemaMarkup,
+        category_id: categoryId,
         status: finalStatus,
         published_at: finalStatus === "published" ? new Date().toISOString() : null,
         tokens_input: result.input_tokens,

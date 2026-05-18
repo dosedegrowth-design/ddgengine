@@ -28,6 +28,7 @@ import { QuizProgress } from "./quiz-progress";
 import { QuizStep } from "./quiz-step";
 import { AudioRecorder } from "./audio-recorder";
 import { ReviewCard } from "./review-card";
+import { CategoriesStep } from "./categories-step";
 
 import {
   BRIEFING_QUESTIONS,
@@ -40,7 +41,7 @@ import {
 } from "@/lib/briefing/questions";
 
 type Mode = "guided" | "audio_free" | "minimal";
-type Phase = "welcome" | "site" | "quiz" | "refining" | "review" | "done";
+type Phase = "welcome" | "site" | "quiz" | "refining" | "review" | "categories" | "done";
 
 interface Props {
   initialBriefing: {
@@ -689,7 +690,8 @@ export function OnboardingFlow({ initialBriefing, initialSite, userName }: Props
                       completion_status: "completed",
                       refined_brief: refined,
                     });
-                    setPhase("done");
+                    // Próximo step: confirmar categorias (não direto pro done)
+                    setPhase("categories");
                   } catch {
                     /* já mostrou toast */
                   } finally {
@@ -714,6 +716,18 @@ export function OnboardingFlow({ initialBriefing, initialSite, userName }: Props
             </Magnet>
           </div>
         </div>
+      </Shell>
+    );
+  }
+
+  // ===== PHASE: CATEGORIES =====
+  if (phase === "categories") {
+    return (
+      <Shell>
+        <CategoriesStep
+          onBack={() => setPhase("review")}
+          onDone={() => setPhase("done")}
+        />
       </Shell>
     );
   }

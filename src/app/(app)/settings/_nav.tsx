@@ -12,6 +12,7 @@ import {
   Users,
   KeyRound,
   Webhook,
+  Tag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +26,7 @@ const ICON_MAP = {
   Users,
   KeyRound,
   Webhook,
+  Tag,
 } as const;
 
 type IconName = keyof typeof ICON_MAP;

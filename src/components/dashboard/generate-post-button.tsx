@@ -3,13 +3,10 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2, Sparkles, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Loader2, Sparkles, X, FileText, HelpCircle, ArrowRight } from "lucide-react";
 import { generatePostAction } from "@/app/(app)/posts/actions";
 
-export function GeneratePostButton({ siteId }: { siteId: string }) {
+export function GeneratePostButton({ siteId: _siteId }: { siteId: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<"long_form" | "faq_page">("long_form");
@@ -22,7 +19,7 @@ export function GeneratePostButton({ siteId }: { siteId: string }) {
     e.preventDefault();
 
     if (type === "long_form" && !topic.trim() && !keyword.trim()) {
-      toast.error("Informe um tópico ou keyword");
+      toast.error("Informe um tema ou palavra-chave");
       return;
     }
     if (type === "faq_page" && !question.trim()) {
@@ -31,7 +28,7 @@ export function GeneratePostButton({ siteId }: { siteId: string }) {
     }
 
     startTransition(async () => {
-      toast.info("Gerando post... pode levar 1-2 minutos");
+      toast.info("Gerando post… pode levar 1-2 minutos");
       const result = await generatePostAction({
         type,
         topic: topic.trim() || undefined,
@@ -46,7 +43,10 @@ export function GeneratePostButton({ siteId }: { siteId: string }) {
         setTopic("");
         setKeyword("");
         setQuestion("");
-        router.push(`/posts/${result.post.postId}`);
+        const postId = (result.post as { id?: string; postId?: string }).id ??
+          (result.post as { postId?: string }).postId;
+        if (postId) router.push(`/posts/${postId}`);
+        else router.push("/posts");
         router.refresh();
       }
     });
@@ -54,119 +54,228 @@ export function GeneratePostButton({ siteId }: { siteId: string }) {
 
   if (!open) {
     return (
-      <Button onClick={() => setOpen(true)}>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-ddg-lime text-ddg-ink font-bold text-sm border-2 border-ddg-ink shadow-[3px_3px_0_var(--ddg-ink)] hover:shadow-[5px_5px_0_var(--ddg-ink)] hover:-translate-y-0.5 transition-all"
+      >
         <Sparkles className="w-4 h-4" />
         Gerar post
-      </Button>
+      </button>
     );
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <div className="w-full max-w-lg bg-background rounded-lg border shadow-xl">
-        <div className="flex items-center justify-between p-4 border-b">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ddg-ink/60 backdrop-blur-sm"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !isPending) setOpen(false);
+      }}
+    >
+      <div className="w-full max-w-xl rounded-2xl border-2 border-ddg-ink bg-ddg-paper shadow-[6px_6px_0_var(--ddg-ink)]">
+        {/* Header */}
+        <div className="flex items-start justify-between p-5 md:p-6 border-b-2 border-ddg-ink">
           <div>
-            <div className="font-semibold">Gerar novo post</div>
-            <div className="text-xs text-muted-foreground">
-              A IA usa o briefing pra escrever na sua voz
-            </div>
+            <div className="ddg-bracket mb-1">GERAR POST · IA</div>
+            <h2 className="font-black text-xl md:text-2xl text-ddg-ink leading-tight">
+              Novo post pra seu blog
+            </h2>
+            <p className="text-xs text-ddg-muted mt-1.5">
+              A engine usa seu briefing pra escrever na sua voz.
+            </p>
           </div>
           <button
+            type="button"
             onClick={() => setOpen(false)}
-            className="p-1 rounded hover:bg-accent"
             disabled={isPending}
+            className="shrink-0 p-1.5 rounded-md border-2 border-ddg-ink hover:bg-ddg-ink hover:text-ddg-paper transition-colors disabled:opacity-40"
+            aria-label="Fechar"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 space-y-4">
-          <div className="space-y-2">
-            <Label>Tipo</Label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
+        <form onSubmit={handleSubmit} className="p-5 md:p-6 space-y-5">
+          {/* Tipo */}
+          <div>
+            <Label>Tipo de conteúdo</Label>
+            <div className="grid grid-cols-2 gap-3 mt-2">
+              <TypeCard
+                active={type === "long_form"}
                 onClick={() => setType("long_form")}
-                className={
-                  type === "long_form"
-                    ? "border-2 border-primary bg-primary/5 rounded-md p-3 text-left"
-                    : "border rounded-md p-3 text-left hover:bg-accent/40"
-                }
                 disabled={isPending}
-              >
-                <div className="font-medium text-sm">Artigo longo</div>
-                <div className="text-xs text-muted-foreground mt-0.5">1500-3500 palavras</div>
-              </button>
-              <button
-                type="button"
+                icon={FileText}
+                title="Artigo"
+                hint="1500-3500 palavras · SEO"
+              />
+              <TypeCard
+                active={type === "faq_page"}
                 onClick={() => setType("faq_page")}
-                className={
-                  type === "faq_page"
-                    ? "border-2 border-primary bg-primary/5 rounded-md p-3 text-left"
-                    : "border rounded-md p-3 text-left hover:bg-accent/40"
-                }
                 disabled={isPending}
-              >
-                <div className="font-medium text-sm">FAQ Page</div>
-                <div className="text-xs text-muted-foreground mt-0.5">400-800 palavras</div>
-              </button>
+                icon={HelpCircle}
+                title="FAQ"
+                hint="400-800 palavras · IAs"
+              />
             </div>
           </div>
 
+          {/* Campos por tipo */}
           {type === "long_form" ? (
             <>
-              <div className="space-y-2">
-                <Label htmlFor="topic">Tópico (opcional)</Label>
-                <Input
-                  id="topic"
-                  value={topic}
-                  onChange={(e) => setTopic(e.target.value)}
-                  placeholder="Ex: tratamento de dermatite em cães"
-                  disabled={isPending}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="kw">Palavra-chave alvo (opcional)</Label>
-                <Input
-                  id="kw"
-                  value={keyword}
-                  onChange={(e) => setKeyword(e.target.value)}
-                  placeholder="Ex: dermatologista veterinário SP"
-                  disabled={isPending}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Se vazio, IA escolhe baseado no briefing.
-                </p>
-              </div>
+              <Field
+                id="topic"
+                label="Tema"
+                hint="Sobre o que é o artigo. Opcional."
+                value={topic}
+                onChange={setTopic}
+                placeholder="Ex: tratamento de dermatite em cães"
+                disabled={isPending}
+              />
+              <Field
+                id="kw"
+                label="Palavra-chave alvo"
+                hint="Se vazio, a engine escolhe baseado no briefing."
+                value={keyword}
+                onChange={setKeyword}
+                placeholder="Ex: dermatologista veterinário SP"
+                disabled={isPending}
+              />
             </>
           ) : (
-            <div className="space-y-2">
-              <Label htmlFor="q">Pergunta a responder</Label>
-              <Input
-                id="q"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Ex: Cachorro pode tomar dipirona?"
-                disabled={isPending}
-                required
-              />
-            </div>
+            <Field
+              id="q"
+              label="Pergunta a responder"
+              hint="A IA escreve uma resposta otimizada pra aparecer no ChatGPT/Google."
+              value={question}
+              onChange={setQuestion}
+              placeholder="Ex: Cachorro pode tomar dipirona?"
+              disabled={isPending}
+              required
+            />
           )}
 
-          <div className="flex gap-2 justify-end pt-2">
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)} disabled={isPending}>
+          {/* Footer */}
+          <div className="flex items-center justify-between gap-2 pt-4 border-t border-ddg-stone">
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              disabled={isPending}
+              className="text-xs font-mono uppercase tracking-widest text-ddg-muted hover:text-ddg-ink transition-colors disabled:opacity-40"
+            >
               Cancelar
-            </Button>
-            <Button type="submit" disabled={isPending}>
+            </button>
+            <button
+              type="submit"
+              disabled={isPending}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-ddg-lime text-ddg-ink font-bold text-sm border-2 border-ddg-ink shadow-[3px_3px_0_var(--ddg-ink)] hover:shadow-[5px_5px_0_var(--ddg-ink)] hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-wait disabled:hover:shadow-[3px_3px_0_var(--ddg-ink)] disabled:hover:translate-y-0"
+            >
               {isPending ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Gerando...</>
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Gerando…
+                </>
               ) : (
-                <><Sparkles className="w-4 h-4" /> Gerar</>
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  Gerar post
+                  <ArrowRight className="w-4 h-4" />
+                </>
               )}
-            </Button>
+            </button>
           </div>
         </form>
       </div>
+    </div>
+  );
+}
+
+function Label({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="ddg-bracket text-ddg-muted">{children}</div>
+  );
+}
+
+function TypeCard({
+  active,
+  onClick,
+  disabled,
+  icon: Icon,
+  title,
+  hint,
+}: {
+  active: boolean;
+  onClick: () => void;
+  disabled?: boolean;
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  title: string;
+  hint: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`text-left p-4 rounded-xl border-2 transition-all disabled:opacity-50 ${
+        active
+          ? "border-ddg-ink bg-ddg-lime/15 shadow-[3px_3px_0_var(--ddg-ink)]"
+          : "border-ddg-stone bg-ddg-paper hover:border-ddg-ink/40 hover:bg-ddg-cream"
+      }`}
+    >
+      <div className="flex items-center gap-2 mb-2">
+        <div
+          className={`shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-md border-2 border-ddg-ink ${
+            active ? "bg-ddg-lime" : "bg-ddg-stone"
+          }`}
+        >
+          <Icon
+            className={`w-3.5 h-3.5 ${active ? "text-ddg-ink" : "text-ddg-muted"}`}
+            strokeWidth={2.5}
+          />
+        </div>
+        <div className="font-bold text-sm text-ddg-ink">{title}</div>
+      </div>
+      <div className="text-xs text-ddg-muted">{hint}</div>
+    </button>
+  );
+}
+
+function Field({
+  id,
+  label,
+  hint,
+  value,
+  onChange,
+  placeholder,
+  disabled,
+  required,
+}: {
+  id: string;
+  label: string;
+  hint?: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  disabled?: boolean;
+  required?: boolean;
+}) {
+  return (
+    <div>
+      <label htmlFor={id} className="ddg-bracket text-ddg-muted block mb-2">
+        {label}
+      </label>
+      <input
+        id={id}
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        disabled={disabled}
+        required={required}
+        className="w-full h-11 px-3 rounded-lg border-2 border-ddg-ink bg-ddg-paper text-ddg-ink placeholder:text-ddg-muted/60 focus:bg-ddg-cream focus:outline-none disabled:opacity-50 transition-colors text-sm"
+      />
+      {hint && (
+        <p className="text-xs text-ddg-muted mt-1.5">{hint}</p>
+      )}
     </div>
   );
 }

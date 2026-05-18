@@ -1,8 +1,8 @@
 /**
  * Geração de imagem hero pra cada post.
  *
- * Usa OpenAI gpt-image-1 (sucessor de DALL-E 3) ou Flux Schnell via Replicate.
- * Imagem 1792x1024 (landscape), salva em Cloudflare R2 (futuro) ou inline.
+ * Usa OpenAI gpt-image-1. Retorna bytes (Buffer) prontos pra upload
+ * no Supabase Storage — não URL temporária (que vence em 1h).
  */
 import OpenAI from "openai";
 
@@ -16,61 +16,64 @@ function client() {
 }
 
 export interface GenerateImageInput {
-  /** Descrição visual da imagem (não o título do post — mais visual) */
   prompt: string;
-  /** Estilo: photo | illustration | abstract */
   style?: "photo" | "illustration" | "abstract";
-  /** Dimensão */
-  size?: "1024x1024" | "1792x1024" | "1024x1792";
+  size?: "1024x1024" | "1536x1024" | "1024x1536";
 }
 
 export interface GenerateImageResult {
-  /** URL temporária (válida por 1h) */
-  url: string;
+  /** Bytes da imagem (PNG) prontos pra upload */
+  bytes: Buffer;
   /** Custo em USD */
   costUsd: number;
   /** Provider usado */
-  provider: "openai-gpt-image" | "flux-schnell";
+  provider: "openai-gpt-image";
+  /** Prompt final aplicado */
+  prompt: string;
 }
 
 const STYLE_PROMPTS: Record<NonNullable<GenerateImageInput["style"]>, string> = {
-  photo: "Editorial photograph, natural lighting, shallow depth of field, professional, high quality, no text, no logos",
-  illustration: "Modern flat illustration, soft colors, minimalist, geometric, no text, professional",
-  abstract: "Abstract concept art, modern, gradient colors, soft, no text, no logos",
+  photo:
+    "Editorial photograph, natural lighting, shallow depth of field, professional, high quality, no text, no logos, no watermarks",
+  illustration:
+    "Modern flat illustration, soft colors, minimalist, geometric, no text, professional",
+  abstract:
+    "Abstract concept art, modern, gradient colors, soft, no text, no logos",
 };
 
 /**
- * Gera imagem hero pra post (OpenAI gpt-image-1).
- * Custo estimado: ~US$ 0.04 por imagem standard.
+ * Gera imagem hero (1536x1024 landscape) usando OpenAI gpt-image-1.
+ * Custo ~US$ 0.04 por imagem em quality=medium.
  */
-export async function generateHeroImage(input: GenerateImageInput): Promise<GenerateImageResult> {
+export async function generateHeroImage(
+  input: GenerateImageInput
+): Promise<GenerateImageResult> {
   const stylePrompt = STYLE_PROMPTS[input.style ?? "photo"];
   const fullPrompt = `${input.prompt}. ${stylePrompt}.`;
 
   const response = await client().images.generate({
     model: "gpt-image-1",
     prompt: fullPrompt,
-    size: input.size ?? "1792x1024",
+    size: input.size ?? "1536x1024",
     quality: "medium",
     n: 1,
   });
 
-  const url = response.data?.[0]?.url ?? response.data?.[0]?.b64_json;
-  if (!url) throw new Error("Imagem não gerada");
+  const b64 = response.data?.[0]?.b64_json;
+  if (!b64) throw new Error("OpenAI não retornou imagem (b64_json vazio)");
 
   return {
-    url: url.startsWith("http") ? url : `data:image/png;base64,${url}`,
+    bytes: Buffer.from(b64, "base64"),
     costUsd: 0.04,
     provider: "openai-gpt-image",
+    prompt: fullPrompt,
   };
 }
 
 /**
- * Constrói prompt visual a partir do título + briefing do post.
- * Usado quando não recebemos prompt manual.
+ * Constrói prompt visual a partir do título + vertical.
  */
 export function buildVisualPromptFromTitle(title: string, vertical?: string): string {
-  // Heurística simples: extrai conceito principal do título
   const cleanTitle = title.replace(/[?!.,]/g, "").trim();
   const verticalContext: Record<string, string> = {
     health: "medical, healthcare, clean modern",
@@ -84,8 +87,11 @@ export function buildVisualPromptFromTitle(title: string, vertical?: string): st
     b2b_industrial: "industrial, machinery, factory",
     consulting: "meeting, business, professional",
     media: "creative, design, modern editorial",
+    beauty: "modern beauty studio, soft lighting, brazilian context, no text",
+    barbershop:
+      "modern barbershop interior, brazilian context, soft lighting, no text, no logos",
   };
 
   const contextHint = vertical ? verticalContext[vertical] ?? "" : "";
-  return `Editorial concept image representing: ${cleanTitle}. Context: ${contextHint}`;
+  return `Editorial concept image representing: ${cleanTitle}. ${contextHint ? `Context: ${contextHint}.` : ""}`;
 }

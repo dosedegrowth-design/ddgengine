@@ -92,6 +92,18 @@ export default async function PostDetailPage({
         </div>
       )}
 
+      {/* Hero image (gerada pela IA) */}
+      {post.og_image_url && post.status !== "failed" && (
+        <div className="rounded-2xl border-2 border-ddg-ink overflow-hidden bg-ddg-stone">
+          <img
+            src={post.og_image_url}
+            alt={post.title ?? "Imagem do post"}
+            className="w-full h-auto block"
+            loading="lazy"
+          />
+        </div>
+      )}
+
       {/* Meta description (visível e útil) */}
       {post.meta_description && (
         <div className="rounded-2xl border-2 border-ddg-ink bg-ddg-paper p-5">

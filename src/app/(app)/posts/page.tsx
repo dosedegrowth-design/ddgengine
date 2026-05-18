@@ -35,7 +35,7 @@ export default async function PostsPage() {
 
   const { data: posts } = await supabase
     .from("posts")
-    .select("id, slug, title, type, status, created_at, published_at")
+    .select("id, slug, title, type, status, created_at, published_at, og_image_url")
     .eq("site_id", site.id)
     .order("created_at", { ascending: false })
     .limit(50);
@@ -119,7 +119,22 @@ export default async function PostsPage() {
                   href={`/posts/${p.id}`}
                   className="block p-4 rounded-xl border-2 border-ddg-ink bg-ddg-paper hover:bg-ddg-cream hover:-translate-y-0.5 hover:shadow-[3px_3px_0_var(--ddg-ink)] transition-all group"
                 >
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-4">
+                    {/* Thumb da imagem hero (ou placeholder lime) */}
+                    <div className="shrink-0 w-24 h-16 rounded-lg border-2 border-ddg-ink bg-ddg-stone overflow-hidden">
+                      {p.og_image_url ? (
+                        <img
+                          src={p.og_image_url}
+                          alt=""
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-ddg-lime/20 flex items-center justify-center">
+                          <FileText className="w-5 h-5 text-ddg-lime-deep opacity-50" />
+                        </div>
+                      )}
+                    </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 mb-2 flex-wrap">
                         <span className="text-[9px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded-full bg-ddg-stone text-ddg-muted">

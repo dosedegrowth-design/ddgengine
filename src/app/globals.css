@@ -379,3 +379,32 @@
 .ddg-counter {
   font-variant-numeric: tabular-nums;
 }
+
+/* ===== Blog templates ===== */
+/* Aplicados via classes em <body> pelo BlogShell. Usam variáveis CSS
+   --blog-primary, --blog-accent, --blog-font setadas inline pelo shell. */
+
+.blog-editorial { font-family: var(--blog-font); }
+.blog-editorial a { color: var(--blog-primary); text-underline-offset: 3px; }
+.blog-editorial .blog-link-active { background: var(--blog-primary); color: white; border-color: var(--blog-primary); }
+.blog-editorial article p { line-height: 1.75; }
+.blog-editorial h1, .blog-editorial h2, .blog-editorial h3 { font-weight: 600; letter-spacing: -0.02em; }
+
+.blog-magazine { font-family: var(--blog-font); }
+.blog-magazine a { color: var(--blog-primary); }
+.blog-magazine .blog-link-active { background: var(--blog-accent); color: var(--blog-primary); border-color: var(--blog-accent); }
+.blog-magazine h1, .blog-magazine h2 { font-weight: 900; letter-spacing: -0.03em; }
+.blog-magazine article p { line-height: 1.7; }
+
+.blog-minimal { font-family: var(--blog-font); }
+.blog-minimal a { color: var(--blog-primary); }
+.blog-minimal .blog-link-active { background: var(--blog-primary); color: white; border-color: var(--blog-primary); }
+.blog-minimal h1, .blog-minimal h2 { font-weight: 500; letter-spacing: -0.02em; }
+.blog-minimal article p { line-height: 1.75; }
+
+.blog-bold { font-family: var(--blog-font); }
+.blog-bold a { color: var(--blog-primary); }
+.blog-bold .blog-link-active { background: var(--blog-accent); color: var(--blog-primary); border-color: var(--blog-primary); }
+.blog-bold h1, .blog-bold h2 { font-weight: 900; letter-spacing: -0.04em; }
+.blog-bold .blog-card { border: 3px solid var(--blog-primary); box-shadow: 4px 4px 0 var(--blog-primary); }
+.blog-bold .blog-card:hover { transform: translate(-1px, -1px); box-shadow: 6px 6px 0 var(--blog-primary); }

@@ -11,6 +11,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { SiteSettingsForm } from "./site-form";
 import { ImportWordPressForm } from "./import-wp";
+import { TemplatePicker } from "@/components/blog/template-picker";
+import type { BlogTemplate } from "@/lib/blog/templates";
 
 const STATUS_LABEL: Record<string, { label: string; variant: "success" | "warning" | "secondary" }> = {
   active: { label: "Conectado", variant: "success" },
@@ -93,6 +95,22 @@ export default async function SiteSettingsPage() {
             </p>
           )}
           <SiteSettingsForm siteId={site.id} hasWorker={integrationActive} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Aparência do blog</CardTitle>
+          <CardDescription>
+            Como seu blog público vai aparecer pros visitantes. Pode trocar a
+            qualquer hora.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <TemplatePicker
+            mode="inline"
+            current={(site.blog_template as BlogTemplate) ?? "editorial"}
+          />
         </CardContent>
       </Card>
 

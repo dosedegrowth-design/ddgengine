@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/utils";
 import { CategoryNav } from "@/components/blog/category-nav";
+import { BlogShell } from "@/components/blog/blog-shell";
+import { loadBlogShellContext } from "@/lib/blog/load-shell-context";
 
 interface Params {
   orgSlug: string;
@@ -53,12 +55,7 @@ export default async function BlogIndexPage({
 
   if (!org) notFound();
 
-  const { data: sites } = await supabase
-    .from("sites")
-    .select("id")
-    .eq("organization_id", org.id);
-
-  const siteIds = ((sites ?? []) as Array<{ id: string }>).map((s) => s.id);
+  const { template, tokens, siteIds } = await loadBlogShellContext(org.id);
 
   // Categorias do site pra menu
   const { data: categories } = await supabase
@@ -88,14 +85,14 @@ export default async function BlogIndexPage({
   const list = (posts ?? []) as PostListItem[];
 
   return (
-    <div className="min-h-screen bg-background">
+    <BlogShell template={template} tokens={tokens} orgSlug={org.slug} orgName={org.name}>
       <div className="container mx-auto max-w-4xl px-6 py-16">
         <header className="mb-12 text-center space-y-4">
-          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
-            Blog · {org.name}
+          <h1 className="text-4xl md:text-5xl tracking-tight">
+            Blog
           </h1>
-          <p className="text-muted-foreground">
-            Conteúdo gerado e otimizado pra Google e ChatGPT
+          <p className="opacity-70">
+            Conteúdo de {org.name}
           </p>
           <form method="GET" action={`/blog/${org.slug}/search`} className="flex gap-2 max-w-md mx-auto pt-2">
             <input
@@ -161,6 +158,6 @@ export default async function BlogIndexPage({
           </div>
         )}
       </div>
-    </div>
+    </BlogShell>
   );
 }

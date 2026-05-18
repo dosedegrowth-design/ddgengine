@@ -7,6 +7,8 @@ import { ChevronLeft, Tag } from "lucide-react";
 import { createServiceClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/utils";
 import { CategoryNav } from "@/components/blog/category-nav";
+import { BlogShell } from "@/components/blog/blog-shell";
+import { loadBlogShellContext } from "@/lib/blog/load-shell-context";
 
 interface Params {
   orgSlug: string;
@@ -62,11 +64,7 @@ export default async function CategoryPage({
     .maybeSingle();
   if (!org) notFound();
 
-  const { data: sites } = await supabase
-    .from("sites")
-    .select("id")
-    .eq("organization_id", org.id);
-  const siteIds = ((sites ?? []) as Array<{ id: string }>).map((s) => s.id);
+  const { template, tokens, siteIds } = await loadBlogShellContext(org.id);
   if (siteIds.length === 0) notFound();
 
   // Categoria pelo slug
@@ -98,14 +96,14 @@ export default async function CategoryPage({
   const list = posts ?? [];
 
   return (
-    <div className="min-h-screen bg-background">
+    <BlogShell template={template} tokens={tokens} orgSlug={org.slug} orgName={org.name}>
       <div className="container mx-auto max-w-4xl px-6 py-12">
         {/* Breadcrumb */}
         <Link
           href={`/blog/${orgSlug}`}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm opacity-60 hover:opacity-100 mb-8 transition-opacity"
         >
-          <ChevronLeft className="w-4 h-4" /> {org.name} · Blog
+          <ChevronLeft className="w-4 h-4" /> Blog
         </Link>
 
         {/* Header da categoria */}
@@ -180,6 +178,6 @@ export default async function CategoryPage({
           </div>
         )}
       </div>
-    </div>
+    </BlogShell>
   );
 }

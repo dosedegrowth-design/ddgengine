@@ -29,6 +29,7 @@ import { QuizStep } from "./quiz-step";
 import { AudioRecorder } from "./audio-recorder";
 import { ReviewCard } from "./review-card";
 import { CategoriesStep } from "./categories-step";
+import { TemplateStep } from "./template-step";
 
 import {
   BRIEFING_QUESTIONS,
@@ -41,7 +42,15 @@ import {
 } from "@/lib/briefing/questions";
 
 type Mode = "guided" | "audio_free" | "minimal";
-type Phase = "welcome" | "site" | "quiz" | "refining" | "review" | "categories" | "done";
+type Phase =
+  | "welcome"
+  | "site"
+  | "quiz"
+  | "refining"
+  | "review"
+  | "categories"
+  | "template"
+  | "done";
 
 interface Props {
   initialBriefing: {
@@ -726,6 +735,18 @@ export function OnboardingFlow({ initialBriefing, initialSite, userName }: Props
       <Shell>
         <CategoriesStep
           onBack={() => setPhase("review")}
+          onDone={() => setPhase("template")}
+        />
+      </Shell>
+    );
+  }
+
+  // ===== PHASE: TEMPLATE =====
+  if (phase === "template") {
+    return (
+      <Shell>
+        <TemplateStep
+          onBack={() => setPhase("categories")}
           onDone={() => setPhase("done")}
         />
       </Shell>

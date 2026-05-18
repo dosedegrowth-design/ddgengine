@@ -28,44 +28,65 @@ interface Props {
   primaryKeyword?: string;
   targetQuestion?: string;
   differentialTopic?: string;
+  /** Usado como fallback se faltar targetQuestion */
+  description?: string;
+  idealCustomer?: string;
+  companyName?: string;
 }
 
 export function FirstUseHero({
   primaryKeyword,
   targetQuestion,
   differentialTopic,
+  description,
+  idealCustomer,
+  companyName,
 }: Props) {
   const router = useRouter();
   const [pending, start] = useTransition();
 
-  const suggestions: Suggestion[] = [];
+  // Garante sempre 3 sugestões. Usa fallbacks deriváveis se algum campo do
+  // briefing veio vazio.
+  const kw =
+    primaryKeyword ||
+    (companyName ? `${companyName.toLowerCase()}` : "seu nicho principal");
 
-  if (primaryKeyword) {
-    suggestions.push({
+  const question =
+    targetQuestion ||
+    (description
+      ? `Como ${description.toLowerCase().replace(/\.$/, "")}?`
+      : idealCustomer
+      ? `Como ajudar ${idealCustomer.toLowerCase()}?`
+      : "Como funciona seu serviço?");
+
+  const diff =
+    differentialTopic ||
+    "Por que escolher você" ||
+    "Como você se diferencia da concorrência";
+
+  const suggestions: Suggestion[] = [
+    {
       kind: "keyword",
-      label: `Artigo sobre "${primaryKeyword}"`,
-      description: "Conteúdo SEO otimizado pra ranquear no Google nessa palavra-chave principal.",
-      payload: { type: "long_form", targetKeyword: primaryKeyword },
-    });
-  }
-
-  if (targetQuestion) {
-    suggestions.push({
+      label: `Artigo sobre "${kw}"`,
+      description:
+        "Conteúdo SEO otimizado pra ranquear no Google nessa palavra-chave principal.",
+      payload: { type: "long_form", targetKeyword: kw },
+    },
+    {
       kind: "question",
-      label: `Resposta pra "${targetQuestion}"`,
-      description: "FAQ otimizado pra aparecer quando alguém pergunta isso em ChatGPT/Google.",
-      payload: { type: "faq_page", targetQuestion },
-    });
-  }
-
-  if (differentialTopic) {
-    suggestions.push({
+      label: `Resposta pra "${question}"`,
+      description:
+        "FAQ otimizado pra aparecer quando alguém pergunta isso em ChatGPT/Google.",
+      payload: { type: "faq_page", targetQuestion: question },
+    },
+    {
       kind: "differential",
-      label: `Artigo sobre "${differentialTopic}"`,
-      description: "Conteúdo focado em mostrar seu diferencial — pra quem chega no site converter.",
-      payload: { type: "long_form", topic: differentialTopic },
-    });
-  }
+      label: `Artigo sobre "${diff}"`,
+      description:
+        "Conteúdo focado em mostrar seu diferencial — pra quem chega no site converter.",
+      payload: { type: "long_form", topic: diff },
+    },
+  ];
 
   const icons = {
     keyword: FileText,
@@ -115,59 +136,52 @@ export function FirstUseHero({
           Clica em uma — em ~1 minuto sai um artigo otimizado pra SEO e IAs.
         </p>
 
-        {suggestions.length === 0 ? (
-          <p className="mt-6 text-sm text-ddg-muted italic">
-            Não conseguimos extrair sugestões do briefing. Use o botão{" "}
-            <strong className="text-ddg-ink">Gerar post</strong> no menu lateral.
-          </p>
-        ) : (
-          <div className="mt-6 grid md:grid-cols-3 gap-3">
-            {suggestions.map((s, i) => {
-              const Icon = icons[s.kind];
-              return (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => handleGenerate(s)}
-                  disabled={pending}
-                  className="group relative text-left p-4 rounded-xl border-2 border-ddg-ink bg-ddg-cream/50 hover:bg-ddg-lime/15 hover:shadow-[3px_3px_0_var(--ddg-ink)] hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-wait"
-                >
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-lg bg-ddg-lime border-2 border-ddg-ink">
-                      <Icon className="w-4 h-4 text-ddg-ink" strokeWidth={2.5} />
-                    </div>
-                    <span className="text-[9px] font-mono uppercase tracking-widest text-ddg-muted">
-                      {s.kind === "keyword"
-                        ? "SEO"
-                        : s.kind === "question"
-                        ? "FAQ pra IAs"
-                        : "Diferencial"}
-                    </span>
+        <div className="mt-6 grid md:grid-cols-3 gap-3">
+          {suggestions.map((s, i) => {
+            const Icon = icons[s.kind];
+            return (
+              <button
+                key={i}
+                type="button"
+                onClick={() => handleGenerate(s)}
+                disabled={pending}
+                className="group relative text-left p-4 rounded-xl border-2 border-ddg-ink bg-ddg-cream/50 hover:bg-ddg-lime/15 hover:shadow-[3px_3px_0_var(--ddg-ink)] hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-wait"
+              >
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-lg bg-ddg-lime border-2 border-ddg-ink">
+                    <Icon className="w-4 h-4 text-ddg-ink" strokeWidth={2.5} />
                   </div>
-                  <div className="font-bold text-sm text-ddg-ink mb-1.5 leading-snug">
-                    {s.label}
-                  </div>
-                  <p className="text-xs text-ddg-muted leading-relaxed mb-3">
-                    {s.description}
-                  </p>
-                  <div className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-widest text-ddg-lime-deep font-bold group-hover:gap-2 transition-all">
-                    {pending ? (
-                      <>
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                        Gerando…
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-3 h-3" />
-                        Gerar este post
-                      </>
-                    )}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        )}
+                  <span className="text-[9px] font-mono uppercase tracking-widest text-ddg-muted">
+                    {s.kind === "keyword"
+                      ? "SEO"
+                      : s.kind === "question"
+                      ? "FAQ pra IAs"
+                      : "Diferencial"}
+                  </span>
+                </div>
+                <div className="font-bold text-sm text-ddg-ink mb-1.5 leading-snug">
+                  {s.label}
+                </div>
+                <p className="text-xs text-ddg-muted leading-relaxed mb-3">
+                  {s.description}
+                </p>
+                <div className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-widest text-ddg-lime-deep font-bold group-hover:gap-2 transition-all">
+                  {pending ? (
+                    <>
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      Gerando…
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-3 h-3" />
+                      Gerar este post
+                    </>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
 
         <p className="mt-5 text-[10px] font-mono uppercase tracking-widest text-ddg-muted">
           Você pode editar / regerar / aprovar antes de publicar. Nada vai pro ar sem você ver.

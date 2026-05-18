@@ -8,6 +8,8 @@ import { formatRelativeTime } from "@/lib/utils";
 import { FirstUseHero } from "@/components/dashboard/first-use-hero";
 
 interface RefinedBriefShape {
+  identity?: { company_name?: string; description?: string };
+  audience?: { ideal_customer?: string };
   positioning?: { differentials?: string[]; unique_value?: string };
   seo?: { primary_keywords?: string[] };
   visibility_goal?: { target_questions?: string[] };
@@ -139,18 +141,51 @@ export default async function DashboardPage() {
       </header>
 
       <div className="container mx-auto max-w-7xl px-6 py-8 md:py-10 space-y-8">
-        {/* Primeiro uso — sugestões prontas baseadas no briefing */}
+        {/* Primeiro uso — sugestões prontas + como funciona */}
         {noPostsYet && (
-          <FirstUseHero
-            primaryKeyword={briefSugestoes?.seo?.primary_keywords?.[0]}
-            targetQuestion={briefSugestoes?.visibility_goal?.target_questions?.[0]}
-            differentialTopic={
-              briefSugestoes?.positioning?.unique_value ||
-              briefSugestoes?.positioning?.differentials?.[0]
-            }
-          />
+          <>
+            <FirstUseHero
+              primaryKeyword={briefSugestoes?.seo?.primary_keywords?.[0]}
+              targetQuestion={briefSugestoes?.visibility_goal?.target_questions?.[0]}
+              differentialTopic={
+                briefSugestoes?.positioning?.unique_value ||
+                briefSugestoes?.positioning?.differentials?.[0]
+              }
+              description={briefSugestoes?.identity?.description}
+              idealCustomer={briefSugestoes?.audience?.ideal_customer}
+              companyName={briefSugestoes?.identity?.company_name}
+            />
+
+            {/* Como vai funcionar — 3 passos */}
+            <section className="rounded-2xl border-2 border-ddg-ink bg-ddg-paper p-5 md:p-6">
+              <div className="ddg-bracket mb-3">COMO VAI FUNCIONAR</div>
+              <h2 className="ddg-display text-xl md:text-2xl text-ddg-ink mb-5">
+                Do clique no botão até o post no ar.
+              </h2>
+              <div className="grid md:grid-cols-3 gap-3 md:gap-4">
+                <Step
+                  num={1}
+                  title="Engine gera"
+                  desc="Em ~1 minuto sai um rascunho otimizado pra SEO e IAs, com sua voz e seus diferenciais."
+                />
+                <Step
+                  num={2}
+                  title="Você revisa"
+                  desc="Edita o que quiser no painel. Pode regerar, mudar tom, trocar título. Nada vai pro ar sem você ver."
+                />
+                <Step
+                  num={3}
+                  title="Publica no seu site"
+                  desc="A engine publica no seu blog automaticamente. Todo conteúdo fica no seu domínio (não em página externa)."
+                />
+              </div>
+            </section>
+          </>
         )}
 
+        {/* Métricas — só aparecem quando já tem post (não polui empty state) */}
+        {!noPostsYet && (
+        <>
         {/* KPIs */}
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           <KpiCard
@@ -318,7 +353,9 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-        {/* Quick actions */}
+        </>
+        )}
+        {/* Quick actions — sempre visível (útil mesmo no estado vazio) */}
         <section className="grid sm:grid-cols-3 gap-3 md:gap-4">
           <ActionCard
             icon={MessageCircle}
@@ -474,5 +511,17 @@ function ActionCard({
         <span className="text-sm font-bold text-ddg-ink">{title}</span>
       </div>
     </Link>
+  );
+}
+
+function Step({ num, title, desc }: { num: number; title: string; desc: string }) {
+  return (
+    <div className="rounded-xl border-2 border-ddg-ink bg-ddg-cream/50 p-4 md:p-5">
+      <div className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-ddg-lime text-ddg-ink font-black text-sm border-2 border-ddg-ink mb-3">
+        {num}
+      </div>
+      <div className="font-bold text-sm text-ddg-ink mb-1.5">{title}</div>
+      <p className="text-xs text-ddg-muted leading-relaxed">{desc}</p>
+    </div>
   );
 }

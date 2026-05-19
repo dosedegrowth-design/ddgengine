@@ -3,18 +3,22 @@
  *
  * Fluxo:
  *   admin muda status no painel  →  updateTicketStatus()  →
- *   sendTicketStatusEmail(ticket, transition)  →  Resend
+ *   sendTicketStatusEmail(...)        →  Resend (CLIENTE)
+ *   sendTicketStatusToTeam(...)       →  Resend (TIME DDG)
  *
  * Política:
- *  - Só notifica CLIENTE (TEAM já vê tudo no /admin/tickets)
- *  - Só dispara em transições "úteis" pro cliente (não em toda flutuação)
- *  - Conteúdo varia por tipo de ticket (domain_integration tem mensagens específicas)
+ *  - CLIENTE: mensagens curativas, só em transições "úteis" (skip no-op
+ *    e voltas pra atrás)
+ *  - TIME: log compacto pra inbox compartilhada — sabe quem mudou o quê
+ *    e o que aconteceu, com link direto pro /admin/tickets/{id}
  *  - Fire-and-forget — falha de email NUNCA bloqueia a mutação do ticket
  */
 import { sendEmail } from "@/lib/email/resend";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://conteudai.com.br";
 const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? "Conteudai";
+const TEAM_EMAIL =
+  process.env.SUPPORT_TEAM_EMAIL ?? "suporte@dosedegrowth.com.br";
 
 interface SendTicketStatusEmailArgs {
   toEmail: string;
@@ -292,6 +296,190 @@ interface ShellArgs {
   body: string;
   cta: { label: string; href: string };
   ticketId: string;
+}
+
+/**
+ * Notificações internas pro time DDG.
+ * Diferente do email do cliente (curativo, sucinto), este aqui é um log
+ * compacto pra inbox compartilhada do suporte.
+ */
+const TEAM_EVENT_LABEL: Record<string, string> = {
+  status_change: "STATUS MUDOU",
+  assigned: "ATRIBUÍDO",
+  note_added: "NOVA NOTA",
+};
+
+const STATUS_LABEL_TEAM: Record<string, string> = {
+  open: "Aberto",
+  in_progress: "Em andamento",
+  waiting_client: "Aguardando cliente",
+  resolved: "Resolvido",
+  cancelled: "Cancelado",
+};
+
+interface TicketTeamArgs {
+  ticketId: string;
+  orgName: string;
+  domain?: string;
+  ticketType: string;
+  /** Quem fez a ação — email do admin. */
+  actor: string;
+  /** Email do cliente cadastrado no ticket (pra contexto). */
+  contactEmail?: string | null;
+  contactPhone?: string | null;
+}
+
+interface StatusChangeArgs extends TicketTeamArgs {
+  event: "status_change";
+  fromStatus: string;
+  toStatus: string;
+}
+
+interface AssignedArgs extends TicketTeamArgs {
+  event: "assigned";
+  fromAssignee: string | null;
+  toAssignee: string | null;
+}
+
+interface NoteAddedArgs extends TicketTeamArgs {
+  event: "note_added";
+  noteText: string;
+}
+
+type TicketTeamEventArgs = StatusChangeArgs | AssignedArgs | NoteAddedArgs;
+
+/**
+ * Envia notificação pro time DDG sobre evento no ticket.
+ * Retorna `false` se não disparou (sem RESEND_API_KEY, sem TEAM_EMAIL, ou
+ * transição cosmética).
+ */
+export async function sendTicketStatusToTeam(
+  args: TicketTeamEventArgs
+): Promise<boolean> {
+  if (!process.env.RESEND_API_KEY) return false;
+  if (!TEAM_EMAIL) return false;
+
+  // Skip eventos sem interesse pro time
+  if (args.event === "status_change") {
+    // Mudanças "voltando atrás" — não polui inbox
+    if (args.fromStatus === args.toStatus) return false;
+  }
+
+  const { subject, summary } = teamSubjectAndSummary(args);
+  const adminUrl = `${APP_URL}/admin/tickets/${args.ticketId}`;
+
+  try {
+    await sendEmail({
+      to: TEAM_EMAIL,
+      subject,
+      text: buildTeamText(args, summary, adminUrl),
+      html: buildTeamHtml(args, summary, adminUrl),
+    });
+    return true;
+  } catch (err) {
+    console.warn(
+      "[ticket-status-team] falha:",
+      err instanceof Error ? err.message : err
+    );
+    return false;
+  }
+}
+
+function teamSubjectAndSummary(args: TicketTeamEventArgs): {
+  subject: string;
+  summary: string;
+} {
+  const ref = args.domain ?? args.orgName;
+  if (args.event === "status_change") {
+    const from = STATUS_LABEL_TEAM[args.fromStatus] ?? args.fromStatus;
+    const to = STATUS_LABEL_TEAM[args.toStatus] ?? args.toStatus;
+    return {
+      subject: `[Ticket] ${ref}: ${from} → ${to}`,
+      summary: `${args.actor} mudou status: <strong>${from}</strong> → <strong>${to}</strong>`,
+    };
+  }
+  if (args.event === "assigned") {
+    if (!args.toAssignee) {
+      return {
+        subject: `[Ticket] ${ref}: atribuição removida`,
+        summary: `${args.actor} removeu atribuição (era <strong>${args.fromAssignee ?? "—"}</strong>)`,
+      };
+    }
+    if (!args.fromAssignee) {
+      return {
+        subject: `[Ticket] ${ref}: atribuído a ${args.toAssignee}`,
+        summary: `${args.actor} atribuiu pra <strong>${args.toAssignee}</strong>`,
+      };
+    }
+    return {
+      subject: `[Ticket] ${ref}: reatribuído ${args.fromAssignee} → ${args.toAssignee}`,
+      summary: `${args.actor} reatribuiu de <strong>${args.fromAssignee}</strong> pra <strong>${args.toAssignee}</strong>`,
+    };
+  }
+  // note_added
+  return {
+    subject: `[Ticket] ${ref}: nova nota interna`,
+    summary: `${args.actor} adicionou uma nota interna`,
+  };
+}
+
+function buildTeamText(
+  args: TicketTeamEventArgs,
+  summary: string,
+  adminUrl: string
+): string {
+  const plain = summary.replace(/<\/?strong>/g, "");
+  const extra =
+    args.event === "note_added"
+      ? `\n\nNota:\n${args.noteText}\n`
+      : "";
+  return `[Ticket Conteudai]
+
+Cliente: ${args.orgName}${args.domain ? ` (${args.domain})` : ""}
+Evento: ${TEAM_EVENT_LABEL[args.event]}
+${plain}${extra}
+
+Contato cliente: ${args.contactEmail ?? "—"}${args.contactPhone ? ` · ${args.contactPhone}` : ""}
+
+Abrir no painel: ${adminUrl}`;
+}
+
+function buildTeamHtml(
+  args: TicketTeamEventArgs,
+  summary: string,
+  adminUrl: string
+): string {
+  const noteHtml =
+    args.event === "note_added"
+      ? `<div style="background:#fffbeb;border:2px solid #fde68a;border-radius:8px;padding:14px;font-size:14px;color:#404040;margin:14px 0;line-height:1.5;">
+${args.noteText.replace(/</g, "&lt;").replace(/\n/g, "<br>")}
+</div>`
+      : "";
+
+  const eventChip = TEAM_EVENT_LABEL[args.event] ?? args.event.toUpperCase();
+
+  return `<!DOCTYPE html><html lang="pt-BR"><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f4ef;color:#0a0a0a;margin:0;padding:0;">
+<div style="max-width:600px;margin:0 auto;padding:28px 24px;">
+  <div style="font-family:ui-monospace,monospace;font-size:11px;background:#0a0a0a;color:#c8ff3d;display:inline-block;padding:6px 10px;border-radius:6px;text-transform:uppercase;letter-spacing:0.1em;font-weight:700;margin-bottom:18px;">
+    [ ${eventChip} ]
+  </div>
+  <h1 style="font-size:22px;font-weight:900;margin:0 0 6px;letter-spacing:-0.02em;color:#0a0a0a;">
+    ${args.orgName.replace(/</g, "&lt;")}
+    ${args.domain ? `<span style="color:#737373;font-weight:500;font-size:16px;"> · ${args.domain}</span>` : ""}
+  </h1>
+  <p style="font-size:14px;line-height:1.5;color:#404040;margin:0 0 12px;">
+    ${summary}
+  </p>
+  ${noteHtml}
+  <table style="width:100%;border-collapse:collapse;font-size:13px;margin:16px 0;border-top:1px solid #e7e5e4;border-bottom:1px solid #e7e5e4;">
+    <tr><td style="padding:6px 0;color:#737373;width:120px;">Contato</td><td style="padding:6px 0;">${args.contactEmail ? `<a href="mailto:${args.contactEmail}" style="color:#0a0a0a;">${args.contactEmail}</a>` : "—"}${args.contactPhone ? ` · <a href="https://wa.me/${args.contactPhone.replace(/\D/g, "")}" style="color:#0a0a0a;">${args.contactPhone}</a>` : ""}</td></tr>
+    <tr><td style="padding:6px 0;color:#737373;">Tipo</td><td style="padding:6px 0;font-family:ui-monospace,monospace;">${args.ticketType}</td></tr>
+    <tr><td style="padding:6px 0;color:#737373;">Ticket</td><td style="padding:6px 0;font-family:ui-monospace,monospace;font-size:11px;">${args.ticketId}</td></tr>
+  </table>
+  <a href="${adminUrl}" style="display:inline-block;background:#0a0a0a;color:#fff;font-weight:700;font-size:14px;padding:10px 18px;border-radius:8px;text-decoration:none;">
+    Abrir no /admin/tickets
+  </a>
+</div></body></html>`;
 }
 
 function emailShell(s: ShellArgs): string {

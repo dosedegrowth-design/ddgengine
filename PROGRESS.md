@@ -1,7 +1,72 @@
-# DDG Engine — PROGRESS.md
+# Conteudai — PROGRESS.md
 
-> Documento vivo do progresso do projeto DDG Engine.
-> Última atualização: 2026-05-16
+> Documento vivo do progresso do projeto (antes "DDG Engine" durante beta interno).
+> Última atualização: **2026-05-19**
+
+---
+
+## 🚀 Maratona 2026-05-18 / 19 (rebrand + admin + infra)
+
+### Domínio em produção
+
+| Item | Status |
+|---|---|
+| Domínio | `conteudai.com.br` (Hostinger registrar) |
+| Nameservers | `carter.ns.cloudflare.com` + `tori.ns.cloudflare.com` |
+| Cloudflare zone | `active` (master account DDG) |
+| Vercel custom domain | apex + `www` redirect 308 → apex |
+| SSL | Auto via Vercel |
+| Resend domain | `verified` (DKIM + SPF MX + SPF TXT) em sa-east-1 |
+| EMAIL_FROM | `Conteudai <oi@conteudai.com.br>` |
+| Test email | ✅ chegou |
+
+### Rebrand DDG Engine → Conteudai
+- ~45 arquivos TS/TSX renomeados user-facing
+- Wordmark XXL: `DDG | ENGINE` → `CONTE | UDAI` (preserva ritmo brutalist)
+- Emails: contato@, suporte@, dpo@, noreply@ → `@conteudai.com.br`
+- User-Agent bot: `ConteudaiBot/1.0`
+- README + .env.example atualizados
+- **Preservado**: schema Postgres `ddg_engine`, repo folder, vars `DDG_ENGINE_SCHEMA`, mentions à agência (`@dosedegrowth.com.br`)
+- Commit: `d6803f6`
+
+### Admin panel `/admin/tickets` (built from scratch)
+- Gate via `ADMIN_EMAILS` env (csv) + default `@dosedegrowth.com`
+- Layout próprio (sem briefing gate)
+- Lista com 5 stat cards + filtros (status, type, busca livre) + 200 max
+- Detalhe: status picker / assignee picker / notas internas / timeline / sidebar (org, site, NS atribuídos, link CF)
+- Server actions: `updateTicketStatus`, `assignTicket`, `addInternalNote`, `selfAssign`
+- Audit em `metadata.events[]` (who/when/what)
+- Link sidebar "Admin · Staff" só renderiza se isAdmin
+- Commit: `17aeb8b`
+
+### Emails de ticket (cliente + time DDG)
+- 4 templates cliente: in_progress / waiting_client / resolved / cancelled (HTML brutalist)
+- Time DDG: log compacto em 3 eventos: `status_change` / `assigned` / `note_added`
+- Fire-and-forget — falha de email NUNCA bloqueia mutação
+
+### Checkout DDG-styled
+- `settings/billing/page.tsx`: rewrite sem shadcn (lime/amber/red por status, 4-plan grid, badge "Popular"/"Atual")
+- `settings/billing/checkout/page.tsx`: 2-col com summary sticky + toggle Mensal/Anual
+- `checkout-form.tsx`: native inputs, MethodCard (PIX/Cartão), CTA brutalist `[4px_4px_0]`
+- Commit: `b88a9e5`
+
+### Registrar tutorials polidos
+- `StepMock` discriminated union (6 variantes: sidebar-nav, ns-replace, toggle, radio-choice, button-row, login-form)
+- Mocks brutalist sem screenshot real (campo `screenshot?: { url, alt }` pronto pra Supabase Storage no futuro)
+- `MockFrame` reutilizável + indicador "X/N"
+- Commit: `b88a9e5`
+
+### Infra extras
+- Vercel cron `verify-dns`: `*/30 min` → daily (Hobby plan limit)
+- `ADMIN_EMAILS` setado em prod / dev / preview (preview via API direta — CLI tem bug com branch)
+- 3 commits semânticos pushed: `d6803f6` → `17aeb8b` → `b88a9e5`
+
+---
+
+# 📜 Histórico anterior (pré-maratona)
+
+> Documento vivo do progresso do projeto Conteudai.
+> Sessão anterior: 2026-05-16
 
 ---
 
@@ -293,31 +358,47 @@ Todos com 14 dias grátis + sem cartão + garantia 90 dias.
 
 ---
 
-## 🚀 Próximos passos imediatos
+## 🚀 Próximos passos imediatos (2026-05-19 →)
 
-1. Lucas confirma OK no PROGRESS.md → continuar fixes
-2. Aplicar os **8 fixes pendentes** (P0-P2) em ordem de prioridade:
-   1. Hero desktop reposition
-   2. A DOR REAL — corrigir overflow + engordar números
-   3. Sticky stack Card 4 — engordar tipografia
-   4. "O QUE VOCÊ GANHA" — resolver card solitário
-   5. Volume = velocidade — propagar mensagem
-   6. Pricing — números mastigados (palavras/mês)
-   7. Hover effects pricing + buttons
-   8. FAQ — background vivo
-3. Re-screenshot Playwright pra validar
-4. Commit + push
-5. Lucas valida no live
+### 🔥 Alta prioridade
+1. **Logo real** — `brand-mark.tsx` ainda é placeholder (Lucas precisa entregar SVG)
+2. **WhatsApp real** — substituir placeholder `5511999999999` em 5+ lugares (NEXT_PUBLIC_SUPPORT_WHATSAPP env + concierge fallbacks)
+3. **Landing fixes pendentes** (do PROGRESS antigo) — 7 ajustes visuais
+
+### 🟡 Média prioridade — Landing fixes (pré-maratona)
+1. Hero desktop reposition
+2. "A DOR REAL" — corrigir overflow + engordar números
+3. Sticky stack Card 4 — engordar tipografia
+4. "O QUE VOCÊ GANHA" — resolver card solitário
+5. Pricing — números mastigados (palavras/mês em vez de tokens)
+6. Hover effects pricing + buttons
+7. FAQ — background vivo (orbs/grain)
+
+### 🟢 Backlog / próximas rodadas
+- Cliente pode comentar/responder ao ticket (hoje só staff escreve)
+- Busca por ID no `/admin/tickets`
+- Screenshots reais dos tutoriais (5 registradores) — plug Supabase Storage
+- Trial → paid conversion flow (banner, upsells)
+- Inbox real (página existe mas está vazia)
+- Aprovação WhatsApp (feature do plano Pro)
+- Migrar admin gate de allowlist env pra tabela `ddg_engine.staff_users` quando time >5
 
 ---
 
-## 🎨 Direções pendentes (depois dos fixes)
+## 🎨 Status do design system (pós-maratona)
 
-- **Painel cliente** — upgrade visual com mesmo design language
-- **Painel admin DDG** — built from scratch (não existe ainda)
-- **Logo final** — quando vier, troca em `brand-mark.tsx`
-- **Nome final** — DDG Engine ainda é placeholder
-- **Env vars Vercel** — Anthropic, OpenAI, Service Role, Cron Secret, etc.
+| Página | Status DDG-styled |
+|---|---|
+| Landing `/` | ✅ Brutalist completo |
+| Onboarding | ✅ Brutalist |
+| Dashboard | ✅ Brutalist |
+| Posts | ✅ Brutalist |
+| Briefing | ✅ Brutalist |
+| Settings/integration | ✅ Brutalist (com mocks brutalist nos tutoriais) |
+| **Settings/billing** | ✅ **Brutalist (refatorado 2026-05-19)** |
+| **Settings/billing/checkout** | ✅ **Brutalist (refatorado 2026-05-19)** |
+| **/admin/tickets** | ✅ **Brutalist (novo 2026-05-19)** |
+| Email templates | ✅ HTML brutalist (lime/ink chips) |
 
 ---
 

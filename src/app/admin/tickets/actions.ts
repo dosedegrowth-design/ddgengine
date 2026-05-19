@@ -11,7 +11,10 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth/admin";
 import { createServiceClient } from "@/lib/supabase/server";
-import { sendTicketStatusEmail } from "@/lib/notifications/ticket-status-emails";
+import {
+  sendTicketStatusEmail,
+  sendTicketStatusToTeam,
+} from "@/lib/notifications/ticket-status-emails";
 
 const VALID_STATUSES = [
   "open",
@@ -57,7 +60,7 @@ export async function updateTicketStatus(ticketId: string, status: string) {
   const { data: current, error: fetchErr } = await admin
     .from("support_tickets")
     .select(
-      "metadata, status, type, contact_email, organization_id, site_id"
+      "metadata, status, type, contact_email, contact_phone, organization_id, site_id"
     )
     .eq("id", ticketId)
     .single();
@@ -94,15 +97,17 @@ export async function updateTicketStatus(ticketId: string, status: string) {
 
   if (error) return { error: error.message };
 
-  // Fire-and-forget: notifica cliente da mudança de status
-  void notifyClientOnStatusChange({
+  // Fire-and-forget: notifica cliente + time da mudança de status
+  void notifyOnStatusChange({
     ticketId,
     ticketType: current.type as string,
     fromStatus: previousStatus,
     toStatus: status,
     contactEmail: current.contact_email as string | null,
+    contactPhone: current.contact_phone as string | null,
     organizationId: current.organization_id as string,
     siteId: current.site_id as string | null,
+    actor: user.email ?? user.id,
   });
 
   revalidatePath("/admin/tickets");
@@ -111,51 +116,91 @@ export async function updateTicketStatus(ticketId: string, status: string) {
 }
 
 /**
- * Carrega org + site (pra domínio) e dispara email pro cliente.
+ * Carrega contexto (org + site) e dispara em paralelo:
+ *  - email curativo pro CLIENTE (quando há contact_email)
+ *  - log compacto pro TIME DDG (sempre)
  * Roda fora do path crítico — falha de email não derruba o update.
  */
-async function notifyClientOnStatusChange(args: {
+async function notifyOnStatusChange(args: {
   ticketId: string;
   ticketType: string;
   fromStatus: string;
   toStatus: string;
   contactEmail: string | null;
+  contactPhone: string | null;
   organizationId: string;
   siteId: string | null;
+  actor: string;
 }): Promise<void> {
-  if (!args.contactEmail) return;
   try {
-    const admin = createServiceClient();
-    const [{ data: org }, { data: site }] = await Promise.all([
-      admin
-        .from("organizations")
-        .select("name")
-        .eq("id", args.organizationId)
-        .maybeSingle(),
+    const { orgName, domain } = await loadTicketContext(
+      args.organizationId,
       args.siteId
-        ? admin
-            .from("sites")
-            .select("domain")
-            .eq("id", args.siteId)
-            .maybeSingle()
-        : Promise.resolve({ data: null }),
-    ]);
+    );
 
-    await sendTicketStatusEmail({
-      toEmail: args.contactEmail,
-      orgName: (org?.name as string | undefined) ?? "cliente",
-      ticketId: args.ticketId,
-      ticketType: args.ticketType,
-      fromStatus: args.fromStatus,
-      toStatus: args.toStatus,
-      domain: (site?.domain as string | undefined) ?? undefined,
-    });
+    const promises: Promise<unknown>[] = [];
+
+    if (args.contactEmail) {
+      promises.push(
+        sendTicketStatusEmail({
+          toEmail: args.contactEmail,
+          orgName,
+          ticketId: args.ticketId,
+          ticketType: args.ticketType,
+          fromStatus: args.fromStatus,
+          toStatus: args.toStatus,
+          domain,
+        })
+      );
+    }
+
+    promises.push(
+      sendTicketStatusToTeam({
+        event: "status_change",
+        ticketId: args.ticketId,
+        ticketType: args.ticketType,
+        orgName,
+        domain,
+        fromStatus: args.fromStatus,
+        toStatus: args.toStatus,
+        actor: args.actor,
+        contactEmail: args.contactEmail,
+        contactPhone: args.contactPhone,
+      })
+    );
+
+    await Promise.all(promises);
   } catch (err) {
     console.warn(
-      "[admin-ticket] notify falhou:",
+      "[admin-ticket] notify status falhou:",
       err instanceof Error ? err.message : err
     );
   }
+}
+
+/**
+ * Carrega org.name + site.domain (quando houver) pra contextualizar emails.
+ */
+async function loadTicketContext(
+  organizationId: string,
+  siteId: string | null
+): Promise<{ orgName: string; domain: string | undefined }> {
+  const admin = createServiceClient();
+  const [{ data: org }, { data: site }] = await Promise.all([
+    admin
+      .from("organizations")
+      .select("name")
+      .eq("id", organizationId)
+      .maybeSingle(),
+    siteId
+      ? admin.from("sites").select("domain").eq("id", siteId).maybeSingle()
+      : Promise.resolve({ data: null }),
+  ]);
+
+  return {
+    orgName: (org?.name as string | undefined) ?? "cliente",
+    domain: (site?.domain as string | undefined) ?? undefined,
+  };
 }
 
 export async function assignTicket(ticketId: string, assigneeEmail: string) {
@@ -168,17 +213,24 @@ export async function assignTicket(ticketId: string, assigneeEmail: string) {
   const admin = createServiceClient();
   const { data: current, error: fetchErr } = await admin
     .from("support_tickets")
-    .select("metadata, assigned_to_email")
+    .select(
+      "metadata, assigned_to_email, type, organization_id, site_id, contact_email, contact_phone"
+    )
     .eq("id", ticketId)
     .single();
 
   if (fetchErr || !current) return { error: "Ticket não encontrado" };
 
+  const previousAssignee = (current.assigned_to_email as string | null) ?? null;
+  if (previousAssignee === value) {
+    return { success: true, skipped: true };
+  }
+
   const metadata = appendEvent(current.metadata as TicketMetadata, {
     type: "assigned",
     by: user.email ?? user.id,
     payload: {
-      from: current.assigned_to_email ?? null,
+      from: previousAssignee,
       to: value,
     },
   });
@@ -194,9 +246,58 @@ export async function assignTicket(ticketId: string, assigneeEmail: string) {
 
   if (error) return { error: error.message };
 
+  // Fire-and-forget: log pro time DDG
+  void notifyOnAssign({
+    ticketId,
+    ticketType: current.type as string,
+    organizationId: current.organization_id as string,
+    siteId: current.site_id as string | null,
+    contactEmail: current.contact_email as string | null,
+    contactPhone: current.contact_phone as string | null,
+    fromAssignee: previousAssignee,
+    toAssignee: value,
+    actor: user.email ?? user.id,
+  });
+
   revalidatePath("/admin/tickets");
   revalidatePath(`/admin/tickets/${ticketId}`);
   return { success: true };
+}
+
+async function notifyOnAssign(args: {
+  ticketId: string;
+  ticketType: string;
+  organizationId: string;
+  siteId: string | null;
+  contactEmail: string | null;
+  contactPhone: string | null;
+  fromAssignee: string | null;
+  toAssignee: string | null;
+  actor: string;
+}): Promise<void> {
+  try {
+    const { orgName, domain } = await loadTicketContext(
+      args.organizationId,
+      args.siteId
+    );
+    await sendTicketStatusToTeam({
+      event: "assigned",
+      ticketId: args.ticketId,
+      ticketType: args.ticketType,
+      orgName,
+      domain,
+      fromAssignee: args.fromAssignee,
+      toAssignee: args.toAssignee,
+      actor: args.actor,
+      contactEmail: args.contactEmail,
+      contactPhone: args.contactPhone,
+    });
+  } catch (err) {
+    console.warn(
+      "[admin-ticket] notify assign falhou:",
+      err instanceof Error ? err.message : err
+    );
+  }
 }
 
 export async function addInternalNote(ticketId: string, note: string) {
@@ -208,7 +309,9 @@ export async function addInternalNote(ticketId: string, note: string) {
   const admin = createServiceClient();
   const { data: current, error: fetchErr } = await admin
     .from("support_tickets")
-    .select("metadata")
+    .select(
+      "metadata, type, organization_id, site_id, contact_email, contact_phone"
+    )
     .eq("id", ticketId)
     .single();
 
@@ -230,8 +333,54 @@ export async function addInternalNote(ticketId: string, note: string) {
 
   if (error) return { error: error.message };
 
+  // Fire-and-forget: log pro time DDG
+  void notifyOnNote({
+    ticketId,
+    ticketType: current.type as string,
+    organizationId: current.organization_id as string,
+    siteId: current.site_id as string | null,
+    contactEmail: current.contact_email as string | null,
+    contactPhone: current.contact_phone as string | null,
+    noteText: text,
+    actor: user.email ?? user.id,
+  });
+
   revalidatePath(`/admin/tickets/${ticketId}`);
   return { success: true };
+}
+
+async function notifyOnNote(args: {
+  ticketId: string;
+  ticketType: string;
+  organizationId: string;
+  siteId: string | null;
+  contactEmail: string | null;
+  contactPhone: string | null;
+  noteText: string;
+  actor: string;
+}): Promise<void> {
+  try {
+    const { orgName, domain } = await loadTicketContext(
+      args.organizationId,
+      args.siteId
+    );
+    await sendTicketStatusToTeam({
+      event: "note_added",
+      ticketId: args.ticketId,
+      ticketType: args.ticketType,
+      orgName,
+      domain,
+      noteText: args.noteText,
+      actor: args.actor,
+      contactEmail: args.contactEmail,
+      contactPhone: args.contactPhone,
+    });
+  } catch (err) {
+    console.warn(
+      "[admin-ticket] notify note falhou:",
+      err instanceof Error ? err.message : err
+    );
+  }
 }
 
 export async function selfAssign(ticketId: string) {

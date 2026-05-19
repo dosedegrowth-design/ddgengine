@@ -19,7 +19,7 @@
     },
     {
       "path": "/api/cron/verify-dns",
-      "schedule": "*/30 * * * *"
+      "schedule": "0 11 * * *"
     },
     {
       "path": "/api/cron/trial-lifecycle",

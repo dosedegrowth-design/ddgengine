@@ -129,7 +129,7 @@ export async function renderReportHtml(reportId: string): Promise<string> {
   <div class="page">
     <div class="header">
       <div>
-        <div class="brand">DDG Engine</div>
+        <div class="brand">Conteudai</div>
         <div class="domain">${domain}</div>
       </div>
       <div style="font-size: 12px; color: #737373;">${new Date().toLocaleDateString("pt-BR")}</div>
@@ -169,8 +169,8 @@ export async function renderReportHtml(reportId: string): Promise<string> {
     }
 
     <div class="footer">
-      <span>Gerado automaticamente por DDG Engine</span>
-      <span>ddgengine.com.br</span>
+      <span>Gerado automaticamente por Conteudai</span>
+      <span>conteudai.com.br</span>
     </div>
   </div>
 

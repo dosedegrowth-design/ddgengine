@@ -55,7 +55,7 @@ export async function GET() {
     return null;
   }
 
-  let content = `# DDG Engine
+  let content = `# Conteudai
 
 > Visibilidade automática no Google e ChatGPT. SaaS brasileiro de blog automation com IA.
 

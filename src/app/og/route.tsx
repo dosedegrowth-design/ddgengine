@@ -7,7 +7,7 @@ export const runtime = "edge";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const title = searchParams.get("title") ?? "DDG Engine";
+  const title = searchParams.get("title") ?? "Conteudai";
   const subtitle =
     searchParams.get("subtitle") ?? "Visibilidade automática no Google e ChatGPT";
 
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
               background: "#5e6ad2",
             }}
           />
-          <div style={{ fontSize: 32, color: "#fafafa", fontWeight: 600 }}>DDG Engine</div>
+          <div style={{ fontSize: 32, color: "#fafafa", fontWeight: 600 }}>Conteudai</div>
         </div>
         <div
           style={{

@@ -19,8 +19,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "DDG Engine — Visibilidade automática no Google e ChatGPT",
-    template: "%s · DDG Engine",
+    default: "Conteudai — Visibilidade automática no Google e ChatGPT",
+    template: "%s · Conteudai",
   },
   description:
     "A primeira plataforma brasileira de visibilidade em IA + Google. Conecte seu site em 7 minutos. Sem plugin, sem código. Aprovação por WhatsApp.",
@@ -40,15 +40,15 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "pt_BR",
-    title: "DDG Engine — Visibilidade automática no Google e ChatGPT",
+    title: "Conteudai — Visibilidade automática no Google e ChatGPT",
     description:
       "A primeira plataforma brasileira de visibilidade em IA + Google. Setup em 7 minutos, sem plugin, sem código.",
-    siteName: "DDG Engine",
+    siteName: "Conteudai",
     images: [{ url: "/og", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "DDG Engine",
+    title: "Conteudai",
     description:
       "Visibilidade automática no Google e ChatGPT. Setup em 7 minutos, sem plugin.",
     images: ["/og"],

@@ -176,7 +176,7 @@ export async function updateSubscription(args: {
 }
 
 /**
- * Mapeia plano DDG Engine pra valor BRL.
+ * Mapeia plano Conteudai pra valor BRL.
  */
 export const PLAN_VALUES_BRL: Record<string, number> = {
   starter: 97,

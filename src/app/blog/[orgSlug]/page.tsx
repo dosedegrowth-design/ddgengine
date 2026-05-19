@@ -23,7 +23,7 @@ export async function generateMetadata({
     .eq("slug", orgSlug)
     .maybeSingle();
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://ddgengine.vercel.app";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://conteudai.com.br";
   return {
     title: org ? `${org.name} · Blog` : "Blog",
     description: org ? `Conteúdo de ${org.name}` : "Blog",

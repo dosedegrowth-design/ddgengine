@@ -44,8 +44,8 @@ const button = (label: string, href: string, primary = true) => `
 <a href="${href}" style="display:inline-block;padding:12px 24px;background-color:${primary ? "#0a0a0a" : "#ffffff"};color:${primary ? "#ffffff" : "#0a0a0a"};border:1px solid ${primary ? "#0a0a0a" : "#e5e5e5"};border-radius:8px;text-decoration:none;font-weight:500;font-size:14px;">${label}</a>`;
 
 const baseVars = (): BaseTemplateVars => ({
-  brand: process.env.NEXT_PUBLIC_APP_NAME ?? "DDG Engine",
-  appUrl: process.env.NEXT_PUBLIC_APP_URL ?? "https://app.ddgengine.com.br",
+  brand: process.env.NEXT_PUBLIC_APP_NAME ?? "Conteudai",
+  appUrl: process.env.NEXT_PUBLIC_APP_URL ?? "https://app.conteudai.com.br",
 });
 
 export function emailPostPendingReview(args: {

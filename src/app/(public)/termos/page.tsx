@@ -10,7 +10,7 @@ export default function TermosPage() {
       <header className="border-b">
         <div className="container mx-auto max-w-4xl px-6 h-16 flex items-center">
           <Link href="/" className="font-semibold tracking-tight">
-            DDG Engine
+            Conteudai
           </Link>
         </div>
       </header>
@@ -22,7 +22,7 @@ export default function TermosPage() {
 
         <h2>1. Aceitação</h2>
         <p>
-          Ao criar uma conta no DDG Engine, você concorda com estes termos. Se discordar,
+          Ao criar uma conta no Conteudai, você concorda com estes termos. Se discordar,
           não use a plataforma.
         </p>
 
@@ -44,7 +44,7 @@ export default function TermosPage() {
 
         <h2>4. Propriedade intelectual</h2>
         <p>
-          Você é dono do conteúdo gerado pelo DDG Engine pra seu domínio. Ao usar o
+          Você é dono do conteúdo gerado pelo Conteudai pra seu domínio. Ao usar o
           serviço, você concede licença não-exclusiva pra processarmos e publicarmos esse
           conteúdo no seu site.
         </p>
@@ -82,7 +82,7 @@ export default function TermosPage() {
 
         <h2>10. Contato</h2>
         <p>
-          Dúvidas: suporte@ddgengine.com.br
+          Dúvidas: suporte@conteudai.com.br
         </p>
       </main>
     </div>

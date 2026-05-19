@@ -24,7 +24,7 @@ export function ReferralLinkBox({ link, code }: { link: string; code: string }) 
   function share() {
     if (navigator.share) {
       navigator.share({
-        title: "DDG Engine — Blog automático com IA",
+        title: "Conteudai — Blog automático com IA",
         text: `Use meu link e ganhe 1 mês grátis: ${link}`,
         url: link,
       });

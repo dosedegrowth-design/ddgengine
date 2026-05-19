@@ -26,7 +26,7 @@ export async function detectBrandTokensFromUrl(
     const res = await fetch(url, {
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (compatible; DDGEngine/1.0; +https://ddgengine.vercel.app)",
+          "Mozilla/5.0 (compatible; ConteudaiBot/1.0; +https://conteudai.com.br)",
         Accept: "text/html",
       },
       // 6s timeout

@@ -134,7 +134,7 @@ export async function dispatchPostPendingReview(ctx: DispatchContext) {
     return;
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.ddgengine.com.br";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.conteudai.com.br";
   const token = signApprovalToken(ctx.postId);
   const approveUrl = `${appUrl}/aprovar/${token}`;
   const reviewUrl = `${appUrl}/posts/${ctx.postId}`;
@@ -237,7 +237,7 @@ export async function dispatchPostPublished(ctx: DispatchContext) {
   const prefs = data.org.notification_prefs ?? {};
   if (prefs.events?.post_published === false) return;
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.ddgengine.com.br";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.conteudai.com.br";
   const orgSlug = ((post as any).sites?.organizations?.slug ?? "blog") as string;
   const postUrl = `${appUrl}/blog/${orgSlug}/${post.slug}`;
 
@@ -316,7 +316,7 @@ export async function dispatchMonthlyReport(ctx: DispatchContext & { reportId: s
   const monthLabel = start.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
   const metrics = (report.metrics as any) ?? {};
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.ddgengine.com.br";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.conteudai.com.br";
 
   try {
     const template = emailMonthlyReport({

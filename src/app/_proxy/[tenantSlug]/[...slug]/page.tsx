@@ -2,7 +2,7 @@
  * Endpoint interno usado pelo Cloudflare Worker pra buscar o HTML do post.
  *
  * Quando visitante acessa cliente.com/blog/post-x, o Worker faz fetch
- * em `https://app.ddgengine.com.br/_proxy/[tenantSlug]/post-x` pra
+ * em `https://app.conteudai.com.br/_proxy/[tenantSlug]/post-x` pra
  * pegar o HTML, reescrever URLs e devolver pro visitante.
  *
  * Esta rota NÃO requer auth (é pública por design).

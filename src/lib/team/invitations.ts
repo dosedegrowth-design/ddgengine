@@ -72,7 +72,7 @@ export async function createInvitation(args: {
   try {
     await sendEmail({
       to: cleanEmail,
-      subject: `${args.inviterName} te convidou pra ${args.orgName} no DDG Engine`,
+      subject: `${args.inviterName} te convidou pra ${args.orgName} no Conteudai`,
       html: `
 <table cellpadding="0" cellspacing="0" width="100%" style="background-color:#fafafa;padding:40px 16px;font-family:-apple-system,sans-serif;">
   <tr>
@@ -81,7 +81,7 @@ export async function createInvitation(args: {
         <tr><td style="padding:32px;">
           <h1 style="margin:0 0 8px 0;font-size:22px;">Você foi convidado(a) 🎉</h1>
           <p style="color:#525252;margin:0 0 24px 0;">
-            <strong>${args.inviterName}</strong> te convidou pra fazer parte de <strong>${args.orgName}</strong> no DDG Engine como <strong>${args.role}</strong>.
+            <strong>${args.inviterName}</strong> te convidou pra fazer parte de <strong>${args.orgName}</strong> no Conteudai como <strong>${args.role}</strong>.
           </p>
           <p style="margin:0 0 24px 0;">
             <a href="${inviteUrl}" style="display:inline-block;padding:12px 24px;background:#0a0a0a;color:#fff;border-radius:8px;text-decoration:none;font-weight:500;">
@@ -96,7 +96,7 @@ export async function createInvitation(args: {
     </td>
   </tr>
 </table>`,
-      text: `${args.inviterName} te convidou pra ${args.orgName} no DDG Engine.\n\nAceitar: ${inviteUrl}`,
+      text: `${args.inviterName} te convidou pra ${args.orgName} no Conteudai.\n\nAceitar: ${inviteUrl}`,
     });
   } catch (err) {
     console.error("Erro ao enviar email de convite:", err);

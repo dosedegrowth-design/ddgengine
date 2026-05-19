@@ -124,7 +124,7 @@ export default function PricingPage() {
       <header className="border-b">
         <div className="container mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
           <Link href="/" className="font-semibold tracking-tight">
-            DDG Engine
+            Conteudai
           </Link>
           <nav className="flex items-center gap-4 text-sm">
             <Link href="/sobre" className="text-muted-foreground hover:text-foreground">

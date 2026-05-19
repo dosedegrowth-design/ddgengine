@@ -31,7 +31,7 @@ export default async function DashboardPage() {
             SETUP PENDENTE
           </div>
           <h1 className="ddg-display text-3xl md:text-4xl mb-3">
-            Bem-vindo ao DDG Engine
+            Bem-vindo ao Conteudai
           </h1>
           <p className="text-base text-ddg-muted mb-7 max-w-xl mx-auto leading-relaxed">
             Você ainda não conectou seu site nem preencheu o briefing.

@@ -28,7 +28,7 @@ export default function CasesPage() {
       <header className="border-b">
         <div className="container mx-auto max-w-5xl px-6 h-16 flex items-center justify-between">
           <Link href="/" className="font-semibold tracking-tight">
-            DDG Engine
+            Conteudai
           </Link>
           <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
             Voltar
@@ -42,7 +42,7 @@ export default function CasesPage() {
             Quem já está aparecendo
           </h1>
           <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
-            Empresas brasileiras que conectaram o DDG Engine e começaram a aparecer
+            Empresas brasileiras que conectaram o Conteudai e começaram a aparecer
             no Google e no ChatGPT enquanto dormem.
           </p>
         </header>

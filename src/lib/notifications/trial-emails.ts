@@ -5,7 +5,7 @@
 import { createServiceClient } from "@/lib/supabase/server";
 import { sendEmail } from "@/lib/email/resend";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://ddgengine.vercel.app";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://conteudai.com.br";
 
 async function getOwnerEmail(orgId: string): Promise<string | null> {
   const admin = createServiceClient();
@@ -33,7 +33,7 @@ export async function sendTrialExpiredEmail(args: {
   await sendEmail({
     to: email,
     subject: "Seu trial acabou — escolha um plano pra continuar",
-    text: `Oi! Seu trial de 14 dias do DDG Engine acabou.
+    text: `Oi! Seu trial de 14 dias do Conteudai acabou.
 
 Você tem 7 dias pra escolher um plano e continuar publicando.
 Depois disso, vamos desativar o blog (mas seus posts ficam guardados por 90 dias).
@@ -58,7 +58,7 @@ Time DDG.`,
     Escolher plano
   </a>
   <p style="font-size:12px;color:#737373;margin:32px 0 0;">
-    Dúvidas? Responde esse email.<br><strong style="color:#0a0a0a;">Time DDG Engine</strong>
+    Dúvidas? Responde esse email.<br><strong style="color:#0a0a0a;">Time Conteudai</strong>
   </p>
 </div></body></html>`,
   });
@@ -80,7 +80,7 @@ export async function sendOrgDeactivatedEmail(args: {
     subject: "Conta desativada — posts ficam guardados por 90 dias",
     text: `Oi!
 
-Sua conta DDG Engine foi desativada porque o trial acabou sem assinatura.
+Sua conta Conteudai foi desativada porque o trial acabou sem assinatura.
 
 Seus posts e configurações ficam guardados por 90 dias — basta voltar
 e escolher um plano que tudo volta ao ar.
@@ -109,7 +109,7 @@ Time DDG.`,
     Reativar conta
   </a>
   <p style="font-size:12px;color:#737373;margin:32px 0 0;">
-    <strong style="color:#0a0a0a;">Time DDG Engine</strong>
+    <strong style="color:#0a0a0a;">Time Conteudai</strong>
   </p>
 </div></body></html>`,
   });

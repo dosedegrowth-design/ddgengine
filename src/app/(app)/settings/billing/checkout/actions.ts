@@ -63,7 +63,7 @@ export async function startCheckout(input: CheckoutInput) {
       value: input.value,
       billingType: input.method,
       cycle: input.cycle === "annual" ? "YEARLY" : "MONTHLY",
-      description: `DDG Engine — Plano ${input.plan}`,
+      description: `Conteudai — Plano ${input.plan}`,
       creditCard: input.creditCard,
       creditCardHolderInfo: input.creditCardHolderInfo,
     });

@@ -260,7 +260,7 @@ ${magnet.chapters
     (c) => `<h2>${escapeHtml(c.heading)}</h2><p>${escapeHtml(c.content).replace(/\n\n+/g, "</p><p>")}</p>`
   )
   .join("")}
-<div class="footer">Gerado pelo DDG Engine · ddgengine.com.br</div>
+<div class="footer">Gerado pelo Conteudai · conteudai.com.br</div>
 </body></html>`;
 }
 

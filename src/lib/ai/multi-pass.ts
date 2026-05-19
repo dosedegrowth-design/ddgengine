@@ -363,7 +363,7 @@ ${briefing.required_disclaimers ? `Disclaimer obrigatório: ${briefing.required_
     const p7Start = Date.now();
     const orgName = (site as any).organizations?.name ?? "Blog";
     const orgSlug = (site as any).organizations?.slug ?? "blog";
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.ddgengine.com.br";
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.conteudai.com.br";
     const finalUrl = `${baseUrl}/blog/${orgSlug}/${workingDoc.slug}`;
 
     const p7 = await generateWithClaude({

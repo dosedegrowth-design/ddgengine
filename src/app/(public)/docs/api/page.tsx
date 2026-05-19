@@ -11,7 +11,7 @@ export default function ApiDocsPage() {
       <header className="border-b">
         <div className="container mx-auto max-w-5xl px-6 h-16 flex items-center justify-between">
           <Link href="/" className="font-semibold tracking-tight">
-            DDG Engine
+            Conteudai
           </Link>
           <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
             Voltar
@@ -58,7 +58,7 @@ export default function ApiDocsPage() {
             path="/api/v1/sites"
             description="Lista sites da sua organização"
             scope="read"
-            example={`curl https://app.ddgengine.com.br/api/v1/sites \\
+            example={`curl https://app.conteudai.com.br/api/v1/sites \\
   -H "Authorization: Bearer ddge_live_..."
 
 {
@@ -82,7 +82,7 @@ export default function ApiDocsPage() {
             path="/api/v1/posts?site_id=X&status=published&limit=50"
             description="Lista posts (filtros opcionais)"
             scope="read"
-            example={`curl "https://app.ddgengine.com.br/api/v1/posts?status=published&limit=10" \\
+            example={`curl "https://app.conteudai.com.br/api/v1/posts?status=published&limit=10" \\
   -H "Authorization: Bearer ddge_live_..."
 
 {
@@ -106,7 +106,7 @@ export default function ApiDocsPage() {
             path="/api/v1/posts"
             description="Dispara geração de post (async, retorna 202)"
             scope="write"
-            example={`curl -X POST https://app.ddgengine.com.br/api/v1/posts \\
+            example={`curl -X POST https://app.conteudai.com.br/api/v1/posts \\
   -H "Authorization: Bearer ddge_live_..." \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -125,7 +125,7 @@ export default function ApiDocsPage() {
             path="/api/v1/metrics?site_id=X&days=30"
             description="Métricas diárias do site"
             scope="read"
-            example={`curl "https://app.ddgengine.com.br/api/v1/metrics?site_id=uuid&days=30" \\
+            example={`curl "https://app.conteudai.com.br/api/v1/metrics?site_id=uuid&days=30" \\
   -H "Authorization: Bearer ddge_live_..."
 
 {

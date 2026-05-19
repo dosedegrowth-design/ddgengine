@@ -114,8 +114,8 @@ export async function GET(
               color: "#525252",
             }}
           >
-            <div>Powered by DDG Engine</div>
-            <div>ddgengine.com.br</div>
+            <div>Powered by Conteudai</div>
+            <div>conteudai.com.br</div>
           </div>
         </div>
       ),
@@ -137,7 +137,7 @@ export async function GET(
             fontWeight: 700,
           }}
         >
-          DDG Engine
+          Conteudai
         </div>
       ),
       { width: 1200, height: 630 }

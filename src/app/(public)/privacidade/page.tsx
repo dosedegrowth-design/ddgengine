@@ -10,7 +10,7 @@ export default function PrivacidadePage() {
       <header className="border-b">
         <div className="container mx-auto max-w-4xl px-6 h-16 flex items-center">
           <Link href="/" className="font-semibold tracking-tight">
-            DDG Engine
+            Conteudai
           </Link>
         </div>
       </header>
@@ -22,7 +22,7 @@ export default function PrivacidadePage() {
 
         <h2>1. Quem somos</h2>
         <p>
-          DDG Engine, operado por Dose de Growth. Empresa brasileira, cumpre LGPD (Lei
+          Conteudai, operado por Dose de Growth. Empresa brasileira, cumpre LGPD (Lei
           13.709/2018).
         </p>
 
@@ -87,7 +87,7 @@ export default function PrivacidadePage() {
           <li>Reclamar à ANPD</li>
         </ul>
         <p>
-          Pra exercer qualquer direito, envie email pra <strong>dpo@ddgengine.com.br</strong>.
+          Pra exercer qualquer direito, envie email pra <strong>dpo@conteudai.com.br</strong>.
         </p>
 
         <h2>6. Retenção</h2>
@@ -125,7 +125,7 @@ export default function PrivacidadePage() {
 
         <h2>11. Contato DPO</h2>
         <p>
-          Encarregado de proteção de dados: <strong>dpo@ddgengine.com.br</strong>
+          Encarregado de proteção de dados: <strong>dpo@conteudai.com.br</strong>
         </p>
       </main>
     </div>

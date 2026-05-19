@@ -9,7 +9,7 @@ export default function SobrePage() {
       <header className="border-b">
         <div className="container mx-auto max-w-4xl px-6 h-16 flex items-center justify-between">
           <Link href="/" className="font-semibold tracking-tight">
-            DDG Engine
+            Conteudai
           </Link>
           <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
             Voltar
@@ -31,7 +31,7 @@ export default function SobrePage() {
         </p>
 
         <p>
-          O DDG Engine resolve isso. <strong>Plataforma 100% brasileira</strong>, que conecta
+          O Conteudai resolve isso. <strong>Plataforma 100% brasileira</strong>, que conecta
           qualquer site (sem plugin), mede em números a presença em ChatGPT/Perplexity/Claude/Gemini,
           gera conteúdo otimizado pra Google e IA, e publica direto no domínio do cliente. PIX,
           WhatsApp pra aprovar, suporte em pt-BR.

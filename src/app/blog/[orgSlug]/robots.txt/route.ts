@@ -12,7 +12,7 @@ export async function GET(
   { params }: { params: Promise<{ orgSlug: string }> }
 ) {
   const { orgSlug } = await params;
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://ddgengine.vercel.app";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://conteudai.com.br";
 
   const body = `User-agent: *
 Allow: /

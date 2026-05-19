@@ -1,5 +1,5 @@
 /**
- * Landing — DDG Engine "Engine BR Disruptivo"
+ * Landing — Conteudai "Engine BR Disruptivo"
  *
  * Direção: 70% Brutalist + 20% AI Glow + 10% Editorial
  * Paleta: branco + preto + verde lime #C8FF3D
@@ -648,7 +648,7 @@ export default function Home() {
                   total={4}
                   variant="new"
                   badge="A virada"
-                  title="DDG Engine: você decide os temas. A engine entrega o resto."
+                  title="Conteudai: você decide os temas. A engine entrega o resto."
                   description="Configura em 7 minutos. A engine aprende seu negócio em 15 perguntas e passa a propor os temas todo mês — pesquisa de keywords, oportunidades de SEO, dores reais do cliente. Você revisa, sugere tema específico quando quiser, e a engine cuida do resto: escrita, otimização técnica, publicação no Google e tracking em 4 IAs. Sem agência. Sem contratação."
                   price="R$ 97+"
                   priceLabel="A partir de · 4 planos"

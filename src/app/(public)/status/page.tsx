@@ -57,7 +57,7 @@ export default async function StatusPage() {
       <header className="border-b">
         <div className="container mx-auto max-w-3xl px-6 h-16 flex items-center justify-between">
           <Link href="/" className="font-semibold tracking-tight">
-            DDG Engine
+            Conteudai
           </Link>
           <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
             Voltar ao site
@@ -79,7 +79,7 @@ export default async function StatusPage() {
             </>
           )}
           <p className="text-muted-foreground mt-2">
-            Status em tempo real do DDG Engine · atualizado a cada 60s
+            Status em tempo real do Conteudai · atualizado a cada 60s
           </p>
         </div>
 
@@ -113,7 +113,7 @@ export default async function StatusPage() {
         </div>
 
         <p className="text-center text-xs text-muted-foreground mt-10">
-          Para reportar um problema: suporte@ddgengine.com.br
+          Para reportar um problema: suporte@conteudai.com.br
         </p>
       </main>
     </div>

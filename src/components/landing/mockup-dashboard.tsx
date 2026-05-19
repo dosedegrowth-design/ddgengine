@@ -146,7 +146,7 @@ export function MockupDashboard({ className }: { className?: string }) {
             <div className="h-2.5 w-2.5 rounded-full bg-emerald-500/70" />
           </div>
           <div className="font-mono text-[10px] text-white/40 tracking-widest">
-            DDG ENGINE · VISIBILITY
+            CONTEUDAI · VISIBILITY
           </div>
           {/* ===== 3. LIVE com radar ping ring ===== */}
           <div className="text-[10px] font-mono text-ddg-lime flex items-center gap-1.5">

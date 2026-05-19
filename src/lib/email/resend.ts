@@ -5,10 +5,10 @@
  * 1. Criar conta em resend.com
  * 2. Adicionar domínio (verificação DNS)
  * 3. Gerar API key, setar RESEND_API_KEY
- * 4. EMAIL_FROM: "DDG Engine <noreply@ddgengine.com.br>"
+ * 4. EMAIL_FROM: "Conteudai <noreply@conteudai.com.br>"
  */
 
-const FROM = process.env.EMAIL_FROM ?? "DDG Engine <onboarding@resend.dev>";
+const FROM = process.env.EMAIL_FROM ?? "Conteudai <onboarding@resend.dev>";
 
 export interface SendEmailInput {
   to: string | string[];

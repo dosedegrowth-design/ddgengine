@@ -5,7 +5,7 @@
  * Cada card é sticky e escala progressivamente quando o próximo
  * card empilha em cima. Cria efeito de "revelação" stepwise.
  *
- * Uso: comparação de jeitos antigos × DDG Engine.
+ * Uso: comparação de jeitos antigos × Conteudai.
  */
 "use client";
 

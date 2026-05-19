@@ -14,7 +14,7 @@
 export interface WorkerTemplateVars {
   /** Tenant slug — ex: tenant-12345 */
   tenantSlug: string;
-  /** Origem do nosso servidor (ex: app.ddgengine.com.br) */
+  /** Origem do nosso servidor (ex: app.conteudai.com.br) */
   upstreamOrigin: string;
   /** Domínio do cliente (ex: meusite.com.br) */
   customerDomain: string;
@@ -31,7 +31,7 @@ export function renderWorkerScript(vars: WorkerTemplateVars): string {
   const path = blogPath.startsWith("/") ? blogPath : `/${blogPath}`;
 
   return `/**
- * DDG Engine — Reverse Proxy Worker
+ * Conteudai — Reverse Proxy Worker
  * Tenant: ${tenantSlug}
  * Customer: ${customerDomain}
  * Generated: ${new Date().toISOString()}

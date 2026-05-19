@@ -34,8 +34,8 @@ Tudo que você publicar a partir de agora vai aparecer automaticamente
 em ${args.domain}/blog — ranqueando no Google e citável em ChatGPT/IAs.
 
 Próximos passos:
-- Gerar mais posts: https://ddgengine.vercel.app/dashboard
-- Acompanhar aparições em IA: https://ddgengine.vercel.app/visibility
+- Gerar mais posts: https://conteudai.com.br/dashboard
+- Acompanhar aparições em IA: https://conteudai.com.br/visibility
 
 Time DDG.`;
 
@@ -78,14 +78,14 @@ function renderHtml(opts: {
         Próximos passos
       </h2>
       <ul style="font-size:14px;line-height:1.7;color:#404040;padding-left:18px;margin:0;">
-        <li>Gere mais posts com 1 clique no <a href="https://ddgengine.vercel.app/dashboard" style="color:#0a0a0a;">painel</a></li>
-        <li>Acompanhe aparições em IA na seção <a href="https://ddgengine.vercel.app/visibility" style="color:#0a0a0a;">Aparições em IA</a></li>
-        <li>Edite cor / fonte / template do blog em <a href="https://ddgengine.vercel.app/settings/site" style="color:#0a0a0a;">Configurações</a></li>
+        <li>Gere mais posts com 1 clique no <a href="https://conteudai.com.br/dashboard" style="color:#0a0a0a;">painel</a></li>
+        <li>Acompanhe aparições em IA na seção <a href="https://conteudai.com.br/visibility" style="color:#0a0a0a;">Aparições em IA</a></li>
+        <li>Edite cor / fonte / template do blog em <a href="https://conteudai.com.br/settings/site" style="color:#0a0a0a;">Configurações</a></li>
       </ul>
     </div>
     <p style="font-size:12px;color:#737373;margin:32px 0 0;line-height:1.5;">
       Recebeu por engano? Responde esse email — a gente lê todas.<br>
-      <strong style="color:#0a0a0a;">Time DDG Engine</strong>
+      <strong style="color:#0a0a0a;">Time Conteudai</strong>
     </p>
   </div>
 </body>

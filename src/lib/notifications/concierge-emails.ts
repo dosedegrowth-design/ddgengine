@@ -8,7 +8,7 @@
  */
 import { sendEmail } from "@/lib/email/resend";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://ddgengine.vercel.app";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://conteudai.com.br";
 const TEAM_EMAIL = process.env.SUPPORT_TEAM_EMAIL ?? "suporte@dosedegrowth.com.br";
 
 interface TeamArgs {
@@ -117,7 +117,7 @@ Time DDG.`;
     <code style="font-family:monospace;color:#0a0a0a;">${args.ticketId}</code>
   </div>
   <p style="font-size:12px;color:#737373;margin:32px 0 0;">
-    <strong style="color:#0a0a0a;">Time DDG Engine</strong>
+    <strong style="color:#0a0a0a;">Time Conteudai</strong>
   </p>
 </div></body></html>`,
   });

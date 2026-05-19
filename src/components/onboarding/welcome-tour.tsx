@@ -9,7 +9,7 @@ const STORAGE_KEY = "ddg_welcome_seen";
 
 const STEPS = [
   {
-    title: "Bem-vindo ao DDG Engine 👋",
+    title: "Bem-vindo ao Conteudai 👋",
     description: "Vamos te guiar pelos primeiros passos pra você ver o produto funcionando em 7 minutos.",
     cta: "Vamos lá",
   },

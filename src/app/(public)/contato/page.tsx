@@ -10,7 +10,7 @@ export default function ContatoPage() {
       <header className="border-b">
         <div className="container mx-auto max-w-4xl px-6 h-16 flex items-center justify-between">
           <Link href="/" className="font-semibold tracking-tight">
-            DDG Engine
+            Conteudai
           </Link>
           <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
             Voltar
@@ -33,8 +33,8 @@ export default function ContatoPage() {
               <CardDescription>Para dúvidas, suporte e parcerias</CardDescription>
             </CardHeader>
             <CardContent>
-              <a href="mailto:contato@ddgengine.com.br" className="font-mono text-sm hover:underline">
-                contato@ddgengine.com.br
+              <a href="mailto:contato@conteudai.com.br" className="font-mono text-sm hover:underline">
+                contato@conteudai.com.br
               </a>
             </CardContent>
           </Card>
@@ -57,8 +57,8 @@ export default function ContatoPage() {
               <CardDescription>Encarregado de proteção de dados</CardDescription>
             </CardHeader>
             <CardContent>
-              <a href="mailto:dpo@ddgengine.com.br" className="font-mono text-sm hover:underline">
-                dpo@ddgengine.com.br
+              <a href="mailto:dpo@conteudai.com.br" className="font-mono text-sm hover:underline">
+                dpo@conteudai.com.br
               </a>
             </CardContent>
           </Card>

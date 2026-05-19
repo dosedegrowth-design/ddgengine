@@ -27,7 +27,7 @@ export default async function WebhooksPage() {
         <CardHeader>
           <CardTitle>Webhooks</CardTitle>
           <CardDescription>
-            Receba eventos do DDG Engine no seu sistema. Útil pra agências integrarem com workflows próprios.
+            Receba eventos do Conteudai no seu sistema. Útil pra agências integrarem com workflows próprios.
           </CardDescription>
         </CardHeader>
         <CardContent>

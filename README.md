@@ -1,6 +1,7 @@
-# DDG Engine
+# Conteudai
 
 > SaaS brasileiro de blog automation com IA. Visibilidade automática no Google e ChatGPT.
+> _Antes "DDG Engine" durante o beta interno._
 
 ## O que é
 

@@ -18,7 +18,7 @@ export async function GET(
   const { orgSlug } = await params;
   const supabase = createServiceClient();
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://ddgengine.vercel.app";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://conteudai.com.br";
   const blogRoot = `${baseUrl}/blog/${orgSlug}`;
 
   const { data: org } = await supabase

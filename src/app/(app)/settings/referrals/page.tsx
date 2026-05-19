@@ -41,7 +41,7 @@ export default async function ReferralsPage() {
   const months = getCommissionMonths();
   const active = isReferralProgramActive();
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://ddgengine.vercel.app";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://conteudai.com.br";
   const link = `${appUrl}/signup?ref=${code}`;
 
   return (

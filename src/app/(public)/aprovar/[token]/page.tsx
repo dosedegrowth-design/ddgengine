@@ -51,7 +51,7 @@ export default async function ApprovalPage({ params }: { params: Promise<{ token
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
         <div className="container mx-auto max-w-3xl px-6 py-4 flex items-center justify-between">
-          <div className="font-semibold tracking-tight">DDG Engine</div>
+          <div className="font-semibold tracking-tight">Conteudai</div>
           <div className="text-xs text-muted-foreground">
             {(post as any).sites?.organizations?.name} · Aprovação rápida
           </div>

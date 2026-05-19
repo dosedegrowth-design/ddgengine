@@ -7,8 +7,8 @@
 import { sendEmail } from "./resend";
 import { createServiceClient } from "@/lib/supabase/server";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://ddgengine.vercel.app";
-const BRAND = process.env.NEXT_PUBLIC_APP_NAME ?? "DDG Engine";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://conteudai.com.br";
+const BRAND = process.env.NEXT_PUBLIC_APP_NAME ?? "Conteudai";
 
 function wrapper(content: string) {
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
@@ -36,7 +36,7 @@ export async function sendWelcomeDay0(args: { email: string; userName: string })
   const firstName = args.userName.split(" ")[0];
   return sendEmail({
     to: args.email,
-    subject: "Bem-vindo ao DDG Engine 👋",
+    subject: "Bem-vindo ao Conteudai 👋",
     html: wrapper(`
 <h1 style="margin:0 0 16px 0;font-size:24px;">Oi ${firstName}!</h1>
 <p style="margin:0 0 16px 0;">Tudo certo com sua conta. Você tem 14 dias grátis pra testar tudo.</p>
@@ -61,7 +61,7 @@ export async function sendWelcomeDay3(args: { email: string; userName: string; p
       to: args.email,
       subject: `${firstName}, primeiro post no ar 🎉`,
       html: wrapper(`
-<h1 style="margin:0 0 16px 0;font-size:24px;">3 dias de DDG Engine</h1>
+<h1 style="margin:0 0 16px 0;font-size:24px;">3 dias de Conteudai</h1>
 <p style="margin:0 0 16px 0;">Você já publicou ${args.postsPublished} post. Boa!</p>
 <p style="margin:0 0 16px 0;">Próximos passos pra acelerar:</p>
 <ul style="margin:0 0 16px 0;color:#525252;font-size:14px;">
@@ -71,7 +71,7 @@ export async function sendWelcomeDay3(args: { email: string; userName: string; p
 </ul>
 <p style="margin:0 0 24px 0;">${button("Conectar integrações", `${APP_URL}/settings/integrations`)}</p>
 `),
-      text: `${firstName}, 3 dias no DDG Engine. Próximo passo: conectar GSC + GA4.`,
+      text: `${firstName}, 3 dias no Conteudai. Próximo passo: conectar GSC + GA4.`,
     });
   }
 

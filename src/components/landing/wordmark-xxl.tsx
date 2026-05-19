@@ -1,5 +1,5 @@
 /**
- * WordmarkXXL — DDG ENGINE em tamanho gigante no footer
+ * WordmarkXXL — CONTEUDAI em tamanho gigante no footer
  * Estilo INSOMIO/ARCMAIL: ocupa quase toda a largura
  */
 import { cn } from "@/lib/utils";
@@ -19,7 +19,7 @@ export function WordmarkXXL({
         className
       )}
     >
-      DDG <span className="text-ddg-lime">●</span> ENGINE
+      CONTE<span className="text-ddg-lime">●</span>UDAI
     </div>
   );
 }

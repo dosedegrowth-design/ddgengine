@@ -8,6 +8,7 @@ import { formatRelativeTime } from "@/lib/utils";
 import { FirstUseHero } from "@/components/dashboard/first-use-hero";
 import { SuggestionsBar } from "@/components/dashboard/suggestions-bar";
 import { IntegrationBanner } from "@/components/dashboard/integration-banner";
+import { AccountStatusBanner } from "@/components/dashboard/account-status-banner";
 import { suggestTopics } from "@/lib/briefing/suggest-topics";
 
 interface RefinedBriefShape {
@@ -147,6 +148,12 @@ export default async function DashboardPage() {
       </header>
 
       <div className="container mx-auto max-w-7xl px-6 py-8 md:py-10 space-y-8">
+        {/* Banner de status da conta — domina tudo se trial_expired/cancelled/paused */}
+        <AccountStatusBanner
+          status={org.status}
+          trialExpiredAt={org.trial_expired_at}
+        />
+
         {/* Banner de integração — sempre no topo até estar ativo */}
         <IntegrationBanner
           state={(site.integration_state as string) ?? "preview"}

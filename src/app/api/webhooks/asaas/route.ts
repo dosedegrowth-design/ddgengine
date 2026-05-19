@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { recordCommission } from "@/lib/billing/referrals";
+import { teardownOrgInfra } from "@/lib/billing/teardown";
 
 export const dynamic = "force-dynamic";
 
@@ -126,6 +127,15 @@ export async function POST(request: NextRequest) {
             .from("organizations")
             .update({ status: "cancelled" })
             .eq("id", sub.organization_id);
+
+          // LOCK-IN: remove Worker do Cloudflare. cliente.com.br/blog vira 404.
+          // Fire-and-forget — webhook não pode timeout esperando Cloudflare.
+          void teardownOrgInfra(sub.organization_id).catch((err) => {
+            console.error(
+              "[asaas SUBSCRIPTION_DELETED] teardown falhou:",
+              err instanceof Error ? err.message : err
+            );
+          });
         }
         break;
       }

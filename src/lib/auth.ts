@@ -20,7 +20,9 @@ export async function getCurrentOrg() {
 
   const { data: memberships } = await supabase
     .from("org_memberships")
-    .select("organization_id, role, organizations(id, name, slug, plan, status, trial_ends_at)")
+    .select(
+      "organization_id, role, organizations(id, name, slug, plan, status, trial_ends_at, trial_expired_at, cancelled_at)"
+    )
     .eq("user_id", user.id)
     .order("created_at", { ascending: true })
     .limit(1);
@@ -40,6 +42,8 @@ export async function getCurrentOrg() {
       plan: string;
       status: string;
       trial_ends_at: string;
+      trial_expired_at: string | null;
+      cancelled_at: string | null;
     },
     role: membership.role,
   };

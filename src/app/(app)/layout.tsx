@@ -9,6 +9,7 @@
 import { redirect } from "next/navigation";
 
 import { getCurrentOrg } from "@/lib/auth";
+import { isAdminEmail } from "@/lib/auth/admin";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { MobileNav } from "@/components/dashboard/mobile-nav";
 
@@ -36,6 +37,7 @@ export default async function AppLayout({
         orgName={org.name}
         plan={org.plan ?? "trial"}
         userEmail={user.email ?? ""}
+        isAdmin={isAdminEmail(user.email)}
       />
       <main className="flex-1 min-w-0 pb-16 md:pb-0 bg-ddg-cream/30">
         {children}

@@ -18,6 +18,7 @@ import {
   LogOut,
   Inbox,
   Activity,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BrandMarkInverted } from "@/components/brand/brand-mark";
@@ -54,9 +55,11 @@ interface SidebarProps {
   orgName: string;
   plan: string;
   userEmail: string;
+  /** Se true, renderiza o link "Admin · Staff DDG" no rodapé. */
+  isAdmin?: boolean;
 }
 
-export function Sidebar({ orgName, plan, userEmail }: SidebarProps) {
+export function Sidebar({ orgName, plan, userEmail, isAdmin = false }: SidebarProps) {
   const pathname = usePathname();
   const initials = (userEmail || "")
     .split("@")[0]
@@ -132,6 +135,30 @@ export function Sidebar({ orgName, plan, userEmail }: SidebarProps) {
 
       {/* Footer */}
       <div className="border-t border-ddg-paper/10 p-3 space-y-2">
+        {isAdmin && (
+          <Link
+            href="/admin/tickets"
+            className={cn(
+              "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all group/item",
+              pathname.startsWith("/admin")
+                ? "bg-ddg-lime/10 border border-ddg-lime/30 text-ddg-paper font-bold"
+                : "text-ddg-paper/60 border border-transparent hover:bg-ddg-paper/5 hover:text-ddg-paper hover:border-ddg-paper/10"
+            )}
+          >
+            <ShieldCheck
+              className={cn(
+                "w-4 h-4",
+                pathname.startsWith("/admin")
+                  ? "text-ddg-lime"
+                  : "text-ddg-paper/40 group-hover/item:text-ddg-paper/80"
+              )}
+            />
+            <span className="flex-1">Admin</span>
+            <span className="text-[9px] font-mono uppercase tracking-widest text-ddg-paper/40">
+              Staff
+            </span>
+          </Link>
+        )}
         <Link
           href="/settings"
           className={cn(

@@ -20,6 +20,10 @@ import { getCurrentSite } from "@/lib/auth";
 import { createServiceClient } from "@/lib/supabase/server";
 import { createZone, getZone, findZoneByDomain } from "@/lib/cloudflare/api";
 import { deployWorkerForSite } from "@/lib/cloudflare/deploy";
+import {
+  sendConciergeRequestedToTeam,
+  sendConciergeConfirmationToClient,
+} from "@/lib/notifications/concierge-emails";
 
 export async function initiateDomainConnection(siteId: string) {
   const { site } = await getCurrentSite();
@@ -116,4 +120,95 @@ export async function verifyDomainConnection(siteId: string) {
       err instanceof Error ? err.message : "Erro ao verificar propagação DNS";
     return { error: msg };
   }
+}
+
+interface ConciergeInput {
+  contactEmail: string;
+  contactPhone: string;
+  message?: string;
+}
+
+/**
+ * Concierge: cliente pede pra equipe DDG configurar o domínio pra ele.
+ * - Cria ticket em support_tickets
+ * - Marca site.integration_state='concierge_requested'
+ * - Email pro time DDG (com toda info) + confirmação pro cliente
+ */
+export async function requestConciergeAction(
+  siteId: string,
+  input: ConciergeInput
+) {
+  const { site, user, org } = await getCurrentSite();
+  if (!site || site.id !== siteId) return { error: "Site não autorizado" };
+  if (!site.domain) return { error: "Site sem domínio configurado" };
+
+  const contactEmail = input.contactEmail.trim() || user.email || "";
+  const contactPhone = input.contactPhone.replace(/\D/g, "");
+  if (!contactEmail) return { error: "Email de contato obrigatório" };
+  if (!contactPhone || contactPhone.length < 10) {
+    return { error: "WhatsApp obrigatório (formato 11999999999)" };
+  }
+
+  const admin = createServiceClient();
+
+  // 1. Cria ticket
+  const { data: ticket, error: ticketErr } = await admin
+    .from("support_tickets")
+    .insert({
+      organization_id: org.id,
+      site_id: site.id,
+      type: "domain_integration",
+      status: "open",
+      message: input.message?.trim() || null,
+      contact_email: contactEmail,
+      contact_phone: contactPhone,
+      metadata: {
+        domain: site.domain,
+        org_name: org.name,
+      },
+    })
+    .select("id")
+    .single();
+
+  if (ticketErr || !ticket) {
+    return { error: ticketErr?.message ?? "Erro ao criar ticket" };
+  }
+
+  // 2. Atualiza estado da integração
+  await admin
+    .from("sites")
+    .update({ integration_state: "concierge_requested" })
+    .eq("id", siteId);
+
+  // 3. Emails fire-and-forget (não bloqueia retorno pro cliente)
+  void sendConciergeRequestedToTeam({
+    ticketId: ticket.id,
+    orgName: org.name,
+    orgId: org.id,
+    domain: site.domain,
+    contactEmail,
+    contactPhone,
+    message: input.message?.trim() || "",
+  }).catch((err) =>
+    console.warn(
+      "[concierge] email pro time falhou:",
+      err instanceof Error ? err.message : err
+    )
+  );
+
+  void sendConciergeConfirmationToClient({
+    toEmail: contactEmail,
+    orgName: org.name,
+    domain: site.domain,
+    ticketId: ticket.id,
+  }).catch((err) =>
+    console.warn(
+      "[concierge] email pro cliente falhou:",
+      err instanceof Error ? err.message : err
+    )
+  );
+
+  revalidatePath("/settings/integration");
+  revalidatePath("/dashboard");
+  return { success: true, ticketId: ticket.id };
 }

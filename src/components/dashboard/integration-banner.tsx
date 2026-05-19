@@ -10,7 +10,7 @@
  *   active        → não renderiza nada
  */
 import Link from "next/link";
-import { AlertCircle, ArrowRight, Clock, Globe } from "lucide-react";
+import { AlertCircle, ArrowRight, Clock, Globe, Sparkles } from "lucide-react";
 
 interface Props {
   state: string;
@@ -39,6 +39,32 @@ export function IntegrationBanner({ state, domain }: Props) {
           className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-900 text-white text-sm font-bold hover:bg-red-950 transition-colors"
         >
           Ver detalhes
+          <ArrowRight className="w-4 h-4" />
+        </Link>
+      </div>
+    );
+  }
+
+  if (state === "concierge_requested") {
+    return (
+      <div className="rounded-2xl border-2 border-ddg-lime bg-ddg-lime/15 p-4 flex items-start justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <Sparkles className="w-5 h-5 text-ddg-lime-deep shrink-0 mt-0.5" />
+          <div>
+            <div className="font-bold text-sm text-ddg-ink">
+              Equipe DDG configurando seu blog
+            </div>
+            <p className="text-sm text-ddg-muted mt-1 leading-relaxed">
+              Recebemos seu pedido pra integrar {domain}. Prazo: 24h úteis.
+              Você vai receber um email quando estiver no ar.
+            </p>
+          </div>
+        </div>
+        <Link
+          href="/settings/integration"
+          className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-ddg-ink text-ddg-ink text-sm font-bold hover:bg-ddg-ink hover:text-ddg-paper transition-colors"
+        >
+          Ver status
           <ArrowRight className="w-4 h-4" />
         </Link>
       </div>

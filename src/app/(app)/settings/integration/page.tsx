@@ -14,16 +14,14 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentSite } from "@/lib/auth";
 import {
-  ArrowRight,
   CheckCircle2,
-  Globe,
-  Copy,
-  Clock,
   HelpCircle,
   ChevronRight,
   MessageCircle,
+  Clock,
 } from "lucide-react";
 import { IntegrationWizard } from "./wizard";
+import { ConciergeButton } from "./concierge-button";
 
 export default async function IntegrationPage() {
   const { site } = await getCurrentSite();
@@ -50,16 +48,23 @@ export default async function IntegrationPage() {
       {/* Status atual em destaque */}
       <StatusBlock state={state} domain={site.domain ?? ""} />
 
-      {/* Wizard interativo */}
-      <IntegrationWizard
+      {/* Wizard interativo — escondido se cliente pediu concierge */}
+      {state !== "concierge_requested" && (
+        <IntegrationWizard
+          siteId={site.id}
+          domain={site.domain ?? ""}
+          state={state}
+          nameservers={nameservers}
+        />
+      )}
+
+      {/* Concierge: oferece "configurar pra mim" quando ainda não pediu.
+          Quando já pediu, mostra status do ticket. */}
+      <ConciergeOrStatusSection
         siteId={site.id}
         domain={site.domain ?? ""}
         state={state}
-        nameservers={nameservers}
       />
-
-      {/* Suporte ao vivo */}
-      <WhatsAppSupportBox domain={site.domain ?? ""} state={state} />
 
       {/* FAQ rápido */}
       <FAQ />
@@ -67,50 +72,58 @@ export default async function IntegrationPage() {
   );
 }
 
-/**
- * Card de suporte ao vivo. Botão pré-formatado WhatsApp com domain
- * + estado atual, pra equipe DDG já chegar com contexto.
- */
-function WhatsAppSupportBox({ domain, state }: { domain: string; state: string }) {
-  const supportPhone = process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP ?? "5511999999999";
-  const stateLabel: Record<string, string> = {
-    preview: "ainda não comecei",
-    zone_created: "preciso trocar nameservers",
-    verifying: "esperando propagação DNS",
-    error: "deu erro",
-    active: "tudo ativo",
-  };
-  const message = encodeURIComponent(
-    `Oi! Preciso de ajuda pra conectar meu domínio ${domain} no DDG Engine. Estado atual: ${stateLabel[state] ?? state}.`
-  );
-  const url = `https://wa.me/${supportPhone}?text=${message}`;
+function ConciergeOrStatusSection({
+  siteId,
+  domain,
+  state,
+}: {
+  siteId: string;
+  domain: string;
+  state: string;
+}) {
+  const supportPhone =
+    process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP ?? "5511999999999";
 
-  return (
-    <div className="rounded-2xl border-2 border-ddg-ink bg-ddg-lime/10 p-5">
-      <div className="flex items-start gap-3">
-        <div className="shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-lg bg-ddg-lime border-2 border-ddg-ink">
-          <MessageCircle className="w-5 h-5 text-ddg-ink" strokeWidth={2.5} />
-        </div>
-        <div className="flex-1">
-          <h3 className="font-bold text-sm text-ddg-ink mb-0.5">
-            Travou em algum passo? Chama a gente no WhatsApp
-          </h3>
-          <p className="text-xs text-ddg-muted leading-relaxed mb-3">
-            Time DDG configura junto com você em ~15 min — gratuito em todos
-            os planos enquanto estamos em beta.
-          </p>
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-ddg-ink text-ddg-paper font-bold text-sm hover:bg-ddg-graphite transition-colors"
-          >
-            <MessageCircle className="w-4 h-4" /> Falar com a equipe DDG
-          </a>
+  // Cliente já pediu concierge — mostra status
+  if (state === "concierge_requested") {
+    const waMsg = encodeURIComponent(
+      `Oi! Pedi pra equipe DDG configurar a integração de ${domain}. Algum status?`
+    );
+    const waUrl = `https://wa.me/${supportPhone}?text=${waMsg}`;
+    return (
+      <div className="rounded-2xl border-2 border-ddg-ink bg-ddg-lime/15 p-5">
+        <div className="flex items-start gap-3">
+          <div className="shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-lg bg-ddg-lime border-2 border-ddg-ink">
+            <Clock className="w-5 h-5 text-ddg-ink" strokeWidth={2.5} />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-bold text-base text-ddg-ink mb-0.5">
+              Equipe DDG está configurando pra você
+            </h3>
+            <p className="text-sm text-ddg-muted leading-relaxed mb-3">
+              Recebemos seu pedido. Prazo: <strong className="text-ddg-ink">24h úteis</strong>.
+              Você vai receber um email quando o blog estiver no ar em{" "}
+              <strong className="text-ddg-ink">{domain}/blog</strong>.
+            </p>
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-ddg-ink text-ddg-ink font-medium text-sm hover:bg-ddg-ink hover:text-ddg-paper transition-colors"
+            >
+              <MessageCircle className="w-4 h-4" /> Falar com a equipe no WhatsApp
+            </a>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  // Active — não precisa mostrar nada
+  if (state === "active") return null;
+
+  // Estados onde faz sentido oferecer ajuda (preview/zone_created/verifying/error)
+  return <ConciergeButton siteId={siteId} domain={domain} state={state} />;
 }
 
 function StatusBlock({ state, domain }: { state: string; domain: string }) {

@@ -161,7 +161,7 @@ export function StickyStackCard({
               className={cn(
                 "ddg-display",
                 variant === "new"
-                  ? "text-2xl sm:text-3xl md:text-3xl lg:text-4xl text-ddg-paper"
+                  ? "text-3xl sm:text-4xl md:text-4xl lg:text-5xl text-ddg-paper"
                   : "text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
               )}
             >

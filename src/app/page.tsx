@@ -254,8 +254,8 @@ export default function Home() {
             aria-hidden
           />
 
-          <div className="container relative z-10 mx-auto max-w-7xl px-4 lg:px-8 py-8 md:py-12 lg:py-14">
-            <div className="grid lg:grid-cols-12 gap-6 lg:gap-10 items-center lg:items-start">
+          <div className="container relative z-10 mx-auto max-w-7xl px-4 lg:px-8 py-8 md:py-12 lg:py-16">
+            <div className="grid lg:grid-cols-12 gap-6 lg:gap-12 items-center">
               {/* Esquerda — copy */}
               <div className="lg:col-span-7 space-y-4 md:space-y-5">
                 <Reveal variant="up" delay={0}>
@@ -344,7 +344,7 @@ export default function Home() {
               </div>
 
               {/* Direita — mockup dashboard */}
-              <Reveal variant="right" delay={0.3} duration={0.8} className="lg:col-span-5 lg:pl-4 lg:pt-10">
+              <Reveal variant="right" delay={0.3} duration={0.8} className="lg:col-span-5">
                 <div className="max-w-sm md:max-w-md mx-auto lg:mx-0 lg:max-w-none">
                   <MockupDashboard />
                 </div>
@@ -494,11 +494,15 @@ export default function Home() {
               <StaggerItem>
                 <div className="space-y-4">
                   <div
-                    className="ddg-stat text-[5.5rem] sm:text-[7rem] md:text-[7rem] lg:text-[9rem] leading-[0.85] text-ddg-paper whitespace-nowrap"
+                    className="text-ddg-paper"
                     style={{ fontFamily: 'ui-serif, "Times New Roman", serif' }}
                   >
-                    <span className="text-ddg-paper/60 text-[3.5rem] sm:text-[4.5rem] md:text-[4.5rem] lg:text-[5.5rem] align-top">R$</span>
-                    <AnimatedCounter to={3500} duration={1.8} />
+                    <div className="text-[10px] md:text-xs font-mono uppercase tracking-[0.25em] text-ddg-paper/50 mb-1 leading-none">
+                      R$
+                    </div>
+                    <div className="ddg-stat text-[7rem] sm:text-[9rem] md:text-[9rem] lg:text-[11rem] leading-[0.85]">
+                      <AnimatedCounter to={3500} duration={1.8} />
+                    </div>
                   </div>
                   <div className="text-base md:text-lg uppercase tracking-widest font-black text-ddg-paper">
                     Por mês com agência
@@ -686,8 +690,9 @@ export default function Home() {
               </Reveal>
             </div>
 
+            {/* Grid das 6 primeiras capacidades (perfeito 3x2 em lg) */}
             <StaggerGroup className="grid md:grid-cols-2 lg:grid-cols-3 gap-5" stagger={0.08}>
-              {FEATURES.map((f) => {
+              {FEATURES.slice(0, 6).map((f) => {
                 const Icon = f.icon;
                 return (
                   <StaggerItem key={f.title}>
@@ -705,6 +710,61 @@ export default function Home() {
                 );
               })}
             </StaggerGroup>
+
+            {/* 7ª capacidade — "SEM LOCK-IN" como closing statement full-width */}
+            {(() => {
+              const last = FEATURES[6];
+              if (!last) return null;
+              const Icon = last.icon;
+              return (
+                <Reveal variant="up" delay={0.4}>
+                  <div className="mt-5 relative overflow-hidden rounded-2xl border-2 border-ddg-ink bg-ddg-ink text-ddg-paper shadow-[6px_6px_0_var(--ddg-lime)] md:shadow-[10px_10px_0_var(--ddg-lime)] group/closer">
+                    {/* Decoração: glow lime */}
+                    <div
+                      className="pointer-events-none absolute -top-1/3 -right-1/4 w-[500px] h-[500px] rounded-full opacity-25"
+                      style={{
+                        background:
+                          "radial-gradient(circle, rgba(200,255,61,0.3) 0%, transparent 65%)",
+                      }}
+                      aria-hidden
+                    />
+                    <div
+                      className="pointer-events-none absolute inset-0 opacity-30"
+                      style={{
+                        backgroundImage:
+                          "radial-gradient(circle, rgba(200,255,61,0.08) 1px, transparent 1px)",
+                        backgroundSize: "32px 32px",
+                      }}
+                      aria-hidden
+                    />
+                    <div className="relative grid md:grid-cols-12 gap-6 md:gap-8 items-center p-6 md:p-10">
+                      {/* Esquerda: ícone gigante + label */}
+                      <div className="md:col-span-4 flex md:flex-col items-center md:items-start gap-4 md:gap-3">
+                        <div className="shrink-0 inline-flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-2xl border-2 border-ddg-lime/40 bg-ddg-lime/10 group-hover/closer:bg-ddg-lime/20 transition-colors">
+                          <Icon
+                            className="w-10 h-10 md:w-12 md:h-12 text-ddg-lime group-hover/closer:scale-110 transition-transform"
+                            strokeWidth={2}
+                          />
+                        </div>
+                        <div className="ddg-bracket text-ddg-lime">
+                          {last.label}
+                        </div>
+                      </div>
+
+                      {/* Direita: title + description */}
+                      <div className="md:col-span-8 space-y-3">
+                        <h3 className="ddg-display text-3xl md:text-4xl lg:text-5xl text-ddg-paper">
+                          {last.title}
+                        </h3>
+                        <p className="text-base md:text-lg text-ddg-paper/70 leading-relaxed max-w-2xl">
+                          {last.description}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </Reveal>
+              );
+            })()}
           </div>
         </section>
 
@@ -779,7 +839,7 @@ export default function Home() {
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto mb-10">
               {/* STARTER */}
               <Reveal variant="up" delay={0}>
-                <div className="p-6 rounded-2xl border-2 border-ddg-ink bg-ddg-paper h-full flex flex-col">
+                <div className="p-6 rounded-2xl border-2 border-ddg-ink bg-ddg-paper h-full flex flex-col transition-all duration-200 hover:-translate-y-1 hover:shadow-[6px_6px_0_var(--ddg-ink)]">
                   <div className="ddg-bracket mb-3">PRA COMEÇAR</div>
                   <div className="text-xl font-black mb-1">Starter</div>
                   <div className="flex items-baseline gap-1 mb-1">
@@ -797,6 +857,7 @@ export default function Home() {
                   </p>
                   <ul className="space-y-2 mb-6 flex-1 text-xs">
                     <li className="font-bold text-ddg-ink">4 artigos + 8 perguntas-respostas/mês</li>
+                    <li className="text-[10px] font-mono uppercase tracking-widest text-ddg-lime-deep -mt-1">≈ 8.000 palavras/mês</li>
                     {[
                       "Engine propõe os temas (você pode sugerir)",
                       "1 site conectado",
@@ -823,7 +884,7 @@ export default function Home() {
 
               {/* LIGHT */}
               <Reveal variant="up" delay={0.08}>
-                <div className="p-6 rounded-2xl border-2 border-ddg-ink bg-ddg-paper h-full flex flex-col">
+                <div className="p-6 rounded-2xl border-2 border-ddg-ink bg-ddg-paper h-full flex flex-col transition-all duration-200 hover:-translate-y-1 hover:shadow-[6px_6px_0_var(--ddg-ink)]">
                   <div className="ddg-bracket mb-3">MAIS VOLUME</div>
                   <div className="text-xl font-black mb-1">Light</div>
                   <div className="flex items-baseline gap-1 mb-1">
@@ -841,6 +902,7 @@ export default function Home() {
                   </p>
                   <ul className="space-y-2 mb-6 flex-1 text-xs">
                     <li className="font-bold text-ddg-ink">6 artigos + 12 perguntas-respostas/mês</li>
+                    <li className="text-[10px] font-mono uppercase tracking-widest text-ddg-lime-deep -mt-1">≈ 12.000 palavras/mês</li>
                     {[
                       "Engine propõe os temas (você pode sugerir)",
                       "1 site conectado",
@@ -867,7 +929,7 @@ export default function Home() {
 
               {/* PRO (destaque) */}
               <Reveal variant="up" delay={0.16}>
-                <div className="relative p-6 rounded-2xl border-2 border-ddg-ink bg-ddg-ink text-ddg-paper h-full flex flex-col shadow-[8px_8px_0_var(--ddg-lime)]">
+                <div className="relative p-6 rounded-2xl border-2 border-ddg-ink bg-ddg-ink text-ddg-paper h-full flex flex-col shadow-[8px_8px_0_var(--ddg-lime)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[12px_12px_0_var(--ddg-lime)]">
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 ddg-pill-lime text-[10px] whitespace-nowrap">
                     MAIS ESCOLHIDO
                   </div>
@@ -888,6 +950,7 @@ export default function Home() {
                   </p>
                   <ul className="space-y-2 mb-6 flex-1 text-xs">
                     <li className="font-bold text-ddg-paper">8 artigos + 16 perguntas-respostas/mês</li>
+                    <li className="text-[10px] font-mono uppercase tracking-widest text-ddg-lime -mt-1">≈ 16.000 palavras/mês</li>
                     {[
                       "Engine propõe temas + você sugere quando quiser",
                       "1 site conectado",
@@ -916,7 +979,7 @@ export default function Home() {
 
               {/* MULTI */}
               <Reveal variant="up" delay={0.24}>
-                <div className="p-6 rounded-2xl border-2 border-ddg-ink bg-ddg-paper h-full flex flex-col">
+                <div className="p-6 rounded-2xl border-2 border-ddg-ink bg-ddg-paper h-full flex flex-col transition-all duration-200 hover:-translate-y-1 hover:shadow-[6px_6px_0_var(--ddg-ink)]">
                   <div className="ddg-bracket mb-3">REDES · FRANQUIAS</div>
                   <div className="text-xl font-black mb-1">Multi</div>
                   <div className="flex items-baseline gap-1 mb-1">
@@ -934,6 +997,7 @@ export default function Home() {
                   </p>
                   <ul className="space-y-2 mb-6 flex-1 text-xs">
                     <li className="font-bold text-ddg-ink">16 artigos + 32 perguntas-respostas</li>
+                    <li className="text-[10px] font-mono uppercase tracking-widest text-ddg-lime-deep -mt-1">≈ 32.000 palavras/mês</li>
                     {[
                       "Engine propõe temas por marca + sugestões",
                       "3 sites simultâneos",
@@ -973,7 +1037,7 @@ export default function Home() {
               <div className="grid md:grid-cols-2 gap-4">
                 {/* AGÊNCIA */}
                 <Reveal variant="left">
-                  <div className="p-6 md:p-8 rounded-2xl border-2 border-ddg-ink bg-ddg-cream h-full flex flex-col md:flex-row gap-6 items-start">
+                  <div className="p-6 md:p-8 rounded-2xl border-2 border-ddg-ink bg-ddg-cream h-full flex flex-col md:flex-row gap-6 items-start transition-all duration-200 hover:-translate-y-1 hover:shadow-[6px_6px_0_var(--ddg-ink)]">
                     <div className="flex-1 min-w-0">
                       <div className="ddg-bracket mb-2">AGÊNCIA · WHITE-LABEL</div>
                       <h4 className="text-xl font-black mb-2">Agência</h4>
@@ -989,6 +1053,9 @@ export default function Home() {
                       <p className="text-sm text-ddg-muted leading-relaxed mb-4">
                         Pra agências e consultorias que revendem sob a própria marca.
                       </p>
+                      <div className="mb-3 text-[10px] font-mono uppercase tracking-widest text-ddg-lime-deep">
+                        ≈ 120.000 palavras/mês
+                      </div>
                       <ul className="space-y-2 text-xs">
                         {[
                           "Até 60 artigos longos + 120 perguntas-respostas/mês",
@@ -1017,7 +1084,7 @@ export default function Home() {
 
                 {/* NATIVE */}
                 <Reveal variant="right" delay={0.1}>
-                  <div className="p-6 md:p-8 rounded-2xl border-2 border-ddg-ink bg-ddg-cream h-full flex flex-col md:flex-row gap-6 items-start">
+                  <div className="p-6 md:p-8 rounded-2xl border-2 border-ddg-ink bg-ddg-cream h-full flex flex-col md:flex-row gap-6 items-start transition-all duration-200 hover:-translate-y-1 hover:shadow-[6px_6px_0_var(--ddg-ink)]">
                     <div className="flex-1 min-w-0">
                       <div className="ddg-bracket mb-2">INTEGRAÇÃO NATIVA</div>
                       <h4 className="text-xl font-black mb-2">Native</h4>
@@ -1110,12 +1177,17 @@ export default function Home() {
             <StaggerGroup className="space-y-3" stagger={0.06}>
               {FAQ.map(({ q, a }) => (
                 <StaggerItem key={q}>
-                  <details className="group border-2 border-ddg-ink rounded-xl bg-ddg-paper overflow-hidden">
-                    <summary className="cursor-pointer p-5 font-bold flex items-center justify-between hover:bg-ddg-cream list-none transition-colors">
-                      <span className="pr-4">{q}</span>
+                  <details className="group border-2 border-ddg-ink rounded-xl bg-ddg-paper overflow-hidden transition-all duration-200 hover:shadow-[3px_3px_0_var(--ddg-ink)] hover:-translate-y-0.5 open:bg-ddg-lime/5 open:shadow-[4px_4px_0_var(--ddg-lime-deep)]">
+                    <summary className="cursor-pointer p-5 font-bold flex items-center justify-between hover:bg-ddg-cream list-none transition-colors group-open:bg-ddg-lime/15">
+                      <span className="pr-4 flex items-start gap-3">
+                        <span className="shrink-0 mt-0.5 inline-flex w-5 h-5 items-center justify-center rounded border-2 border-ddg-ink bg-ddg-paper text-[10px] font-mono font-black text-ddg-ink group-open:bg-ddg-lime group-open:scale-110 transition-transform">
+                          ?
+                        </span>
+                        <span className="group-open:text-ddg-ink">{q}</span>
+                      </span>
                       <ArrowRight className="w-4 h-4 transition-transform duration-300 group-open:rotate-90 shrink-0 text-ddg-lime-deep" />
                     </summary>
-                    <div className="px-5 pb-5 text-ddg-muted leading-relaxed border-t border-ddg-stone pt-4">
+                    <div className="px-5 pb-5 text-ddg-muted leading-relaxed border-t border-ddg-stone pt-4 pl-13">
                       {a}
                     </div>
                   </details>

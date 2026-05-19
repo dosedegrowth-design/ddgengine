@@ -10,6 +10,26 @@
  * reais hospedados em Supabase Storage.
  */
 
+/**
+ * Mock UI inline — desenha uma representação simplificada do que o cliente
+ * vai ver no painel do registrador. NÃO substitui screenshot real, mas dá
+ * uma referência visual enquanto a gente não tem fotos.
+ *
+ * - sidebar-nav: barra lateral com itens (1 destacado com lime)
+ * - ns-replace: 2 inputs "antes" + 2 inputs "depois" (highlight lime nos novos)
+ * - toggle: switch on/off
+ * - radio-choice: 2 opções de radio (a marcada destacada)
+ * - button-row: botão pílula destacado (ex: "Alterar DNS")
+ * - login-form: tela genérica de login (email/senha)
+ */
+export type StepMock =
+  | { type: "sidebar-nav"; items: string[]; highlightIndex: number }
+  | { type: "ns-replace"; before: [string, string]; after: [string, string] }
+  | { type: "toggle"; label: string; state: "on" | "off" }
+  | { type: "radio-choice"; options: string[]; selectedIndex: number }
+  | { type: "button-row"; buttonLabel: string; context?: string }
+  | { type: "login-form"; brand: string };
+
 export interface TutorialStep {
   /** Número do passo (1, 2, 3...) */
   num: number;
@@ -21,6 +41,10 @@ export interface TutorialStep {
   uiHint?: string;
   /** Aviso/cuidado pro cliente */
   warning?: string;
+  /** Screenshot real (futuro — Supabase Storage). Se presente, substitui o mock. */
+  screenshot?: { url: string; alt: string };
+  /** Mock UI inline pra dar referência visual sem screenshot. */
+  mock?: StepMock;
 }
 
 export interface Registrar {
@@ -70,12 +94,13 @@ const REGISTRO_BR: Registrar = {
       uiHint: "Botão **Acessar conta** (canto superior direito)",
       warning:
         "Importante: precisa logar com o ID Administrativo ou Técnico do domínio. Outros perfis não podem trocar DNS.",
+      mock: { type: "login-form", brand: "Registro.br" },
     },
     {
       num: 2,
       title: "Selecione o domínio",
       description:
-        "Após logar, você verá a lista dos seus domínios. Clique sobre o domínio que quer conectar com a DDG Engine.",
+        "Após logar, você verá a lista dos seus domínios. Clique sobre o domínio que quer conectar com a Conteudai.",
       uiHint: "Clica no nome do domínio (não no botão Renovar)",
     },
     {
@@ -84,6 +109,11 @@ const REGISTRO_BR: Registrar = {
       description:
         "Role a tela até encontrar a seção 'DNS'. Clique no botão 'Alterar servidores DNS' (também pode aparecer como 'Editar DNS').",
       uiHint: "Botão **Alterar servidores DNS** dentro do bloco DNS",
+      mock: {
+        type: "button-row",
+        buttonLabel: "Alterar servidores DNS",
+        context: "Seção DNS",
+      },
     },
     {
       num: 4,
@@ -93,6 +123,11 @@ const REGISTRO_BR: Registrar = {
       uiHint: "Campos **MASTER** e **SLAVE 1**",
       warning:
         "Se você usa email no domínio (ex: contato@seusite.com.br), a gente migra os registros MX juntos pra não derrubar. Fala com nossa equipe no WhatsApp antes de seguir.",
+      mock: {
+        type: "ns-replace",
+        before: ["a.dns.br", "b.dns.br"],
+        after: ["NS1_DDG", "NS2_DDG"],
+      },
     },
     {
       num: 5,
@@ -146,6 +181,11 @@ const HOSTGATOR: Registrar = {
       description:
         "No menu lateral esquerdo (sidebar), clique em 'Domínios'. Vai abrir a lista de domínios cadastrados.",
       uiHint: "Item **Domínios** no menu lateral",
+      mock: {
+        type: "sidebar-nav",
+        items: ["Início", "Hospedagem", "Domínios", "Email", "Faturas"],
+        highlightIndex: 2,
+      },
     },
     {
       num: 3,
@@ -153,6 +193,7 @@ const HOSTGATOR: Registrar = {
       description:
         "Procure o domínio que quer conectar. À direita dele tem o botão 'Alterar DNS' — clica nele.",
       uiHint: "Botão **Alterar DNS** na linha do domínio",
+      mock: { type: "button-row", buttonLabel: "Alterar DNS" },
     },
     {
       num: 4,
@@ -160,6 +201,11 @@ const HOSTGATOR: Registrar = {
       description:
         "Vai aparecer opção 'DNS HostGator' ou 'Outro Servidor'. Marca 'Outro Servidor' e cola os 2 nameservers que mostramos no painel DDG nos campos Master e Slave.",
       uiHint: "Radio **Outro Servidor** + campos Master/Slave",
+      mock: {
+        type: "radio-choice",
+        options: ["DNS HostGator", "Outro Servidor"],
+        selectedIndex: 1,
+      },
     },
     {
       num: 5,
@@ -218,6 +264,11 @@ const LOCAWEB: Registrar = {
       description:
         "Vai aparecer uma chave/toggle 'Usar nameservers da Locaweb'. Desligue ela.",
       uiHint: "Toggle **Usar nameservers da Locaweb** → OFF",
+      mock: {
+        type: "toggle",
+        label: "Usar nameservers da Locaweb",
+        state: "off",
+      },
     },
     {
       num: 5,
@@ -225,6 +276,11 @@ const LOCAWEB: Registrar = {
       description:
         "Clique em 'Alterar'. Apague os valores Primário, Secundário e Terciário antigos. Cole os 2 nameservers DDG nos 2 primeiros campos. Deixe o terceiro vazio. Clique em 'Salvar'.",
       uiHint: "Campos **Primário** e **Secundário** + botão **Salvar**",
+      mock: {
+        type: "ns-replace",
+        before: ["ns1.locaweb.com.br", "ns2.locaweb.com.br"],
+        after: ["NS1_DDG", "NS2_DDG"],
+      },
     },
   ],
   commonIssues: [
@@ -263,6 +319,11 @@ const HOSTINGER: Registrar = {
       description:
         "No menu principal, clique em 'Domínios'. Aparece a lista dos domínios da sua conta.",
       uiHint: "Item **Domínios** no menu",
+      mock: {
+        type: "sidebar-nav",
+        items: ["Home", "Hospedagem", "Domínios", "Emails", "Pagamentos"],
+        highlightIndex: 2,
+      },
     },
     {
       num: 3,
@@ -284,6 +345,11 @@ const HOSTINGER: Registrar = {
       description:
         "Selecione 'Alterar nameservers' (não 'Usar nameservers da Hostinger'). Cole os 2 nameservers DDG nos campos Nameserver 1 e Nameserver 2. Clique em 'Salvar'.",
       uiHint: "Modo **Alterar nameservers** + campos NS1/NS2",
+      mock: {
+        type: "radio-choice",
+        options: ["Usar nameservers da Hostinger", "Alterar nameservers"],
+        selectedIndex: 1,
+      },
     },
   ],
   commonIssues: [
@@ -336,6 +402,14 @@ const GODADDY: Registrar = {
       description:
         "Role até 'Nameservers' (Servidores de Nome). Clica em 'Alterar' → escolhe 'Inserir meus próprios servidores de nome'. Cole os 2 nameservers DDG.",
       uiHint: "**Inserir meus próprios servidores de nome**",
+      mock: {
+        type: "radio-choice",
+        options: [
+          "Usar nomes padrão da GoDaddy",
+          "Inserir meus próprios servidores de nome",
+        ],
+        selectedIndex: 1,
+      },
     },
     {
       num: 5,

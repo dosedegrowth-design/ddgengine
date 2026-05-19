@@ -82,7 +82,7 @@ function ConciergeOrStatusSection({
   state: string;
 }) {
   const supportPhone =
-    process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP ?? "5511999999999";
+    process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP ?? "5511989885531";
 
   // Cliente já pediu concierge — mostra status
   if (state === "concierge_requested") {

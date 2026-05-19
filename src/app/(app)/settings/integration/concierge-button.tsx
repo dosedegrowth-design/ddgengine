@@ -13,7 +13,7 @@ interface Props {
 export function ConciergeButton({ siteId, domain, state }: Props) {
   const [open, setOpen] = useState(false);
   const supportPhone =
-    process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP ?? "5511999999999";
+    process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP ?? "5511989885531";
 
   const stateLabel: Record<string, string> = {
     preview: "ainda não comecei",

@@ -45,7 +45,7 @@ interface Props {
 export function RegistrarTutorials({ nameservers, domain }: Props) {
   const [openId, setOpenId] = useState<string | null>(null);
   const supportPhone =
-    process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP ?? "5511999999999";
+    process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP ?? "5511989885531";
   const waMsg = encodeURIComponent(
     `Oi! Não achei meu registrador na lista de tutoriais. Meu domínio é ${domain}. Pode me guiar?`
   );

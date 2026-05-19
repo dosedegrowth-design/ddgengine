@@ -24,12 +24,12 @@ import {
   Loader2,
   Server,
   Shield,
-  ExternalLink,
 } from "lucide-react";
 import {
   initiateDomainConnection,
   verifyDomainConnection,
 } from "./actions";
+import { RegistrarTutorials } from "./registrar-tutorials";
 
 interface Props {
   siteId: string;
@@ -37,23 +37,6 @@ interface Props {
   state: string;
   nameservers: string[];
 }
-
-const REGISTRARS: Array<{ name: string; tutorial: string }> = [
-  {
-    name: "Registro.br",
-    tutorial: "https://registro.br/ajuda/?secao=dns&pergunta=alterar-dns",
-  },
-  {
-    name: "GoDaddy",
-    tutorial:
-      "https://br.godaddy.com/help/alterar-meus-servidores-de-nomes-664",
-  },
-  {
-    name: "HostGator",
-    tutorial:
-      "https://suporte.hostgator.com.br/hc/pt-br/articles/115005617413",
-  },
-];
 
 export function IntegrationWizard({
   siteId,
@@ -174,32 +157,20 @@ export function IntegrationWizard({
               ))}
             </div>
 
-            <div>
-              <div className="text-xs font-mono uppercase tracking-widest text-ddg-muted mb-2">
-                Tutorial visual no seu registrador:
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {REGISTRARS.map((r) => (
-                  <a
-                    key={r.name}
-                    href={r.tutorial}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-ddg-stone text-xs text-ddg-ink hover:border-ddg-ink transition-colors"
-                  >
-                    {r.name}
-                    <ExternalLink className="w-3 h-3 text-ddg-muted" />
-                  </a>
-                ))}
-              </div>
-            </div>
-
             <p className="text-xs text-ddg-muted leading-relaxed">
               💡 Os nameservers anteriores devem ser <strong>substituídos</strong>,
               não adicionados. Se você usa email no domínio (ex: contato@seusite.com.br),
               fala com a gente antes — a gente migra os registros MX juntos pra
               não derrubar seu email.
             </p>
+
+            {/* Tutoriais passo-a-passo por registrador */}
+            <div className="pt-2">
+              <RegistrarTutorials
+                nameservers={nameservers}
+                domain={domain}
+              />
+            </div>
           </div>
         ) : (
           <p className="text-sm text-amber-700">

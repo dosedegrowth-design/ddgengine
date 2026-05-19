@@ -79,6 +79,8 @@ interface ClientArgs {
 export async function sendConciergeConfirmationToClient(args: ClientArgs): Promise<void> {
   if (!process.env.RESEND_API_KEY) return;
 
+  const ticketUrl = `${APP_URL}/tickets/${args.ticketId}`;
+
   const text = `Recebemos seu pedido!
 
 A equipe DDG vai configurar a integração de ${args.domain} pra você em até 24h úteis.
@@ -87,9 +89,12 @@ Você vai receber um email confirmando quando estiver tudo pronto.
 Se precisarmos de alguma informação adicional, entraremos em contato pelo
 WhatsApp ou email cadastrados.
 
+Acompanhar o pedido (sem precisar logar):
+${ticketUrl}
+
 Ticket: ${args.ticketId}
 
-Time DDG.`;
+Time Conteudai.`;
 
   await sendEmail({
     to: args.toEmail,
@@ -112,7 +117,10 @@ Time DDG.`;
     precisarmos de informação adicional, falamos com você pelo WhatsApp ou
     email cadastrados.
   </p>
-  <div style="background:#fff;border:2px solid #c8ff3d;border-radius:8px;padding:16px;font-size:13px;color:#525252;">
+  <a href="${ticketUrl}" style="display:inline-block;background:#c8ff3d;color:#0a0a0a;font-weight:700;font-size:14px;padding:12px 20px;border-radius:8px;border:2px solid #0a0a0a;box-shadow:3px 3px 0 #0a0a0a;text-decoration:none;margin-bottom:20px;">
+    Acompanhar seu pedido →
+  </a>
+  <div style="background:#fff;border:2px solid #c8ff3d;border-radius:8px;padding:16px;font-size:13px;color:#525252;margin-top:8px;">
     <strong style="color:#0a0a0a;">Seu ticket:</strong>
     <code style="font-family:monospace;color:#0a0a0a;">${args.ticketId}</code>
   </div>

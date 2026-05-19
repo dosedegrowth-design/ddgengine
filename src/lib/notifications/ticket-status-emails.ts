@@ -143,7 +143,8 @@ function integrationTemplate(b: TemplateBuildArgs): TemplatePayload {
       : "seu pedido de integração"
     : "seu pedido";
 
-  const tickerUrl = `${APP_URL}/settings/integration`;
+  // URL pública do ticket — cliente NÃO precisa estar logado
+  const tickerUrl = `${APP_URL}/tickets/${b.ticketId}`;
 
   switch (b.mode) {
     case "in_progress":
@@ -480,6 +481,76 @@ ${args.noteText.replace(/</g, "&lt;").replace(/\n/g, "<br>")}
     Abrir no /admin/tickets
   </a>
 </div></body></html>`;
+}
+
+/**
+ * Notificação especial: cliente comentou no ticket público (/tickets/[id]).
+ * Dispara pro TEAM (sempre) — sinaliza que precisa de atenção humana.
+ */
+interface ClientCommentArgs {
+  ticketId: string;
+  ticketType: string;
+  orgName: string;
+  domain?: string;
+  contactEmail: string | null;
+  contactPhone: string | null;
+  commentText: string;
+}
+
+export async function sendClientCommentToTeam(
+  args: ClientCommentArgs
+): Promise<boolean> {
+  if (!process.env.RESEND_API_KEY) return false;
+  if (!TEAM_EMAIL) return false;
+
+  const ref = args.domain ?? args.orgName;
+  const subject = `[Ticket] ${ref}: 💬 cliente comentou`;
+  const adminUrl = `${APP_URL}/admin/tickets/${args.ticketId}`;
+  const summary = `<strong>${args.contactEmail ?? args.orgName}</strong> deixou um comentário no ticket público.`;
+
+  const text = `[Ticket Conteudai] ${args.orgName}${args.domain ? ` (${args.domain})` : ""}
+
+Cliente comentou:
+"${args.commentText}"
+
+Responder via /admin/tickets/${args.ticketId}
+ou direto por email: ${args.contactEmail ?? "—"}`;
+
+  const html = `<!DOCTYPE html><html lang="pt-BR"><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f4ef;color:#0a0a0a;margin:0;padding:0;">
+<div style="max-width:600px;margin:0 auto;padding:28px 24px;">
+  <div style="font-family:ui-monospace,monospace;font-size:11px;background:#c8ff3d;color:#0a0a0a;display:inline-block;padding:6px 10px;border-radius:6px;text-transform:uppercase;letter-spacing:0.1em;font-weight:700;margin-bottom:18px;">
+    [ 💬 NOVO COMENTÁRIO ]
+  </div>
+  <h1 style="font-size:22px;font-weight:900;margin:0 0 6px;letter-spacing:-0.02em;color:#0a0a0a;">
+    ${args.orgName.replace(/</g, "&lt;")}
+    ${args.domain ? `<span style="color:#737373;font-weight:500;font-size:16px;"> · ${args.domain}</span>` : ""}
+  </h1>
+  <p style="font-size:14px;line-height:1.5;color:#404040;margin:0 0 14px;">
+    ${summary}
+  </p>
+  <div style="background:#fff;border:2px solid #0a0a0a;border-radius:10px;padding:16px;font-size:14px;color:#0a0a0a;margin:14px 0;line-height:1.5;box-shadow:3px 3px 0 #c8ff3d;">
+${args.commentText.replace(/</g, "&lt;").replace(/\n/g, "<br>")}
+  </div>
+  <table style="width:100%;border-collapse:collapse;font-size:13px;margin:16px 0;border-top:1px solid #e7e5e4;border-bottom:1px solid #e7e5e4;">
+    <tr><td style="padding:6px 0;color:#737373;width:120px;">Contato</td><td style="padding:6px 0;">${args.contactEmail ? `<a href="mailto:${args.contactEmail}" style="color:#0a0a0a;">${args.contactEmail}</a>` : "—"}${args.contactPhone ? ` · <a href="https://wa.me/${args.contactPhone.replace(/\D/g, "")}" style="color:#0a0a0a;">${args.contactPhone}</a>` : ""}</td></tr>
+    <tr><td style="padding:6px 0;color:#737373;">Tipo</td><td style="padding:6px 0;font-family:ui-monospace,monospace;">${args.ticketType}</td></tr>
+    <tr><td style="padding:6px 0;color:#737373;">Ticket</td><td style="padding:6px 0;font-family:ui-monospace,monospace;font-size:11px;">${args.ticketId}</td></tr>
+  </table>
+  <a href="${adminUrl}" style="display:inline-block;background:#0a0a0a;color:#fff;font-weight:700;font-size:14px;padding:10px 18px;border-radius:8px;text-decoration:none;">
+    Responder no /admin/tickets
+  </a>
+</div></body></html>`;
+
+  try {
+    await sendEmail({ to: TEAM_EMAIL, subject, text, html });
+    return true;
+  } catch (err) {
+    console.warn(
+      "[client-comment] falha:",
+      err instanceof Error ? err.message : err
+    );
+    return false;
+  }
 }
 
 function emailShell(s: ShellArgs): string {

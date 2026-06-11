@@ -2,6 +2,7 @@
  * Wrapper do Anthropic Claude API com prompt caching.
  */
 import Anthropic from "@anthropic-ai/sdk";
+import { jsonrepair } from "jsonrepair";
 
 let _client: Anthropic | null = null;
 
@@ -110,9 +111,15 @@ export function parseJsonResponse<T = unknown>(text: string): T {
   try {
     return JSON.parse(candidate);
   } catch (err) {
-    // Fallback: tenta recuperar JSON truncado (max_tokens cortou no meio).
-    // Estratégia: balanceia chaves/strings cortadas no final.
-    return parseJsonWithRecovery<T>(candidate, err);
+    // Fallback 1: jsonrepair conserta os erros mais comuns de LLM —
+    // aspas não-escapadas dentro de strings, newlines literais, vírgulas
+    // sobrando, etc. Resolve o caso "Expected ',' or '}'" no meio do conteúdo.
+    try {
+      return JSON.parse(jsonrepair(candidate)) as T;
+    } catch {
+      // Fallback 2: recuperação de truncamento (max_tokens cortou no meio).
+      return parseJsonWithRecovery<T>(candidate, err);
+    }
   }
 }
 

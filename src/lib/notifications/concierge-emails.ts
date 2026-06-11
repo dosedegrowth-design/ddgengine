@@ -38,7 +38,7 @@ ${args.message || "(sem mensagem adicional)"}
 Próximos passos:
 1. Abrir o painel /admin/tickets/${args.ticketId}
 2. Confirmar acesso ao registrador do cliente
-3. Trocar nameservers + verificar propagação
+3. Adicionar 1 registro CNAME + verificar propagação
 4. Marcar como 'resolved' quando o blog estiver no ar
 
 Painel: ${adminUrl}`;

@@ -206,9 +206,9 @@ Responde esse email ou chama no WhatsApp pra seguirmos.
 
     case "resolved":
       if (b.isIntegration && b.domain) {
-        const blogUrl = `https://${b.domain}/blog`;
+        const blogUrl = `https://blog.${b.domain}`;
         return {
-          subject: `🎉 Pronto! ${b.domain}/blog está no ar`,
+          subject: `🎉 Pronto! blog.${b.domain} está no ar`,
           text: `Pronto, ${b.orgName}!
 
 Configuramos ${b.domain} e seu blog tá ativo em:
@@ -229,7 +229,7 @@ Time ${APP_NAME}.`,
 Configuramos <strong style="color:#0a0a0a;">${b.domain}</strong> e seu blog tá ativo em:
 </p>
 <a href="${blogUrl}" style="display:inline-block;font-family:ui-monospace,monospace;font-size:15px;color:#0a0a0a;background:#c8ff3d;border:2px solid #0a0a0a;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin-bottom:24px;">
-${b.domain}/blog →
+blog.${b.domain} →
 </a>
 <p style="font-size:14px;line-height:1.6;margin:0 0 24px;color:#525252;">
 A partir de agora todo conteúdo gerado no ${APP_NAME} publica direto ali, no seu domínio próprio.

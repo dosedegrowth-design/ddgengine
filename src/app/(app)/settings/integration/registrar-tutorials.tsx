@@ -36,13 +36,15 @@ import {
 } from "@/lib/blog/registrar-tutorials";
 
 interface Props {
-  /** Os 2 nameservers que o cliente vai colar — mostrados ao lado dos steps */
-  nameservers: string[];
+  /** Nome/Host do registro CNAME que o cliente vai cadastrar (ex: "blog") */
+  cnameName: string;
+  /** Valor/Destino do registro CNAME (ex: "cname.conteudai.com.br") */
+  cnameTarget: string;
   /** Pra link de WhatsApp "não acho meu registrador" */
   domain: string;
 }
 
-export function RegistrarTutorials({ nameservers, domain }: Props) {
+export function RegistrarTutorials({ cnameName, cnameTarget, domain }: Props) {
   const [openId, setOpenId] = useState<string | null>(null);
   const supportPhone =
     process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP ?? "5511989885531";
@@ -66,7 +68,8 @@ export function RegistrarTutorials({ nameservers, domain }: Props) {
             registrar={reg}
             open={isOpen}
             onToggle={() => setOpenId(isOpen ? null : reg.id)}
-            nameservers={nameservers}
+            cnameName={cnameName}
+            cnameTarget={cnameTarget}
           />
         );
       })}
@@ -101,12 +104,14 @@ function RegistrarCard({
   registrar,
   open,
   onToggle,
-  nameservers,
+  cnameName,
+  cnameTarget,
 }: {
   registrar: Registrar;
   open: boolean;
   onToggle: () => void;
-  nameservers: string[];
+  cnameName: string;
+  cnameTarget: string;
 }) {
   const totalSteps = registrar.steps.length;
 
@@ -190,22 +195,32 @@ function RegistrarCard({
             ))}
           </ol>
 
-          {/* Nameservers pra colar (lembrete dentro do tutorial) */}
-          {nameservers.length === 2 && (
-            <div className="mt-5 p-3 rounded-lg bg-ddg-lime/10 border-2 border-ddg-lime/40">
-              <div className="ddg-bracket text-ddg-lime-deep mb-1.5">
-                COLE ESTES 2 NAMESERVERS:
-              </div>
-              {nameservers.map((ns, i) => (
-                <code
-                  key={i}
-                  className="block font-mono text-xs text-ddg-ink py-0.5"
-                >
-                  {ns}
-                </code>
-              ))}
+          {/* Registro CNAME pra cadastrar (lembrete dentro do tutorial) */}
+          <div className="mt-5 p-3 rounded-lg bg-ddg-lime/10 border-2 border-ddg-lime/40">
+            <div className="ddg-bracket text-ddg-lime-deep mb-2">
+              ADICIONE ESTE REGISTRO CNAME:
             </div>
-          )}
+            <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 items-baseline">
+              <span className="text-[9px] font-mono uppercase tracking-widest text-ddg-muted">
+                Tipo
+              </span>
+              <code className="font-mono text-xs text-ddg-ink font-bold">
+                CNAME
+              </code>
+              <span className="text-[9px] font-mono uppercase tracking-widest text-ddg-muted">
+                Nome
+              </span>
+              <code className="font-mono text-xs text-ddg-ink font-bold break-all">
+                {cnameName}
+              </code>
+              <span className="text-[9px] font-mono uppercase tracking-widest text-ddg-muted">
+                Valor
+              </span>
+              <code className="font-mono text-xs text-ddg-ink font-bold break-all">
+                {cnameTarget}
+              </code>
+            </div>
+          </div>
 
           {/* Problemas comuns */}
           {registrar.commonIssues && registrar.commonIssues.length > 0 && (
@@ -300,6 +315,16 @@ function StepItem({
             </p>
           </div>
         )}
+
+        {step.note && (
+          <div className="mt-2 flex items-start gap-2 p-2 rounded-md bg-ddg-lime/10 border border-ddg-lime/40">
+            <Check
+              className="w-3.5 h-3.5 text-ddg-lime-deep shrink-0 mt-0.5"
+              strokeWidth={3}
+            />
+            <p className="text-xs text-ddg-ink leading-relaxed">{step.note}</p>
+          </div>
+        )}
       </div>
     </li>
   );
@@ -345,47 +370,40 @@ function StepMockUI({ mock }: { mock: StepMock }) {
     );
   }
 
-  if (mock.type === "ns-replace") {
+  if (mock.type === "dns-record-form") {
+    const fields: Array<{ label: string; value: string; highlight?: boolean }> =
+      [
+        { label: "Tipo", value: mock.recordType, highlight: true },
+        { label: "Nome / Host", value: mock.name, highlight: true },
+        { label: "Valor / Aponta para", value: mock.value, highlight: true },
+        { label: "TTL", value: mock.ttl ?? "Automático" },
+      ];
     return (
-      <MockFrame label="Substituição dos nameservers">
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-2 md:gap-3 items-center p-3">
-          {/* Antes */}
-          <div>
-            <div className="text-[9px] font-mono uppercase tracking-widest text-ddg-muted mb-1.5">
-              Antes
+      <MockFrame label="Formulário: adicionar registro">
+        <div className="p-3 space-y-2 bg-ddg-paper">
+          {fields.map((field, i) => (
+            <div
+              key={i}
+              className="grid grid-cols-[88px_1fr] items-center gap-2"
+            >
+              <span className="text-[9px] font-mono uppercase tracking-widest text-ddg-muted">
+                {field.label}
+              </span>
+              <div
+                className={`font-mono text-[10px] px-2 py-1.5 rounded border-2 break-all ${
+                  field.highlight
+                    ? "bg-ddg-lime border-ddg-ink text-ddg-ink font-bold shadow-[1px_1px_0_var(--ddg-ink)]"
+                    : "bg-ddg-cream/40 border-ddg-stone text-ddg-muted"
+                }`}
+              >
+                {field.value}
+              </div>
             </div>
-            <div className="space-y-1.5">
-              {mock.before.map((ns, i) => (
-                <div
-                  key={i}
-                  className="font-mono text-[10px] px-2 py-1.5 rounded bg-ddg-paper border-2 border-ddg-stone text-ddg-muted line-through decoration-2 decoration-red-400"
-                >
-                  {ns}
-                </div>
-              ))}
-            </div>
-          </div>
-          {/* Seta */}
-          <div className="hidden md:flex items-center justify-center text-ddg-ink">
-            <ArrowRight className="w-5 h-5" strokeWidth={3} />
-          </div>
-          <div className="flex md:hidden items-center justify-center text-ddg-ink py-1">
-            <ChevronDown className="w-5 h-5" strokeWidth={3} />
-          </div>
-          {/* Depois */}
-          <div>
-            <div className="text-[9px] font-mono uppercase tracking-widest text-ddg-lime-deep mb-1.5">
-              Depois
-            </div>
-            <div className="space-y-1.5">
-              {mock.after.map((ns, i) => (
-                <div
-                  key={i}
-                  className="font-mono text-[10px] px-2 py-1.5 rounded bg-ddg-lime border-2 border-ddg-ink text-ddg-ink font-bold shadow-[1px_1px_0_var(--ddg-ink)]"
-                >
-                  {ns}
-                </div>
-              ))}
+          ))}
+          <div className="flex justify-end pt-1">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-ddg-ink text-ddg-paper text-[11px] font-bold">
+              Adicionar registro
+              <ArrowRight className="w-3 h-3" strokeWidth={3} />
             </div>
           </div>
         </div>

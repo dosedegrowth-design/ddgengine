@@ -17,8 +17,8 @@ export function ConciergeButton({ siteId, domain, state }: Props) {
 
   const stateLabel: Record<string, string> = {
     preview: "ainda não comecei",
-    zone_created: "preciso trocar nameservers",
-    verifying: "esperando propagação DNS",
+    cname_pending: "preciso adicionar o CNAME",
+    verifying: "esperando o CNAME propagar",
     error: "deu erro",
   };
   const waMsg = encodeURIComponent(
@@ -34,7 +34,7 @@ export function ConciergeButton({ siteId, domain, state }: Props) {
           Nós configuramos a integração pra você
         </h3>
         <p className="text-sm text-ddg-muted leading-relaxed mb-4 max-w-xl">
-          Sem precisar trocar nameserver nenhum. Você só compartilha o acesso
+          Nem o CNAME você precisa adicionar. Você só compartilha o acesso
           do seu registrador via WhatsApp e o time DDG cuida do resto em até
           24h úteis. <strong className="text-ddg-ink">Grátis durante o beta.</strong>
         </p>

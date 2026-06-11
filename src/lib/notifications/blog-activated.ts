@@ -1,5 +1,5 @@
 /**
- * Email transacional: "Seu blog tá no ar em {domain}/blog 🎉"
+ * Email transacional: "Seu blog tá no ar em blog.{domain} 🎉"
  * Disparado pelo cron quando DNS propaga e ativação termina.
  */
 import { createServiceClient } from "@/lib/supabase/server";
@@ -26,12 +26,12 @@ export async function sendBlogActivatedEmail(args: {
   const email = userRes?.user?.email;
   if (!email) return;
 
-  const blogUrl = `https://${args.domain}/blog`;
+  const blogUrl = `https://blog.${args.domain}`;
   const html = renderHtml({ orgName: org.name ?? "", blogUrl, domain: args.domain });
   const text = `Boas notícias! Seu blog está no ar em ${blogUrl}.
 
 Tudo que você publicar a partir de agora vai aparecer automaticamente
-em ${args.domain}/blog — ranqueando no Google e citável em ChatGPT/IAs.
+em blog.${args.domain} — ranqueando no Google e citável em ChatGPT/IAs.
 
 Próximos passos:
 - Gerar mais posts: https://conteudai.com.br/dashboard
@@ -41,7 +41,7 @@ Time DDG.`;
 
   await sendEmail({
     to: email,
-    subject: `Seu blog tá no ar em ${args.domain}/blog 🎉`,
+    subject: `Seu blog tá no ar em blog.${args.domain} 🎉`,
     html,
     text,
   });

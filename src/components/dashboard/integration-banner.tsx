@@ -71,21 +71,21 @@ export function IntegrationBanner({ state, domain }: Props) {
     );
   }
 
-  if (state === "zone_created" || state === "verifying") {
+  if (state === "cname_pending" || state === "verifying") {
     return (
       <div className="rounded-2xl border-2 border-blue-300 bg-blue-50 p-4 flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
           <Clock className="w-5 h-5 text-blue-700 shrink-0 mt-0.5" />
           <div>
             <div className="font-bold text-sm text-blue-900">
-              {state === "zone_created"
-                ? "Aguardando você trocar os nameservers"
-                : "Verificando propagação DNS…"}
+              {state === "cname_pending"
+                ? "Aguardando você adicionar o CNAME"
+                : "Verificando o CNAME…"}
             </div>
             <p className="text-sm text-blue-800 mt-1 leading-relaxed">
-              {state === "zone_created"
-                ? `Finaliza o passo 2 no seu registrador de domínio pra ativar ${domain}/blog`
-                : `Estamos checando se o DNS de ${domain} já propagou. Pode levar até 6h.`}
+              {state === "cname_pending"
+                ? `Finaliza o passo 2 no seu registrador pra ativar blog.${domain}`
+                : `Estamos checando se o CNAME de blog.${domain} já propagou. Geralmente leva de 5 a 30 min.`}
             </p>
           </div>
         </div>
@@ -111,7 +111,7 @@ export function IntegrationBanner({ state, domain }: Props) {
           </div>
           <p className="text-sm text-amber-800 mt-1 leading-relaxed">
             Tudo funciona, mas no nosso domínio. Conecta {domain} pra publicar em{" "}
-            <strong>{domain}/blog</strong> — leva ~10min e a gente te guia passo-a-passo.
+            <strong>blog.{domain}</strong> — leva ~5min (1 registro CNAME) e a gente te guia.
           </p>
         </div>
       </div>

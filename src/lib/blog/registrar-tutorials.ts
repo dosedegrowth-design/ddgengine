@@ -1,13 +1,21 @@
 /**
- * Tutoriais passo-a-passo de como trocar nameservers nos 5 principais
+ * Tutoriais passo-a-passo de como ADICIONAR 1 REGISTRO CNAME nos 5 principais
  * registradores brasileiros. Usado no wizard /settings/integration step 2.
  *
- * Fontes verificadas em 2026-05 (registradores mudam UI com frequência —
+ * NOVO MODELO (CNAME): o cliente NÃO troca nameserver, NÃO mexe no site nem
+ * no email. Só ADICIONA 1 registro CNAME na zona DNS:
+ *   - Tipo:  CNAME
+ *   - Nome/Host:  blog
+ *   - Valor/Destino:  cname.conteudai.com.br
+ *   - TTL:  automático / 3600
+ * O blog fica em blog.{dominio}.
+ *
+ * Fontes verificadas em 2026-06 (registradores mudam UI com frequência —
  * revisar a cada 6 meses).
  *
- * Estratégia visual: descrição textual precisa + ASCII diagram de tela
- * (suficiente pra cliente leigo se localizar). Próxima rodada: screenshots
- * reais hospedados em Supabase Storage.
+ * Estratégia visual: descrição textual precisa + mock de tela (suficiente pra
+ * cliente leigo se localizar). Próxima rodada: screenshots reais hospedados
+ * em Supabase Storage.
  */
 
 /**
@@ -16,15 +24,21 @@
  * uma referência visual enquanto a gente não tem fotos.
  *
  * - sidebar-nav: barra lateral com itens (1 destacado com lime)
- * - ns-replace: 2 inputs "antes" + 2 inputs "depois" (highlight lime nos novos)
+ * - dns-record-form: formulário de adicionar registro (Tipo/Nome/Valor/TTL)
  * - toggle: switch on/off
  * - radio-choice: 2 opções de radio (a marcada destacada)
- * - button-row: botão pílula destacado (ex: "Alterar DNS")
+ * - button-row: botão pílula destacado (ex: "Adicionar registro")
  * - login-form: tela genérica de login (email/senha)
  */
 export type StepMock =
   | { type: "sidebar-nav"; items: string[]; highlightIndex: number }
-  | { type: "ns-replace"; before: [string, string]; after: [string, string] }
+  | {
+      type: "dns-record-form";
+      recordType: string;
+      name: string;
+      value: string;
+      ttl?: string;
+    }
   | { type: "toggle"; label: string; state: "on" | "off" }
   | { type: "radio-choice"; options: string[]; selectedIndex: number }
   | { type: "button-row"; buttonLabel: string; context?: string }
@@ -41,6 +55,8 @@ export interface TutorialStep {
   uiHint?: string;
   /** Aviso/cuidado pro cliente */
   warning?: string;
+  /** Nota positiva/tranquilizadora (ex: "não afeta seu email nem seu site") */
+  note?: string;
   /** Screenshot real (futuro — Supabase Storage). Se presente, substitui o mock. */
   screenshot?: { url: string; alt: string };
   /** Mock UI inline pra dar referência visual sem screenshot. */
@@ -72,6 +88,10 @@ export interface Registrar {
   commonIssues?: Array<{ q: string; a: string }>;
 }
 
+/** Valores do registro CNAME que o cliente vai cadastrar (constantes do produto). */
+export const CNAME_NAME = "blog";
+export const CNAME_TARGET = "cname.conteudai.com.br";
+
 // ============================================================
 // REGISTRO.BR
 // ============================================================
@@ -84,7 +104,7 @@ const REGISTRO_BR: Registrar = {
   logoText: ".br",
   loginUrl: "https://registro.br/",
   officialTutorialUrl: "https://ajuda.registro.br/",
-  estimatedMinutes: 5,
+  estimatedMinutes: 4,
   steps: [
     {
       num: 1,
@@ -92,8 +112,6 @@ const REGISTRO_BR: Registrar = {
       description:
         "Acesse registro.br no navegador e clique em 'Acessar conta' no canto superior direito. Use o CPF/CNPJ do titular do domínio + senha.",
       uiHint: "Botão **Acessar conta** (canto superior direito)",
-      warning:
-        "Importante: precisa logar com o ID Administrativo ou Técnico do domínio. Outros perfis não podem trocar DNS.",
       mock: { type: "login-form", brand: "Registro.br" },
     },
     {
@@ -105,36 +123,38 @@ const REGISTRO_BR: Registrar = {
     },
     {
       num: 3,
-      title: "Vá em 'Alterar servidores DNS'",
+      title: "Vá em 'DNS' → 'Editar Zona'",
       description:
-        "Role a tela até encontrar a seção 'DNS'. Clique no botão 'Alterar servidores DNS' (também pode aparecer como 'Editar DNS').",
-      uiHint: "Botão **Alterar servidores DNS** dentro do bloco DNS",
+        "Na página do domínio, localize a seção 'DNS' e clique em 'Editar Zona' (também aparece como 'Editar zona DNS'). É aqui que você adiciona registros sem mexer nos nameservers.",
+      uiHint: "Botão **Editar Zona** dentro do bloco DNS",
       mock: {
         type: "button-row",
-        buttonLabel: "Alterar servidores DNS",
+        buttonLabel: "Editar Zona",
         context: "Seção DNS",
       },
     },
     {
       num: 4,
-      title: "Substitua os 2 nameservers",
+      title: "Adicione 1 registro CNAME",
       description:
-        "Apague os DNS atuais nos campos 'MASTER' e 'SLAVE 1'. Cole os 2 nameservers que mostramos acima nesse painel. Não precisa preencher SLAVE 2/3.",
-      uiHint: "Campos **MASTER** e **SLAVE 1**",
-      warning:
-        "Se você usa email no domínio (ex: contato@seusite.com.br), a gente migra os registros MX juntos pra não derrubar. Fala com nossa equipe no WhatsApp antes de seguir.",
+        "No editor de zona, clique em 'Adicionar registro'. Preencha: no campo do nome digite 'blog', escolha o tipo 'CNAME' e no valor/destino cole 'cname.conteudai.com.br'. Deixe o TTL no padrão.",
+      uiHint: "Tipo **CNAME** · Nome **blog** · Valor **cname.conteudai.com.br**",
+      note:
+        "Isso só ADICIONA um registro novo. Não afeta seu email (MX) nem o seu site atual — só cria o blog.seudominio.",
       mock: {
-        type: "ns-replace",
-        before: ["a.dns.br", "b.dns.br"],
-        after: ["NS1_DDG", "NS2_DDG"],
+        type: "dns-record-form",
+        recordType: "CNAME",
+        name: CNAME_NAME,
+        value: CNAME_TARGET,
+        ttl: "3600 (automático)",
       },
     },
     {
       num: 5,
       title: "Salvar",
       description:
-        "Clique em 'Salvar dados' (ou 'Salvar') no fim da página. A propagação leva de 30 minutos a 4 horas. A gente avisa por email quando estiver no ar.",
-      uiHint: "Botão **Salvar dados** azul no fim",
+        "Clique em 'Salvar' no fim da página do editor de zona. A propagação leva de 30 minutos a algumas horas. A gente avisa por email quando o blog estiver no ar.",
+      uiHint: "Botão **Salvar** azul no fim",
     },
   ],
   commonIssues: [
@@ -143,12 +163,12 @@ const REGISTRO_BR: Registrar = {
       a: "Clica em 'Esqueceu a senha?' na tela de login. O Registro.br manda um link de recuperação pro email cadastrado.",
     },
     {
-      q: "Não acho o botão 'Alterar servidores DNS'",
-      a: "Tem que rolar a tela bem pra baixo dentro da página do domínio. Fica entre 'Pagamento' e 'Contatos'.",
+      q: "Não acho 'Editar Zona'",
+      a: "Tem que estar dentro da página do domínio, no bloco 'DNS'. Se o domínio estiver usando nameservers de outro provedor (não os do Registro.br), o 'Editar Zona' some — nesse caso o CNAME deve ser criado no painel desse outro provedor. Na dúvida, chama a gente no WhatsApp.",
     },
     {
-      q: "Não consigo logar — diz que não sou autorizado",
-      a: "Só os IDs Administrativo e Técnico podem trocar DNS. Se você é o titular, está nesse grupo. Se você comprou o domínio em nome de outra pessoa, peça pra ela fazer o login (ou nos chama no WhatsApp pra fazer junto).",
+      q: "Posso digitar 'blog' ou tem que ser o nome completo?",
+      a: "Pode digitar só 'blog'. O Registro.br completa com o seu domínio automaticamente (vira blog.seudominio.com.br).",
     },
   ],
 };
@@ -177,10 +197,10 @@ const HOSTGATOR: Registrar = {
     },
     {
       num: 2,
-      title: "Menu Domínios",
+      title: "Abra o Gerenciador de DNS (Zone Editor)",
       description:
-        "No menu lateral esquerdo (sidebar), clique em 'Domínios'. Vai abrir a lista de domínios cadastrados.",
-      uiHint: "Item **Domínios** no menu lateral",
+        "Se o seu domínio usa a hospedagem da HostGator, entre no cPanel e procure o 'Zone Editor' (Editor de Zona). Se for só domínio, no Portal vá em 'Domínios' → seu domínio → 'Gerenciar DNS'.",
+      uiHint: "**cPanel → Zone Editor** ou **Domínios → Gerenciar DNS**",
       mock: {
         type: "sidebar-nav",
         items: ["Início", "Hospedagem", "Domínios", "Email", "Faturas"],
@@ -189,35 +209,43 @@ const HOSTGATOR: Registrar = {
     },
     {
       num: 3,
-      title: "Achar e selecionar o domínio",
+      title: "Clique em 'Gerenciar' / '+ Registro'",
       description:
-        "Procure o domínio que quer conectar. À direita dele tem o botão 'Alterar DNS' — clica nele.",
-      uiHint: "Botão **Alterar DNS** na linha do domínio",
-      mock: { type: "button-row", buttonLabel: "Alterar DNS" },
+        "Na linha do seu domínio, clique em 'Gerenciar' (no Zone Editor) ou no botão '+ Registro CNAME' / 'Adicionar registro'.",
+      uiHint: "Botão **Gerenciar** / **+ Registro CNAME**",
+      mock: { type: "button-row", buttonLabel: "+ Registro CNAME" },
     },
     {
       num: 4,
-      title: "Escolher 'Outro Servidor'",
+      title: "Adicione 1 registro CNAME",
       description:
-        "Vai aparecer opção 'DNS HostGator' ou 'Outro Servidor'. Marca 'Outro Servidor' e cola os 2 nameservers que mostramos no painel DDG nos campos Master e Slave.",
-      uiHint: "Radio **Outro Servidor** + campos Master/Slave",
+        "Preencha o formulário: Nome/Host = 'blog', Tipo = 'CNAME', Destino/CNAME = 'cname.conteudai.com.br'. TTL pode deixar no padrão (3600).",
+      uiHint: "Tipo **CNAME** · Nome **blog** · Destino **cname.conteudai.com.br**",
+      note:
+        "Você está só ADICIONANDO um registro. Seu email e seu site atual continuam intactos.",
       mock: {
-        type: "radio-choice",
-        options: ["DNS HostGator", "Outro Servidor"],
-        selectedIndex: 1,
+        type: "dns-record-form",
+        recordType: "CNAME",
+        name: CNAME_NAME,
+        value: CNAME_TARGET,
+        ttl: "3600",
       },
     },
     {
       num: 5,
       title: "Salvar",
       description:
-        "Clica em 'Salvar' no fim. A propagação leva até 24h, mas geralmente fica pronto em ~4h.",
+        "Clica em 'Adicionar registro' / 'Salvar'. A propagação leva até 24h, mas geralmente fica pronto em ~4h.",
     },
   ],
   commonIssues: [
     {
-      q: "Aparece só 1 campo de DNS",
-      a: "Clica em 'Adicionar mais um Slave' pra liberar o segundo campo.",
+      q: "Não acho o 'Zone Editor' no cPanel",
+      a: "Use a busca do cPanel e digite 'zona' ou 'zone'. Se o domínio for só registrado (sem hospedagem HostGator), o caminho é pelo Portal do Cliente em 'Domínios' → 'Gerenciar DNS'.",
+    },
+    {
+      q: "Ele pede '.' no fim do valor?",
+      a: "Alguns painéis aceitam 'cname.conteudai.com.br' e outros 'cname.conteudai.com.br.' (com ponto no fim). Se der erro, tente com o ponto final. Na dúvida, chama a gente.",
     },
   ],
 };
@@ -234,8 +262,8 @@ const LOCAWEB: Registrar = {
   logoText: "LW",
   loginUrl: "https://painel.locaweb.com.br/",
   officialTutorialUrl:
-    "https://www.locaweb.com.br/ajuda/wiki/como-alterar-os-dns-dos-dominios-registrados-na-locaweb-registro-de-dominio/",
-  estimatedMinutes: 5,
+    "https://www.locaweb.com.br/ajuda/wiki/como-configurar-as-entradas-de-dns-do-meu-dominio/",
+  estimatedMinutes: 4,
   steps: [
     {
       num: 1,
@@ -253,37 +281,45 @@ const LOCAWEB: Registrar = {
     },
     {
       num: 3,
-      title: "Administrar o domínio",
+      title: "Abra a 'Zona DNS' do domínio",
       description:
-        "Encontre o domínio e clique em 'Administrar' (botão azul à direita).",
-      uiHint: "Botão **Administrar** ao lado do domínio",
+        "Encontre o domínio e clique em 'Administrar'. Depois entre em 'Zona DNS' (ou 'Editar Zona DNS').",
+      uiHint: "**Administrar** → **Zona DNS**",
+      mock: {
+        type: "button-row",
+        buttonLabel: "Zona DNS",
+        context: "Administrar domínio",
+      },
     },
     {
       num: 4,
-      title: "Desativar 'Usar nameservers da Locaweb'",
+      title: "Adicione 1 registro CNAME",
       description:
-        "Vai aparecer uma chave/toggle 'Usar nameservers da Locaweb'. Desligue ela.",
-      uiHint: "Toggle **Usar nameservers da Locaweb** → OFF",
+        "Clique em 'Adicionar entrada' / 'Novo registro'. Em Nome digite 'blog', escolha o tipo 'CNAME' e no campo de destino cole 'cname.conteudai.com.br'. TTL no padrão.",
+      uiHint: "Tipo **CNAME** · Nome **blog** · Destino **cname.conteudai.com.br**",
+      note:
+        "É só uma entrada nova na zona. Não mexe nos seus emails (MX) nem no site que já está no ar.",
       mock: {
-        type: "toggle",
-        label: "Usar nameservers da Locaweb",
-        state: "off",
+        type: "dns-record-form",
+        recordType: "CNAME",
+        name: CNAME_NAME,
+        value: CNAME_TARGET,
+        ttl: "3600",
       },
     },
     {
       num: 5,
-      title: "Alterar nameservers",
+      title: "Salvar",
       description:
-        "Clique em 'Alterar'. Apague os valores Primário, Secundário e Terciário antigos. Cole os 2 nameservers DDG nos 2 primeiros campos. Deixe o terceiro vazio. Clique em 'Salvar'.",
-      uiHint: "Campos **Primário** e **Secundário** + botão **Salvar**",
-      mock: {
-        type: "ns-replace",
-        before: ["ns1.locaweb.com.br", "ns2.locaweb.com.br"],
-        after: ["NS1_DDG", "NS2_DDG"],
-      },
+        "Clique em 'Salvar' / 'Adicionar'. A propagação na Locaweb costuma ser rápida — entre 30 min e 3h.",
+      uiHint: "Botão **Salvar**",
     },
   ],
   commonIssues: [
+    {
+      q: "Não aparece 'Zona DNS', só 'Alterar DNS'",
+      a: "Se só aparece a opção de trocar nameservers, é porque o domínio está apontado pra outro provedor. Nesse caso o CNAME deve ser criado no painel do provedor que controla o DNS. Chama a gente no WhatsApp que descobrimos qual é.",
+    },
     {
       q: "Propagação Locaweb é rápida ou demora?",
       a: "Geralmente entre 30 min e 3h. Mais rápida que outros registradores.",
@@ -303,7 +339,7 @@ const HOSTINGER: Registrar = {
   logoText: "hp",
   loginUrl: "https://hpanel.hostinger.com/",
   officialTutorialUrl:
-    "https://www.hostinger.com/br/tutoriais/como-alterar-os-nameservers-de-dominio-de-ponto-para-o-novo-provedor-de-hospedagem",
+    "https://www.hostinger.com/br/tutoriais/como-apontar-dominio-cname",
   estimatedMinutes: 4,
   steps: [
     {
@@ -327,35 +363,43 @@ const HOSTINGER: Registrar = {
     },
     {
       num: 3,
-      title: "Gerenciar o domínio",
+      title: "DNS / Nameservers → Gerenciar registros DNS",
       description:
-        "Ao lado do domínio que quer conectar, clique em 'Gerenciar' (ou ícone de engrenagem).",
-      uiHint: "Botão **Gerenciar** na linha do domínio",
+        "Clique em 'Gerenciar' no domínio, vá na aba 'DNS / Nameservers' e role até 'Gerenciar registros DNS' (onde aparece a lista de registros A, CNAME, MX etc).",
+      uiHint: "**DNS / Nameservers** → **Gerenciar registros DNS**",
     },
     {
       num: 4,
-      title: "Alterar nameservers",
+      title: "Adicione 1 registro CNAME",
       description:
-        "Na coluna esquerda, vá em 'DNS / Nameservers'. Clica em 'Alterar' no card 'Nameservers'.",
-      uiHint: "**DNS / Nameservers** → botão **Alterar**",
+        "No bloco 'Adicionar novo registro', escolha o Tipo 'CNAME', no campo 'Nome' digite 'blog' e em 'Aponta para' (Target) cole 'cname.conteudai.com.br'. TTL pode deixar automático.",
+      uiHint: "Tipo **CNAME** · Nome **blog** · Aponta para **cname.conteudai.com.br**",
+      note:
+        "Só estamos adicionando um registro. Sua hospedagem, seu site e seus emails na Hostinger continuam funcionando normalmente.",
+      mock: {
+        type: "dns-record-form",
+        recordType: "CNAME",
+        name: CNAME_NAME,
+        value: CNAME_TARGET,
+        ttl: "Automático",
+      },
     },
     {
       num: 5,
-      title: "Modo 'Alterar nameservers'",
+      title: "Salvar",
       description:
-        "Selecione 'Alterar nameservers' (não 'Usar nameservers da Hostinger'). Cole os 2 nameservers DDG nos campos Nameserver 1 e Nameserver 2. Clique em 'Salvar'.",
-      uiHint: "Modo **Alterar nameservers** + campos NS1/NS2",
-      mock: {
-        type: "radio-choice",
-        options: ["Usar nameservers da Hostinger", "Alterar nameservers"],
-        selectedIndex: 1,
-      },
+        "Clique em 'Adicionar registro'. Ele entra na lista logo abaixo. A propagação leva de minutos a algumas horas.",
+      uiHint: "Botão **Adicionar registro**",
     },
   ],
   commonIssues: [
     {
       q: "Vou perder a hospedagem da Hostinger?",
-      a: "Se você usa a Hostinger pra hospedar o site, sim — o site principal vai parar de funcionar quando trocar os NS. Nesse caso fale com a gente no WhatsApp antes pra a gente migrar tudo junto.",
+      a: "Não. Como você está só ADICIONANDO um registro CNAME (e não trocando os nameservers), seu site e seus emails na Hostinger continuam intactos. O blog fica num subdomínio separado.",
+    },
+    {
+      q: "Já existe um registro 'blog'?",
+      a: "Se já houver um registro com o nome 'blog', apague o antigo antes de criar o CNAME novo — não dá pra ter dois com o mesmo nome. Na dúvida, chama a gente no WhatsApp.",
     },
   ],
 };
@@ -372,8 +416,8 @@ const GODADDY: Registrar = {
   logoText: "GD",
   loginUrl: "https://br.godaddy.com/",
   officialTutorialUrl:
-    "https://br.godaddy.com/help/alterar-servidores-de-nomes-664",
-  estimatedMinutes: 5,
+    "https://br.godaddy.com/help/adicionar-um-registro-cname-19236",
+  estimatedMinutes: 4,
   steps: [
     {
       num: 1,
@@ -384,7 +428,7 @@ const GODADDY: Registrar = {
     },
     {
       num: 2,
-      title: "Menu 'Meus Produtos' → Domínios",
+      title: "Meus Produtos → Domínios",
       description:
         "Clique no seu nome (canto superior) → 'Meus Produtos' → 'Domínios'.",
       uiHint: "**Meus Produtos** → **Domínios**",
@@ -393,29 +437,42 @@ const GODADDY: Registrar = {
       num: 3,
       title: "Gerenciar DNS",
       description:
-        "Encontre o domínio. Clique em 'DNS' ou nos três pontinhos (•••) e selecione 'Gerenciar DNS'.",
-      uiHint: "Botão **DNS** ou menu **Gerenciar DNS**",
+        "Encontre o domínio. Clique em 'DNS' ou nos três pontinhos (•••) e selecione 'Gerenciar zonas' / 'Gerenciar DNS'. Vai abrir a lista de registros.",
+      uiHint: "Menu **Gerenciar DNS** / **Gerenciar zonas**",
+      mock: {
+        type: "button-row",
+        buttonLabel: "Gerenciar DNS",
+        context: "Linha do domínio",
+      },
     },
     {
       num: 4,
-      title: "Trocar nameservers",
+      title: "Adicione 1 registro CNAME",
       description:
-        "Role até 'Nameservers' (Servidores de Nome). Clica em 'Alterar' → escolhe 'Inserir meus próprios servidores de nome'. Cole os 2 nameservers DDG.",
-      uiHint: "**Inserir meus próprios servidores de nome**",
+        "Clique em 'Adicionar' / 'Adicionar registro'. Em Tipo escolha 'CNAME', em Nome/Host digite 'blog' e em 'Valor' (Aponta para) cole 'cname.conteudai.com.br'. TTL no padrão (1 hora).",
+      uiHint: "Tipo **CNAME** · Nome **blog** · Valor **cname.conteudai.com.br**",
+      note:
+        "É um registro novo. Não mexe no que já está configurado — seu email e site continuam iguais.",
       mock: {
-        type: "radio-choice",
-        options: [
-          "Usar nomes padrão da GoDaddy",
-          "Inserir meus próprios servidores de nome",
-        ],
-        selectedIndex: 1,
+        type: "dns-record-form",
+        recordType: "CNAME",
+        name: CNAME_NAME,
+        value: CNAME_TARGET,
+        ttl: "1 hora",
       },
     },
     {
       num: 5,
       title: "Salvar",
       description:
-        "Marca a caixa 'Compreendo os riscos' e clica em 'Salvar'. Propagação até 48h (geralmente 4h).",
+        "Clica em 'Salvar'. A GoDaddy aplica em alguns minutos (pode levar até algumas horas pra propagar).",
+      uiHint: "Botão **Salvar**",
+    },
+  ],
+  commonIssues: [
+    {
+      q: "A GoDaddy pede o valor com ponto no final?",
+      a: "Geralmente não, mas se der erro ao salvar, tente 'cname.conteudai.com.br.' com ponto no fim.",
     },
   ],
 };

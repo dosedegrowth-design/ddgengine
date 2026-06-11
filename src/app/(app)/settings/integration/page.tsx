@@ -1,11 +1,10 @@
 /**
- * /settings/integration — wizard de conexão de domínio.
+ * /settings/integration — wizard de conexão de domínio (subdomínio + CNAME).
  *
  * Passos:
- *  1. Confirmar domínio
- *  2. (DDG cria zona Cloudflare na conta master + mostra os 2 nameservers)
- *  3. Cliente troca nameservers no registrador
- *  4. DDG verifica propagação → cria Worker → ativo
+ *  1. Iniciar (registra blog.{dominio} na Vercel + emite SSL)
+ *  2. Cliente adiciona 1 registro CNAME no registrador
+ *  3. Verifica propagação → ativo
  *
  * UI guiada com cards numerados, copy clara, tutoriais visuais.
  * Estado vem de sites.integration_state.
@@ -23,12 +22,17 @@ import {
 import { IntegrationWizard } from "./wizard";
 import { ConciergeButton } from "./concierge-button";
 
+const CNAME_TARGET = process.env.BLOG_CNAME_TARGET ?? "cname.conteudai.com.br";
+
 export default async function IntegrationPage() {
   const { site } = await getCurrentSite();
   if (!site) redirect("/onboarding");
 
   const state = (site.integration_state as string) ?? "preview";
-  const nameservers = (site.cloudflare_nameservers as string[] | null) ?? [];
+  const apex = (site.domain as string | null)?.replace(/^www\./, "") ?? "";
+  const cnameName = (site.subdomain as string | null) ?? "blog";
+  const blogHost = (site.blog_host as string | null) ?? `${cnameName}.${apex}`;
+  const cnameTarget = (site.cname_target as string | null) ?? CNAME_TARGET;
 
   return (
     <div className="space-y-6">
@@ -39,22 +43,25 @@ export default async function IntegrationPage() {
           Conecte seu domínio
         </h2>
         <p className="text-sm text-ddg-muted mt-1 max-w-xl leading-relaxed">
-          Em ~10 minutos seu blog passa a aparecer em{" "}
-          <strong className="text-ddg-ink">{site.domain}/blog</strong> em vez do
-          nosso domínio. Acompanha os 3 passos abaixo.
+          Em ~5 minutos seu blog fica no ar em{" "}
+          <strong className="text-ddg-ink">{blogHost}</strong>. Você só adiciona{" "}
+          <strong className="text-ddg-ink">1 registro CNAME</strong> — sem trocar
+          nameserver, sem tocar no seu site.
         </p>
       </div>
 
       {/* Status atual em destaque */}
-      <StatusBlock state={state} domain={site.domain ?? ""} />
+      <StatusBlock state={state} blogHost={blogHost} />
 
       {/* Wizard interativo — escondido se cliente pediu concierge */}
       {state !== "concierge_requested" && (
         <IntegrationWizard
           siteId={site.id}
-          domain={site.domain ?? ""}
+          domain={apex}
           state={state}
-          nameservers={nameservers}
+          blogHost={blogHost}
+          cnameName={cnameName}
+          cnameTarget={cnameTarget}
         />
       )}
 
@@ -103,7 +110,7 @@ function ConciergeOrStatusSection({
             <p className="text-sm text-ddg-muted leading-relaxed mb-3">
               Recebemos seu pedido. Prazo: <strong className="text-ddg-ink">24h úteis</strong>.
               Você vai receber um email quando o blog estiver no ar em{" "}
-              <strong className="text-ddg-ink">{domain}/blog</strong>.
+              <strong className="text-ddg-ink">blog.{domain}</strong>.
             </p>
             <a
               href={waUrl}
@@ -126,17 +133,17 @@ function ConciergeOrStatusSection({
   return <ConciergeButton siteId={siteId} domain={domain} state={state} />;
 }
 
-function StatusBlock({ state, domain }: { state: string; domain: string }) {
+function StatusBlock({ state, blogHost }: { state: string; blogHost: string }) {
   if (state === "active") {
     return (
       <div className="rounded-2xl border-2 border-ddg-lime bg-ddg-lime/15 p-5 flex items-center gap-3">
         <CheckCircle2 className="w-6 h-6 text-ddg-lime-deep shrink-0" />
         <div>
           <div className="font-bold text-ddg-ink">
-            Conexão ativa em {domain}/blog
+            Conexão ativa em {blogHost}
           </div>
           <p className="text-sm text-ddg-muted mt-0.5">
-            Seu blog está publicado no seu domínio. Posts novos aparecem
+            Seu blog está no ar no seu domínio. Posts novos aparecem
             automaticamente.
           </p>
         </div>
@@ -150,19 +157,23 @@ function FAQ() {
   const items: Array<{ q: string; a: string }> = [
     {
       q: "Vou perder meu site atual?",
-      a: "Não. Só estamos servindo o caminho /blog do seu domínio. Tudo o que está em outros caminhos (página inicial, contato, etc) continua funcionando exatamente como está hoje.",
+      a: "Não. Seu blog fica num subdomínio separado (blog.seusite.com.br). Você só adiciona 1 registro CNAME — o site principal, o www e o seu email continuam funcionando exatamente como estão.",
     },
     {
       q: "Quanto tempo demora pra ativar?",
-      a: "Depois que você troca os nameservers no registrador (Registro.br, GoDaddy, etc.), a propagação DNS leva entre 10 minutos e 6 horas. A gente verifica automaticamente e te avisa.",
+      a: "Depois que você adiciona o CNAME no seu registrador (Registro.br, Hostinger, GoDaddy, etc.), a propagação leva geralmente de 5 a 30 minutos. A gente verifica automaticamente e te avisa por email.",
+    },
+    {
+      q: "Isso afeta meu email?",
+      a: "Não. Adicionar um CNAME pro subdomínio 'blog' não toca nos registros MX do seu email. Tudo continua igual — a gente só ADICIONA um endereço novo, nunca substitui nada.",
     },
     {
       q: "E se eu cancelar minha assinatura?",
-      a: "Se você cancelar, removemos o Worker e o blog sai do ar. Seus posts ficam guardados aqui por 90 dias caso queira voltar. O resto do seu site não é afetado.",
+      a: "Se você cancelar, o blog sai do ar e você pode remover o CNAME quando quiser. Seus posts ficam guardados aqui por 90 dias caso queira voltar. O resto do seu site não é afetado.",
     },
     {
       q: "Preciso saber programação?",
-      a: "Não. A gente guia você passo-a-passo. O único momento técnico é trocar os 'nameservers' no painel do seu registrador de domínio — que é só copiar e colar 2 valores que damos pra você.",
+      a: "Não. A gente guia você passo-a-passo. O único momento técnico é adicionar 1 registro CNAME no painel do seu registrador — que é só copiar e colar 2 valores que damos pra você.",
     },
   ];
 

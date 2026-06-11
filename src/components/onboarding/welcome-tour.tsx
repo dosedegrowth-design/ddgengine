@@ -25,7 +25,7 @@ const STEPS = [
   },
   {
     title: "A IA cuida do resto",
-    description: "Escreve, otimiza pra SEO + GEO, publica no seu domínio, mede tudo.",
+    description: "Escreve, otimiza pra SEO + GEO, publica em blog.seusite.com.br, mede tudo.",
     cta: "Começar",
   },
 ];

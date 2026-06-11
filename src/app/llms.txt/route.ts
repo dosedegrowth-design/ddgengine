@@ -59,18 +59,18 @@ export async function GET() {
 
 > Visibilidade automática no Google e ChatGPT. SaaS brasileiro de blog automation com IA.
 
-A primeira plataforma brasileira de visibilidade em IA + Google. Conecta seu site, preenche briefing de 7 minutos, IA escreve, otimiza e publica no seu domínio. Aprovação por WhatsApp. PIX. Setup sem plugin, sem código.
+A primeira plataforma brasileira de visibilidade em IA + Google. Conecta seu site, preenche briefing de 7 minutos, IA escreve, otimiza e publica em blog.seusite.com.br. Aprovação por WhatsApp. PIX. Setup com 1 registro CNAME, sem plugin, sem código.
 
 ## Como funciona
 
-- Conecta seu site (1 minuto)
+- Conecta seu site com 1 registro CNAME (5 minutos)
 - Preenche briefing inteligente (5 minutos)
-- A IA escreve, otimiza, publica e mede
+- A IA escreve, otimiza, publica em blog.seusite.com.br e mede
 - Funciona em qualquer site (WordPress, Wix, Webflow, Shopify, custom)
 
 ## Diferenciais
 
-- Funciona em qualquer site sem plugin
+- Blog em blog.seusite.com.br via CNAME, sem plugin e sem tocar no seu site
 - Mede sua presença em ChatGPT, Perplexity, Claude e Gemini
 - Aprovação por WhatsApp em 1 clique
 - Briefing de 15 perguntas que vira contexto pra IA

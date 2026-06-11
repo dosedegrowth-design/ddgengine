@@ -194,8 +194,8 @@ export default async function DashboardPage() {
                 />
                 <Step
                   num={3}
-                  title="Publica no seu site"
-                  desc="A engine publica no seu blog automaticamente. Todo conteúdo fica no seu domínio (não em página externa)."
+                  title="Publica no seu blog"
+                  desc="A engine publica em blog.seusite.com.br automaticamente. Todo conteúdo fica no seu domínio (não em página externa)."
                 />
               </div>
             </section>

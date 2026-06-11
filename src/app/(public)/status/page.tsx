@@ -43,7 +43,7 @@ async function checkServices(): Promise<ServiceStatus[]> {
   services.push({ name: "AI Visibility Tracker", status: "operational", description: "ChatGPT, Perplexity, Claude, Gemini" });
   services.push({ name: "WhatsApp Cloud API", status: "operational", description: "Meta Graph API v21" });
   services.push({ name: "Pagamentos (Asaas)", status: "operational", description: "PIX + cartão recorrente" });
-  services.push({ name: "Cloudflare Workers", status: "operational", description: "Reverse proxy dos blogs" });
+  services.push({ name: "DNS & Subdomínios", status: "operational", description: "Blogs dos clientes" });
 
   return services;
 }

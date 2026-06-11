@@ -23,7 +23,7 @@ const PLANS = [
       "Schema markup + FAQ",
       "Sitemap + llm.txt",
       "AI Visibility básico",
-      "Reverse proxy (sem plugin)",
+      "Blog em subdomínio (CNAME)",
     ],
     cta: "Começar grátis",
   },
@@ -112,7 +112,7 @@ const COMPARISON_ROWS = [
   { label: "Brand RAG", values: ["Básico", "Médio", "Completo", "Completo×3", "Por site"] },
   { label: "Relatório mensal PDF", values: ["—", "✓", "✓", "✓", "✓"] },
   { label: "GSC + GA4 integration", values: ["✓", "✓", "✓", "✓", "✓"] },
-  { label: "Reverse proxy (sem plugin)", values: ["✓", "✓", "✓", "✓", "✓"] },
+  { label: "Blog em subdomínio (CNAME)", values: ["✓", "✓", "✓", "✓", "✓"] },
   { label: "White-label", values: ["—", "—", "—", "—", "✓"] },
   { label: "API pública", values: ["—", "—", "—", "—", "✓"] },
   { label: "Suporte", values: ["Email", "Email", "WhatsApp", "Prioritário", "Slack dedicado"] },
@@ -146,7 +146,7 @@ export default function PricingPage() {
             Preço transparente. Sem letras miúdas.
           </h1>
           <p className="text-lg text-muted-foreground">
-            Comece com R$ 97. Cresça quando fizer sentido. Cancele quando quiser. 14 dias grátis pra testar.
+            Comece com R$ 119,99. Cresça quando fizer sentido. Cancele quando quiser. 14 dias grátis pra testar.
           </p>
         </section>
 
@@ -263,7 +263,7 @@ export default function PricingPage() {
             </Link>
           </Button>
           <p className="text-sm text-muted-foreground mt-3">
-            Sem plugin · Cancele quando quiser
+            Blog no seu domínio · Cancele quando quiser
           </p>
         </section>
       </main>

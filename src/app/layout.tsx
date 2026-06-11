@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     template: "%s · Conteudai",
   },
   description:
-    "A primeira plataforma brasileira de visibilidade em IA + Google. Conecte seu site em 7 minutos. Sem plugin, sem código. Aprovação por WhatsApp.",
+    "A primeira plataforma brasileira de visibilidade em IA + Google. Seu blog em blog.seusite.com.br com 1 registro CNAME. Sem plugin, sem código. Aprovação por WhatsApp.",
   keywords: [
     "blog automation",
     "SEO automation",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     locale: "pt_BR",
     title: "Conteudai — Visibilidade automática no Google e ChatGPT",
     description:
-      "A primeira plataforma brasileira de visibilidade em IA + Google. Setup em 7 minutos, sem plugin, sem código.",
+      "A primeira plataforma brasileira de visibilidade em IA + Google. Seu blog em blog.seusite.com.br com 1 CNAME, sem plugin, sem código.",
     siteName: "Conteudai",
     images: [{ url: "/og", width: 1200, height: 630 }],
   },
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Conteudai",
     description:
-      "Visibilidade automática no Google e ChatGPT. Setup em 7 minutos, sem plugin.",
+      "Visibilidade automática no Google e ChatGPT. Seu blog em blog.seusite.com.br com 1 CNAME, sem plugin.",
     images: ["/og"],
   },
 };

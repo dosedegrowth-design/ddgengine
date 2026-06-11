@@ -68,7 +68,7 @@ export default function PrivacidadePage() {
           <li>Vercel (hospedagem) — EUA</li>
           <li>Anthropic (geração de conteúdo IA) — EUA</li>
           <li>OpenAI (embeddings) — EUA</li>
-          <li>Cloudflare (CDN, reverse proxy) — EUA</li>
+          <li>Cloudflare (DNS) — EUA</li>
           <li>Asaas (pagamentos) — Brasil</li>
           <li>Meta (WhatsApp) — EUA, se opt-in</li>
           <li>Resend (email transacional) — EUA</li>

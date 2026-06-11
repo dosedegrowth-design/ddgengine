@@ -41,9 +41,9 @@ import { WordReveal } from "@/components/landing/motion/word-reveal";
 const STEPS = [
   {
     n: "01",
-    badge: "2 minutos",
+    badge: "5 minutos",
     title: "Conecta seu site",
-    desc: "Cola a URL. A gente conecta tecnicamente em minutos — sem mexer no seu site, sem migração, sem instalar nada. Funciona em qualquer plataforma.",
+    desc: "Cola a URL e adiciona 1 registro CNAME. Seu blog fica em blog.seusite.com.br — sem migração, sem instalar nada, sem mexer no que já existe. Funciona em qualquer plataforma.",
     icon: Globe,
   },
   {
@@ -64,7 +64,7 @@ const STEPS = [
     n: "04",
     badge: "24/7",
     title: "Publica e medimos tudo",
-    desc: "Vai pro seu site na hora. Trackeamos sua posição no Google (impressions, ranking, CTR) e medimos onde sua marca aparece em ChatGPT, Perplexity, Claude e Gemini. Painel único.",
+    desc: "Vai pro seu blog em blog.seusite.com.br na hora. Trackeamos sua posição no Google (impressions, ranking, CTR) e medimos onde sua marca aparece em ChatGPT, Perplexity, Claude e Gemini. Painel único.",
     icon: Sparkles,
   },
 ];
@@ -102,8 +102,8 @@ const FEATURES = [
   },
   {
     label: "PLUG-AND-PLAY",
-    title: "Conecta em 2 min, não migra nada",
-    description: "Conexão técnica em minutos, sem mexer no seu site. Funciona em qualquer plataforma — WordPress, Wix, Shopify, Webflow, custom. Seu site continua igual. Você só ganha um blog automático em cima.",
+    title: "1 CNAME e pronto. Não toca no seu site.",
+    description: "Você adiciona 1 registro CNAME e seu blog nasce em blog.seusite.com.br. Funciona em qualquer plataforma — WordPress, Wix, Shopify, Webflow, custom. Não mexe no site, no www nem no seu email. Zero risco de quebrar o que já funciona.",
     icon: Globe,
   },
   {
@@ -172,15 +172,15 @@ const FAQ = [
   },
   {
     q: "Funciona no meu site (WordPress, Wix, Shopify, custom)?",
-    a: "Sim, em qualquer site. Diferente de outras ferramentas, não exigimos plugin, migração ou mudança de plataforma. Conexão técnica em 2 minutos e o blog aparece direto no seu domínio. Seu site continua exatamente como tá — você só ganha um blog automático em cima.",
+    a: "Sim, em qualquer site. Diferente de outras ferramentas, não exigimos plugin, migração ou mudança de plataforma. Você adiciona 1 registro CNAME (leva 5 minutos) e seu blog nasce em blog.seusite.com.br. Não tocamos no seu site, no www nem no seu email — você só ganha um blog automático no seu domínio, sem risco de quebrar o que já funciona.",
   },
   {
     q: "Quanto tempo até ver resultado em faturamento?",
     a: "Visibility em IA: primeiras citações aparecem em 30-60 dias de publicação consistente. SEO Google: 90-180 dias pras primeiras keywords ranqueando, 6-12 meses pra acelerar de verdade. Tráfego orgânico vira lead vira venda — não é magia, é matemática composta. Não vendemos atalho.",
   },
   {
-    q: "Vai prejudicar meu SEO atual?",
-    a: "Pelo contrário. Usamos subdiretório (seusite.com.br/blog, não subdomínio blog.seusite.com.br), que concentra autoridade SEO no seu domínio principal. Casos reais mostram +30-50% de tráfego ao migrar pra esse modelo. Você ganha autoridade, não divide.",
+    q: "O blog fica num subdomínio (blog.seusite.com.br). Isso é ruim pra SEO?",
+    a: "Não. O blog fica no MESMO domínio raiz da sua marca (blog.seusite.com.br), o que preserva a autoridade que você já construiu. A diferença pra subdiretório virou mínima de 2024 pra cá — e em troca a gente ganha algo que vale muito mais: ZERO risco de derrubar seu site. É só adicionar 1 registro CNAME, sem tocar no site, no www ou no email. É exatamente o modelo que HubSpot, Shopify, Stone e Nubank usam (blog.empresa.com). E quando seu site linka pro blog, a autoridade da marca se consolida ainda mais.",
   },
   {
     q: "Como funciona a aprovação por WhatsApp?",
@@ -1103,7 +1103,7 @@ export default function Home() {
                         + <strong className="text-ddg-ink">R$ 1.497/mês</strong> · 7-14 dias implantação
                       </div>
                       <p className="text-sm text-ddg-muted leading-relaxed mb-4">
-                        Integração técnica direta no seu site (não reverse proxy). Pra quem quer setup auditado e customizado.
+                        Setup auditado e customizado, com o blog publicado no seu domínio principal. Pra quem quer implantação acompanhada de ponta a ponta.
                       </p>
                       <ul className="space-y-2 text-xs">
                         {[

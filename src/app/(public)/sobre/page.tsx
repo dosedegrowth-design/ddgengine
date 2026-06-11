@@ -48,8 +48,9 @@ export default function SobrePage() {
             consultoria.
           </li>
           <li>
-            <strong>Não toca no site do cliente.</strong> Reverse proxy via Cloudflare. Zero risco
-            de quebrar o que já funciona.
+            <strong>Não toca no site do cliente.</strong> Blog em subdomínio
+            (blog.seusite.com.br), conectado com 1 registro CNAME. Zero risco de quebrar o que já
+            funciona.
           </li>
           <li>
             <strong>Brasileiro de verdade.</strong> PIX, WhatsApp, LGPD nativa. Não &quot;localizado&quot;

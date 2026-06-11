@@ -1,7 +1,7 @@
 # Conteudai — PROGRESS.md
 
 > Documento vivo do progresso do projeto (antes "DDG Engine" durante beta interno).
-> Última atualização: **2026-05-19**
+> Última atualização: **2026-05-19 (madrugada)**
 
 ---
 
@@ -60,6 +60,144 @@
 - Vercel cron `verify-dns`: `*/30 min` → daily (Hobby plan limit)
 - `ADMIN_EMAILS` setado em prod / dev / preview (preview via API direta — CLI tem bug com branch)
 - 3 commits semânticos pushed: `d6803f6` → `17aeb8b` → `b88a9e5`
+
+---
+
+## 🔄 Rodadas pós-rebrand (2026-05-19 madrugada)
+
+### Email pro time DDG quando ticket muda (commit `01f2543`)
+- Notificações de status e atribuição direcionadas a `SUPPORT_TEAM_EMAIL`
+- Templates compactos por evento (`status_change` / `assigned` / `note_added`)
+- Reutilizam infra do `sendEmail` + Resend
+
+### 7 polish fixes da landing (commit `b3fca0a`)
+Atacando os pontos que tavam abertos no PROGRESS antigo:
+
+| # | Fix | Detalhe |
+|---|---|---|
+| 1 | Hero desktop reposition | Removido `lg:pt-10` do mockup; `items-start` → `items-center`; gap aumentado |
+| 2 | "A DOR REAL" R$3500 | `R$` virou label mono acima; número `7rem→11rem` igual ao `73%` e `0` |
+| 3 | Sticky Card 4 (Conteudai) | Title subiu de `2xl-4xl` → `3xl-5xl` (era menor que cards velhos) |
+| 4 | "O QUE VOCÊ GANHA" | 6 features no grid 2×3 + 7ª "SEM LOCK-IN" virou closing statement full-width com shadow lime brutalist `[10px_10px_0]` |
+| 5 | Pricing volume | `≈ 8.000/12.000/16.000/32.000/120.000 palavras/mês` em todos os planos (calc: 1500/artigo + 250/FAQ) |
+| 6 | Hover effects pricing | 6 cards: `hover:-translate-y-1` + shadow brutalist expandindo; Pro com `[12px_12px_0]` lime |
+| 7 | FAQ items | Hover shadow + open state com `?` em circle (escala 1.1× quando aberto, vira lime), bg lime/15 |
+
+### Página pública `/tickets/[id]` (commit `6bf1eef`)
+**Fecha o loop do concierge sem fricção:**
+
+- Cliente recebe email → clica → cai direto na página sem precisar logar
+- UUID v4 do ticket como token (~122 bits aleatórios, unguessable)
+- **Mostra:** status com label friendly, mensagem original, histórico filtrado, form de comentário
+- **Esconde:** notas internas do staff, email do time, outros tickets
+- **Validação server:** UUID regex, tickets resolved/cancelled bloqueiam novos comentários, MAX 2000 chars
+- **Email pro time:** `sendClientCommentToTeam` dispara com box destacado quando cliente comenta
+- **URLs atualizadas:** `ticket-status-emails.ts` + `concierge-emails.ts` agora apontam `/tickets/[id]` (era `/settings/integration`)
+
+### WhatsApp suporte real (commit `f572fa9`)
+- Substituído placeholder `5511999999999` → `5511989885531`
+- 3 arquivos do código (fallback hardcoded também atualizado defensivamente)
+- Vercel env `NEXT_PUBLIC_SUPPORT_WHATSAPP` unificado em 1 entrada nos 3 targets (prod + preview + dev) via API direta
+- `.env.local` + `.env.example` documentados
+
+### Resumo de commits desta rodada
+```
+f572fa9 feat(whatsapp): numero real do suporte 5511989885531
+6bf1eef feat(tickets): pagina publica /tickets/[id] (cliente sem login)
+b3fca0a feat(landing): 7 polish fixes do PROGRESS antigo
+01f2543 feat(admin): emails pro time DDG + PROGRESS atualizado
+```
+
+Tudo em `main`, deploys auto Vercel `Ready`. tsc + eslint 100% clean a cada turno.
+
+---
+
+## 🔥 AUDITORIA DE LANÇAMENTO (2026-05-19) — por que blog não tá rodando
+
+> Pergunta do Lucas: "como funciona criação de blog, falta n8n? o que tá funcional?"
+
+**Resposta curta:** código 100% pronto, **toda lógica é Next.js + Inngest interno**, sem n8n.
+**2 bugs/configs de infra travam tudo.**
+
+### O que JÁ existe e funciona
+
+| Camada | Stack interna | Estado |
+|---|---|---|
+| Onboarding + briefing | UI step-by-step + audio transcript (Whisper) | ✅ |
+| Brand RAG | `processBriefingEmbeddings` → chunks em `brand_documents` (pgvector 1536d) | ✅ código, **não roda** |
+| Multi-pass engine | 7 passes Claude → outline/draft/SEO/GEO/brand/fact/polish | ✅ código, **falha por crédito** |
+| Quality gates | SEO + GEO score, brand similarity | ✅ |
+| Image gen | gpt-image-1 hero image | ✅ |
+| Aprovação | Manual + WhatsApp + Auto modes | ✅ |
+| Blog público | `/blog/[orgSlug]` + categoria + search + sitemap + RSS + OG | ✅ |
+| Reverse proxy | Cloudflare Worker deploy automático no domínio do cliente | ✅ |
+| Inngest | 10 funções durables (visibility, workers, metrics, reports, postGenerate, briefingEmbed) | ✅ configurado |
+| Email pipeline | Resend (concierge, status ticket, trial, blog activated) | ✅ |
+
+### 🔴 Bloqueio #1: Anthropic API sem crédito
+O único post criado no banco está com status `failed`. Metadata:
+```
+"Your credit balance is too low to access the Anthropic API.
+Please go to Plans & Billing to upgrade or purchase credits."
+```
+Multi-pass usa Claude Sonnet 4.5 como LLM principal. Sem créditos, nenhum post novo é gerado. Tem `with-fallback.ts` que cai pra OpenAI, mas precisa verificar se dispara nessa condição específica (400 invalid_request_error).
+
+**Ação:** Lucas carrega crédito em console.anthropic.com → Plans & Billing.
+
+### 🔴 Bloqueio #2: Brand RAG nunca é populado (bug duplo)
+Em `src/app/api/briefing/save/route.ts` linha 162-173:
+```ts
+// Tenta escrever 'embedding' na tabela 'briefings'...
+await supabase.from("briefings").update({ embedding })
+//                                          ^^^^^^^^^
+// MAS essa coluna NÃO EXISTE na tabela briefings.
+// O catch swallows o erro silenciosamente.
+```
+
+E mais grave: **NUNCA dispara o evento Inngest** `ddg/briefing.embed` que rodaria `processBriefingEmbeddings` (que existe, faz tudo certo, mas ninguém chama).
+
+**Verificado no banco prod (`ddg_engine.brand_documents`):**
+- 22 organizations, 14 com briefing `completion_status='completed'`
+- **0 rows em `brand_documents`** (deveria ter 3-8 por site após briefing)
+- **TODOS** com `embedding_status='pending'`
+
+Sem RAG da marca → multi-pass Pass 5 (Brand Voice) trabalha às cegas.
+
+**Ação:** Fix do `route.ts`:
+1. Remover o `.update({ embedding })` inline
+2. Disparar `sendInngestEvent({ name: 'ddg/briefing.embed', data: { briefing_id } })`
+3. Endpoint admin `/admin/backfill-rag` pra rodar `processBriefingEmbeddings` nos 14 briefings já completed
+
+### Smoke test pós-fix
+1. Org com briefing completo → confirmar `brand_documents` populado
+2. Gerar 1 post multi-pass → confirmar status `pending_review` ou `published`
+3. Confirmar render em `/blog/{orgSlug}/{slug}`
+
+### Status pós-fix esperado
+Sistema operacionalmente pronto pra **primeiro cliente real**.
+
+---
+
+## 📋 Backlog ordenado por impacto (pós-auditoria)
+
+### 🔥 Bloqueador #0 — Desbloquear geração de blog
+- [ ] **Lucas:** carregar crédito Anthropic
+- [ ] Fix `/api/briefing/save` (disparar Inngest em vez de embed inline)
+- [ ] Endpoint backfill `/admin/backfill-rag`
+- [ ] Smoke test 1 org → 1 post → publicado no `/blog/{slug}`
+
+### 🟡 Alto impacto — Branding (Lucas precisa fornecer)
+- [ ] Logo real (`brand-mark.tsx` ainda placeholder)
+- [ ] Aprovação WhatsApp (precisa Meta Business + número verificado — número `5511989885531` já em produção pra CTAs de suporte)
+
+### 🟢 Backlog autônomo (posso atacar sem input)
+- [ ] Trial→paid conversion banner (revenue lever)
+- [ ] Migração admin gate: allowlist env → tabela `ddg_engine.staff_users`
+- [ ] Busca por short-id no `/admin/tickets`
+- [ ] Screenshots reais nos tutoriais (Supabase Storage; fallback mock já implementado)
+- [ ] Cliente importar WordPress (código existe, não testado E2E)
+- [ ] GSC import (Search Console)
+- [ ] Inbox real (precisa decidir schema antes)
 
 ---
 

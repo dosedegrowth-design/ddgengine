@@ -24,6 +24,11 @@ function calcDaysLeft(trialEndsAt: string | null | undefined): number {
   return Math.max(0, Math.ceil((ts - now) / (24 * 60 * 60 * 1000)));
 }
 
+/** Formata BRL: inteiro fica "197", decimal fica "119,99". */
+function formatBRL(v: number): string {
+  return v.toFixed(2).replace(".", ",").replace(",00", "");
+}
+
 const PLAN_FEATURES: Record<string, string[]> = {
   trial: ["14 dias grátis", "2 posts gerados"],
   starter: ["4 artigos + 8 FAQs/mês", "Auto-publish no blog", "Aparições em IA — básico"],
@@ -243,7 +248,7 @@ export default async function BillingPage() {
                   {PLAN_TAGLINE[p]}
                 </div>
                 <div className="mt-3 text-2xl font-black text-ddg-ink">
-                  R$ {PLAN_VALUES_BRL[p]}
+                  R$ {formatBRL(PLAN_VALUES_BRL[p] ?? 0)}
                   <span className="text-xs font-medium text-ddg-muted">/mês</span>
                 </div>
                 <ul className="mt-3 space-y-1 text-xs text-ddg-muted">

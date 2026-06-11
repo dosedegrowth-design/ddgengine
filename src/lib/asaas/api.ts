@@ -179,9 +179,9 @@ export async function updateSubscription(args: {
  * Mapeia plano Conteudai pra valor BRL.
  */
 export const PLAN_VALUES_BRL: Record<string, number> = {
-  starter: 97,
+  starter: 119.99,
   light: 197,
-  pro: 297,
+  pro: 349.99,
   multi: 897,
   agency: 1997,
   native: 1497,

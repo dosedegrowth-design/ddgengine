@@ -9,7 +9,7 @@ export const metadata = { title: "Planos e preços" };
 const PLANS = [
   {
     name: "Starter",
-    price: 97,
+    price: 119.99,
     desc: "Pra começar a aparecer",
     posts: "4 artigos + 8 FAQs/mês",
     visibility: "Tracking básico (50 prompts × 2 IAs/sem)",
@@ -46,7 +46,7 @@ const PLANS = [
   },
   {
     name: "Pro",
-    price: 297,
+    price: 349.99,
     desc: "Mais escolhido",
     highlight: true,
     posts: "8 artigos + 16 FAQs/mês",
@@ -166,7 +166,9 @@ export default function PricingPage() {
                 <CardTitle>{plan.name}</CardTitle>
                 <CardDescription>{plan.desc}</CardDescription>
                 <div className="pt-3">
-                  <span className="text-3xl font-semibold">R$ {plan.price}</span>
+                  <span className="text-3xl font-semibold">
+                    R$ {plan.price.toFixed(2).replace(".", ",").replace(",00", "")}
+                  </span>
                   <span className="text-muted-foreground text-sm">/mês</span>
                 </div>
               </CardHeader>

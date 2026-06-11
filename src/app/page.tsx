@@ -122,7 +122,7 @@ const TESTIMONIALS = [
     metric: "+14 citações em 60 dias",
   },
   {
-    quote: "Eu pagava R$ 3.500/mês pra agência fazer 4 posts. Hoje pago R$ 297 e saem 8 posts + medição de IA que agência nenhuma fazia. Cancelei a agência no segundo mês.",
+    quote: "Eu pagava R$ 3.500/mês pra agência fazer 4 posts. Hoje pago R$ 349,99 e saem 8 posts + medição de IA que agência nenhuma fazia. Cancelei a agência no segundo mês.",
     name: "Rafael C.",
     role: "Diretor · agência B2B",
     metric: "R$ 3.200/mês economizados",
@@ -191,7 +191,7 @@ const FAQ = [
     a: "Modo Auto publica direto sem você ver. 8 quality gates automáticos garantem que o post passa nos critérios (originalidade, gramática, SEO, fact-check). Você só recebe notificação quando já tá no ar. Ideal pra quem quer fluxo sem fricção.",
   },
   {
-    q: "Por que R$ 297 e não R$ 1.000 como concorrentes?",
+    q: "Por que R$ 349,99 e não R$ 1.000 como concorrentes?",
     a: "Porque a engine é nossa (sem revenda de API), porque você roda em Cloudflare (custo quase zero) e porque a Dose de Growth é dos founders — não pagamos VC, não pagamos sales team. Você paga o produto, não o overhead.",
   },
   {
@@ -299,7 +299,7 @@ export default function Home() {
 
                 <Reveal variant="up" delay={1.6}>
                   <p className="text-lg md:text-xl text-ddg-muted max-w-2xl leading-relaxed">
-                    Trabalho de <span className="text-ddg-ink font-semibold">SEO técnico profundo</span> que agência cobraria R$ 5 mil — automatizado. A engine <span className="text-ddg-ink font-semibold">entende sua marca, propõe os temas e cria o conteúdo</span> (você pode sugerir tema também quando quiser). Publica no Google e mede em 4 IAs. A partir de <span className="text-ddg-lime-deep font-bold">R$ 97/mês</span>.
+                    Trabalho de <span className="text-ddg-ink font-semibold">SEO técnico profundo</span> que agência cobraria R$ 5 mil — automatizado. A engine <span className="text-ddg-ink font-semibold">entende sua marca, propõe os temas e cria o conteúdo</span> (você pode sugerir tema também quando quiser). Publica no Google e mede em 4 IAs. A partir de <span className="text-ddg-lime-deep font-bold">R$ 119,99/mês</span>.
                   </p>
                 </Reveal>
 
@@ -508,7 +508,7 @@ export default function Home() {
                     Por mês com agência
                   </div>
                   <p className="text-base text-ddg-paper/60 leading-relaxed max-w-xs">
-                    O que uma agência média cobra pra fazer <strong className="text-ddg-paper">4 posts</strong>. A gente entrega <strong className="text-ddg-lime">8 + tracking de IA</strong> por R$ 297.
+                    O que uma agência média cobra pra fazer <strong className="text-ddg-paper">4 posts</strong>. A gente entrega <strong className="text-ddg-lime">8 + tracking de IA</strong> por R$ 349,99.
                   </p>
                 </div>
               </StaggerItem>
@@ -814,7 +814,7 @@ export default function Home() {
               </Reveal>
               <Reveal delay={0.1}>
                 <h2 className="ddg-display text-4xl md:text-6xl text-balance">
-                  A partir de R$ 97/mês.<br />
+                  A partir de R$ 119,99/mês.<br />
                   <span className="text-ddg-muted">Plano</span>{" "}
                   <span className="ddg-pill-lime">pra cada tamanho.</span>
                 </h2>
@@ -845,10 +845,11 @@ export default function Home() {
                   <div className="flex items-baseline gap-1 mb-1">
                     <span className="text-base font-bold text-ddg-muted">R$</span>
                     <AnimatedCounter
-                      to={97}
+                      to={119}
                       duration={1.4}
                       className="text-4xl font-black tabular-nums"
                     />
+                    <span className="text-2xl font-black tabular-nums">,99</span>
                     <span className="text-ddg-muted text-xs">/mês</span>
                   </div>
                   <div className="text-ddg-muted text-[11px] mb-5">PIX ou cartão</div>
@@ -938,10 +939,11 @@ export default function Home() {
                   <div className="flex items-baseline gap-1 mb-1">
                     <span className="text-base font-bold text-ddg-paper/60">R$</span>
                     <AnimatedCounter
-                      to={297}
+                      to={349}
                       duration={1.4}
                       className="text-4xl font-black tabular-nums text-ddg-paper"
                     />
+                    <span className="text-2xl font-black tabular-nums text-ddg-paper">,99</span>
                     <span className="text-ddg-paper/60 text-xs">/mês</span>
                   </div>
                   <div className="text-ddg-paper/60 text-[11px] mb-5">PIX ou cartão</div>

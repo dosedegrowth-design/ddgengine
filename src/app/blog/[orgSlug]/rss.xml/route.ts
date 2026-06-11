@@ -14,7 +14,6 @@ export async function GET(
   const { orgSlug } = await params;
   const supabase = createServiceClient();
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://conteudai.com.br";
-  const blogRoot = `${baseUrl}/blog/${orgSlug}`;
 
   const { data: org } = await supabase
     .from("organizations")
@@ -25,9 +24,20 @@ export async function GET(
 
   const { data: sites } = await supabase
     .from("sites")
-    .select("id")
+    .select("id, blog_host, cname_verified")
     .eq("organization_id", org.id);
-  const siteIds = (sites ?? []).map((s) => s.id);
+  const siteRows = (sites ?? []) as Array<{
+    id: string;
+    blog_host: string | null;
+    cname_verified: boolean | null;
+  }>;
+  const siteIds = siteRows.map((s) => s.id);
+
+  // Aponta pro subdomínio do cliente quando conectado. Senão, preview.
+  const verified = siteRows.find((s) => s.blog_host && s.cname_verified);
+  const blogRoot = verified
+    ? `https://${verified.blog_host}`
+    : `${baseUrl}/blog/${orgSlug}`;
 
   const { data: posts } = await supabase
     .from("posts")

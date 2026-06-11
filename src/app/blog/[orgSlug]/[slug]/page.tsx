@@ -10,7 +10,7 @@ import { SocialShare } from "@/components/blog/social-share";
 import { NewsletterForm } from "@/components/blog/newsletter-form";
 import { BlogShell } from "@/components/blog/blog-shell";
 import { loadBlogShellContext } from "@/lib/blog/load-shell-context";
-import { getBlogBasePath } from "@/lib/blog/base-path";
+import { getBlogBasePath, publicBlogBaseUrl } from "@/lib/blog/base-path";
 
 interface Params {
   orgSlug: string;
@@ -35,13 +35,18 @@ export async function generateMetadata({
 
   const { data: sites } = await supabase
     .from("sites")
-    .select("id")
+    .select("id, blog_host, cname_verified")
     .eq("organization_id", org.id);
-  const siteIds = ((sites ?? []) as Array<{ id: string }>).map((s) => s.id);
+  const siteRows = (sites ?? []) as Array<{
+    id: string;
+    blog_host: string | null;
+    cname_verified: boolean | null;
+  }>;
+  const siteIds = siteRows.map((s) => s.id);
 
   const { data: post } = await supabase
     .from("posts")
-    .select("title, meta_description, published_at")
+    .select("title, meta_description, published_at, site_id")
     .in("site_id", siteIds)
     .eq("slug", slug)
     .eq("status", "published")
@@ -50,8 +55,17 @@ export async function generateMetadata({
   if (!post) return { title: "Post não encontrado" };
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  // Canonical aponta pro subdomínio DO CLIENTE quando conectado (autoridade
+  // SEO vai pro domínio dele, não pro nosso). Senão, cai no preview.
+  const postSite = siteRows.find((s) => s.id === post.site_id);
+  const publicBase = publicBlogBaseUrl({
+    blogHost: postSite?.blog_host,
+    cnameVerified: postSite?.cname_verified,
+  });
   const ogImage = `${baseUrl}/blog/${orgSlug}/${slug}/og`;
-  const canonicalUrl = `${baseUrl}/blog/${orgSlug}/${slug}`;
+  const canonicalUrl = publicBase
+    ? `${publicBase}/${slug}`
+    : `${baseUrl}/blog/${orgSlug}/${slug}`;
 
   return {
     title: post.title,
@@ -126,7 +140,19 @@ export default async function BlogPostPage({
   const related = await findRelatedPosts(post.id, 3);
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  const fullUrl = `${baseUrl}/blog/${org.slug}/${slug}`;
+  // URL de compartilhamento aponta pro subdomínio do cliente quando conectado.
+  const { data: hostSite } = await supabase
+    .from("sites")
+    .select("blog_host, cname_verified")
+    .eq("id", post.site_id as string)
+    .maybeSingle();
+  const sharePublicBase = publicBlogBaseUrl({
+    blogHost: hostSite?.blog_host as string | null,
+    cnameVerified: hostSite?.cname_verified as boolean | null,
+  });
+  const fullUrl = sharePublicBase
+    ? `${sharePublicBase}/${slug}`
+    : `${baseUrl}/blog/${org.slug}/${slug}`;
 
   return (
     <BlogShell template={template} tokens={tokens} orgSlug={org.slug} orgName={org.name} basePath={basePath}>

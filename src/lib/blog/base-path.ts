@@ -33,3 +33,21 @@ export async function getBlogBasePath(orgSlug: string): Promise<string> {
 export function blogBasePathFor(orgSlug: string, isSubdomain: boolean): string {
   return isSubdomain ? "" : `/blog/${orgSlug}`;
 }
+
+/**
+ * URL pública canônica do blog. Quando o cliente já conectou o subdomínio
+ * (blog_host verificado), o canonical/OG apontam pro DOMÍNIO DO CLIENTE
+ * (`https://blog.cliente.com.br`) — é lá que o Google deve indexar, pra a
+ * autoridade SEO ir pro domínio do cliente, não pro nosso.
+ *
+ * Se ainda não conectou, cai no nosso preview.
+ */
+export function publicBlogBaseUrl(opts: {
+  blogHost?: string | null;
+  cnameVerified?: boolean | null;
+}): string | null {
+  if (opts.blogHost && opts.cnameVerified) {
+    return `https://${opts.blogHost}`;
+  }
+  return null;
+}

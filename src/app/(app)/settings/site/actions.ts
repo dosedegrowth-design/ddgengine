@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { getCurrentSite } from "@/lib/auth";
 import { auditSite } from "@/lib/audit";
-import { deployWorkerForSite } from "@/lib/cloudflare/deploy";
+import { getProjectDomainStatus } from "@/lib/vercel/domains";
+import { createServiceClient } from "@/lib/supabase/server";
 import { importWordPressBlog } from "@/lib/imports/wordpress";
 
 export async function redoAudit(siteId: string) {
@@ -29,17 +30,40 @@ export async function redoAudit(siteId: string) {
   }
 }
 
+/**
+ * Re-verifica a conexão do subdomínio na Vercel (botão "ressincronizar").
+ * Mantém o nome `deployWorker` por compat com quem chama (site-form).
+ */
 export async function deployWorker(siteId: string) {
   const { site } = await getCurrentSite();
   if (!site || site.id !== siteId) return { error: "Site não encontrado" };
 
+  const blogHost = site.blog_host as string | null;
+  if (!blogHost) {
+    return { error: "Conexão de domínio ainda não iniciada." };
+  }
+
   try {
-    const result = await deployWorkerForSite(siteId);
+    const status = await getProjectDomainStatus(blogHost);
+    const admin = createServiceClient();
+    if (status.verified) {
+      await admin
+        .from("sites")
+        .update({
+          cname_verified: true,
+          cname_verified_at: new Date().toISOString(),
+          integration_state: "active",
+          status: "active",
+          proxy_method: "subdomain",
+        })
+        .eq("id", siteId);
+      revalidatePath("/settings/site");
+      return { success: true, verified: true };
+    }
     revalidatePath("/settings/site");
-    if (!result.success) return { error: result.error ?? "Falha ao preparar integração" };
-    return { success: true, workerName: result.workerName };
+    return { success: true, verified: false };
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Erro ao preparar integração" };
+    return { error: err instanceof Error ? err.message : "Erro ao verificar conexão" };
   }
 }
 

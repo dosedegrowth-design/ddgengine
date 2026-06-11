@@ -5,7 +5,6 @@
  */
 import { inngest } from "./client";
 import { runVisibilityTracking } from "@/lib/visibility/tracker";
-import { deployWorkerForSite, healthCheckWorker } from "@/lib/cloudflare/deploy";
 import { syncSiteMetrics } from "@/lib/integrations/sync";
 import { generateMonthlyReport } from "@/lib/reports/generator";
 import { generatePostMultiPass } from "@/lib/ai/multi-pass";
@@ -47,43 +46,9 @@ export const visibilityRunAll = inngest.createFunction(
   }
 );
 
-// ============ WORKER ============
-export const workerDeploy = inngest.createFunction(
-  {
-    id: "worker-deploy",
-    concurrency: { limit: 3 },
-    triggers: [{ event: "ddg/worker.deploy" }],
-  },
-  async (ctx: any) => {
-    const siteId = ctx.event.data.site_id;
-    return ctx.step.run("deploy", async () => deployWorkerForSite(siteId));
-  }
-);
-
-export const workerHealthcheckAll = inngest.createFunction(
-  { id: "worker-healthcheck-all", triggers: [{ event: "ddg/worker.healthcheck-all" }] },
-  async (ctx: any) => {
-    const workers = await ctx.step.run("list-workers", async () => {
-      const supabase = createServiceClient();
-      const { data } = await supabase
-        .from("cloudflare_workers")
-        .select("site_id")
-        .eq("status", "deployed");
-      return data ?? [];
-    });
-
-    let healthy = 0;
-    let unhealthy = 0;
-    for (const w of workers as { site_id: string }[]) {
-      const result = await ctx.step.run(`hc-${w.site_id}`, async () =>
-        healthCheckWorker(w.site_id)
-      );
-      if (result.ok) healthy++;
-      else unhealthy++;
-    }
-    return { healthy, unhealthy, total: (workers as any[]).length };
-  }
-);
+// (Worker deploy/healthcheck removidos — modelo subdomínio não usa
+//  Cloudflare Worker. A integração agora é via Vercel Custom Domains +
+//  middleware por Host. Ver src/lib/vercel/domains.ts.)
 
 // ============ METRICS SYNC ============
 export const metricsSync = inngest.createFunction(
@@ -202,8 +167,6 @@ export const briefingEmbed = inngest.createFunction(
 export const allFunctions = [
   visibilityRun,
   visibilityRunAll,
-  workerDeploy,
-  workerHealthcheckAll,
   metricsSync,
   metricsSyncAll,
   reportMonthly,

@@ -1,4 +1,10 @@
 /**
+ * @deprecated MODELO ANTIGO (reverse proxy Cloudflare Worker).
+ * Substituido pelo modelo subdominio: Vercel Custom Domains + middleware
+ * por Host (ver src/lib/vercel/domains.ts e src/proxy.ts). Mantido apenas
+ * como referencia historica — nada no app importa mais este arquivo.
+ */
+/**
  * Orquestração de deploy do Worker pra um site específico.
  * Combina template + API + estado no banco.
  */

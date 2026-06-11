@@ -27,14 +27,9 @@ export default async function SiteSettingsPage() {
   const { site, supabase } = await getCurrentSite();
   if (!site) redirect("/onboarding");
 
-  const { data: worker } = await supabase
-    .from("cloudflare_workers")
-    .select("status, last_health_check_at, last_response_ms")
-    .eq("site_id", site.id)
-    .maybeSingle();
-
   const statusInfo = STATUS_LABEL[site.status] ?? STATUS_LABEL.pending;
-  const integrationActive = worker?.status === "deployed";
+  const integrationActive =
+    site.integration_state === "active" && Boolean(site.cname_verified);
 
   return (
     <div className="space-y-6">
@@ -48,7 +43,10 @@ export default async function SiteSettingsPage() {
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <Row label="Endereço" value={site.domain} />
-          <Row label="Pasta do blog" value={site.proxy_path ?? "/blog"} />
+          <Row
+            label="Blog"
+            value={site.blog_host ?? `blog.${(site.domain ?? "").replace(/^www\./, "")}`}
+          />
           <Row
             label="Análise técnica"
             value={
@@ -76,16 +74,12 @@ export default async function SiteSettingsPage() {
                 value={<Badge variant="success">Ativa</Badge>}
               />
               <Row
-                label="Última verificação"
+                label="Conectado em"
                 value={
-                  worker?.last_health_check_at
-                    ? new Date(worker.last_health_check_at).toLocaleString("pt-BR")
+                  site.cname_verified_at
+                    ? new Date(site.cname_verified_at as string).toLocaleString("pt-BR")
                     : "—"
                 }
-              />
-              <Row
-                label="Tempo de resposta"
-                value={worker?.last_response_ms ? `${worker.last_response_ms}ms` : "—"}
               />
             </>
           ) : (

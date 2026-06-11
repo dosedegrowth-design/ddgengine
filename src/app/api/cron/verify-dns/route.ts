@@ -1,24 +1,21 @@
 /**
  * GET /api/cron/verify-dns
  *
- * Cron job (Vercel) — verifica zonas em estado 'verifying' ou 'zone_created'
- * e ativa automaticamente quando o DNS propaga. Cliente não precisa
- * voltar e clicar "verificar" manualmente.
+ * Cron job (Vercel) — verifica sites em estado 'cname_pending' ou 'verifying'
+ * e ativa automaticamente quando o CNAME propaga + a Vercel valida o domínio
+ * (+ emite SSL). Cliente não precisa voltar e clicar "verificar".
  *
- * Roda a cada 30min via vercel.json.
- * Protegido por CRON_SECRET (env var) — Vercel envia header
- * `authorization: Bearer <secret>`.
+ * Roda 1x/dia via vercel.json (Hobby plan).
+ * Protegido por CRON_SECRET — Vercel envia `authorization: Bearer <secret>`.
  *
  * Pra cada site no funil:
- *   1. getZone(zoneId) no Cloudflare
- *   2. Se zone.status === 'active' → deploya Worker + state=active + email
- *   3. Senão → atualiza só state pra 'verifying'
- *   4. Erros → state='error' (banner vermelho aparece)
+ *   1. getProjectDomainStatus(blog_host) na Vercel
+ *   2. Se verified → cname_verified=true + state=active + email
+ *   3. Senão → state=verifying
  */
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
-import { getZone } from "@/lib/cloudflare/api";
-import { deployWorkerForSite } from "@/lib/cloudflare/deploy";
+import { getProjectDomainStatus } from "@/lib/vercel/domains";
 import { sendBlogActivatedEmail } from "@/lib/notifications/blog-activated";
 
 export const runtime = "nodejs";
@@ -28,29 +25,24 @@ export const maxDuration = 60;
 interface PendingSite {
   id: string;
   domain: string;
-  cloudflare_zone_id: string;
+  blog_host: string;
   integration_state: string;
   organization_id: string;
 }
 
 export async function GET(req: Request) {
-  // Vercel envia "Authorization: Bearer <CRON_SECRET>"
   const auth = req.headers.get("authorization");
-  if (
-    process.env.CRON_SECRET &&
-    auth !== `Bearer ${process.env.CRON_SECRET}`
-  ) {
+  if (process.env.CRON_SECRET && auth !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const admin = createServiceClient();
 
-  // Carrega sites no funil
   const { data: sites, error } = await admin
     .from("sites")
-    .select("id, domain, cloudflare_zone_id, integration_state, organization_id")
-    .in("integration_state", ["zone_created", "verifying"])
-    .not("cloudflare_zone_id", "is", null);
+    .select("id, domain, blog_host, integration_state, organization_id")
+    .in("integration_state", ["cname_pending", "verifying"])
+    .not("blog_host", "is", null);
 
   if (error) {
     console.error("[cron verify-dns]", error.message);
@@ -67,29 +59,19 @@ export async function GET(req: Request) {
 
   for (const site of list) {
     try {
-      const zone = await getZone(site.cloudflare_zone_id);
+      const status = await getProjectDomainStatus(site.blog_host);
 
-      if (zone.status === "active") {
-        // Propagou! Deploya Worker
-        const deploy = await deployWorkerForSite(site.id);
-        if (!deploy.success) {
-          await admin
-            .from("sites")
-            .update({
-              integration_state: "error",
-              metadata: { last_error: deploy.error ?? "Worker deploy falhou" },
-            })
-            .eq("id", site.id);
-          results.errors++;
-          continue;
-        }
-
+      if (status.verified) {
+        // CNAME apontado + SSL pronto → ativa
         await admin
           .from("sites")
           .update({
+            cname_verified: true,
+            cname_verified_at: new Date().toISOString(),
             integration_state: "active",
             integration_activated_at: new Date().toISOString(),
             status: "active",
+            proxy_method: "subdomain",
           })
           .eq("id", site.id);
 
@@ -107,7 +89,7 @@ export async function GET(req: Request) {
 
         results.activated++;
       } else {
-        // Ainda propagando — atualiza state pra 'verifying'
+        // Ainda propagando
         if (site.integration_state !== "verifying") {
           await admin
             .from("sites")

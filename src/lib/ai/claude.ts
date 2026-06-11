@@ -87,7 +87,13 @@ export async function generateWithClaude(
 }
 
 /**
- * Extrai JSON do output do Claude (lida com code fences).
+ * Extrai JSON do output do Claude (lida com code fences + prosa em volta).
+ *
+ * Robusto a 3 problemas comuns de LLM:
+ *  1. Prosa antes/depois do JSON (ex: título "[Guia 2024]" antes do objeto)
+ *     → extrai do primeiro `{` ao último `}` (objeto) ou `[`..`]` (array).
+ *  2. Aspas/newlines não-escapados dentro de strings → jsonrepair.
+ *  3. JSON truncado por max_tokens → parseJsonWithRecovery.
  */
 export function parseJsonResponse<T = unknown>(text: string): T {
   const cleaned = text
@@ -95,32 +101,59 @@ export function parseJsonResponse<T = unknown>(text: string): T {
     .replace(/\s*```\s*$/i, "")
     .trim();
 
-  // Acha primeiro { ou [
-  const firstBrace = Math.min(
-    ...["{", "["]
-      .map((c) => cleaned.indexOf(c))
-      .filter((i) => i >= 0)
-  );
-  if (firstBrace === Infinity) {
+  // Monta candidatos de extração. Objeto primeiro (nossos prompts retornam
+  // objetos), depois array. "primeiro { ao último }" descarta prosa em volta
+  // (inclusive títulos com [colchetes] que confundiam a extração antiga).
+  const candidates: string[] = [];
+  const firstCurly = cleaned.indexOf("{");
+  const lastCurly = cleaned.lastIndexOf("}");
+  if (firstCurly >= 0 && lastCurly > firstCurly) {
+    candidates.push(cleaned.slice(firstCurly, lastCurly + 1));
+  }
+  const firstSq = cleaned.indexOf("[");
+  const lastSq = cleaned.lastIndexOf("]");
+  if (firstSq >= 0 && lastSq > firstSq) {
+    candidates.push(cleaned.slice(firstSq, lastSq + 1));
+  }
+
+  // Candidato "aberto" pra recuperação de truncamento (JSON cortado no meio,
+  // sem fechamento). Pega do primeiro `{` (ou `[`) até o fim.
+  const openStart =
+    firstCurly >= 0
+      ? firstCurly
+      : firstSq >= 0
+        ? firstSq
+        : -1;
+  if (openStart === -1) {
     throw new Error(`Resposta sem JSON: ${cleaned.slice(0, 200)}`);
   }
+  const openCandidate = cleaned.slice(openStart);
 
-  const candidate = cleaned.slice(firstBrace);
-
-  // Tenta parse direto primeiro
-  try {
-    return JSON.parse(candidate);
-  } catch (err) {
-    // Fallback 1: jsonrepair conserta os erros mais comuns de LLM —
-    // aspas não-escapadas dentro de strings, newlines literais, vírgulas
-    // sobrando, etc. Resolve o caso "Expected ',' or '}'" no meio do conteúdo.
+  let lastErr: unknown = null;
+  for (const candidate of candidates) {
+    // 1. parse direto
+    try {
+      return JSON.parse(candidate) as T;
+    } catch (err) {
+      lastErr = err;
+    }
+    // 2. jsonrepair (aspas/newlines/vírgulas)
     try {
       return JSON.parse(jsonrepair(candidate)) as T;
-    } catch {
-      // Fallback 2: recuperação de truncamento (max_tokens cortou no meio).
-      return parseJsonWithRecovery<T>(candidate, err);
+    } catch (err) {
+      lastErr = err;
     }
   }
+
+  // 3. jsonrepair no candidato aberto (cobre truncamento simples)
+  try {
+    return JSON.parse(jsonrepair(openCandidate)) as T;
+  } catch (err) {
+    lastErr = err;
+  }
+
+  // 4. recuperação de truncamento manual (balanceia chaves/strings)
+  return parseJsonWithRecovery<T>(openCandidate, lastErr);
 }
 
 /**

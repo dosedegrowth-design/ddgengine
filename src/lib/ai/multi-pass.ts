@@ -264,7 +264,7 @@ ${briefing.required_disclaimers ? `Disclaimer obrigatório: ${briefing.required_
           content: `Outline:\n${JSON.stringify(outline, null, 2)}\n\n${briefingSummary}\n\nEscreva o artigo completo seguindo o outline.`,
         },
       ],
-      max_tokens: input.type === "long_form" ? 8000 : 3000,
+      max_tokens: input.type === "long_form" ? 16000 : 6000,
       temperature: 0.7,
     });
     const draft = parseJsonResponse<any>(p2.text);
@@ -285,7 +285,7 @@ ${briefing.required_disclaimers ? `Disclaimer obrigatório: ${briefing.required_
           content: `Title atual: ${workingDoc.title}\nKeyword alvo: ${input.targetKeyword ?? "n/a"}\n\nTexto:\n${workingDoc.content_markdown}`,
         },
       ],
-      max_tokens: input.type === "long_form" ? 8000 : 3000,
+      max_tokens: input.type === "long_form" ? 16000 : 6000,
       temperature: 0.5,
     });
     const seo = parseJsonResponse<any>(p3.text);
@@ -308,7 +308,7 @@ ${briefing.required_disclaimers ? `Disclaimer obrigatório: ${briefing.required_
           content: `Texto:\n${workingDoc.content_markdown}`,
         },
       ],
-      max_tokens: input.type === "long_form" ? 8000 : 3000,
+      max_tokens: input.type === "long_form" ? 16000 : 6000,
       temperature: 0.5,
     });
     const geo = parseJsonResponse<any>(p4.text);
@@ -329,7 +329,7 @@ ${briefing.required_disclaimers ? `Disclaimer obrigatório: ${briefing.required_
           content: `${briefingSummary}\n\nTexto:\n${workingDoc.content_markdown}`,
         },
       ],
-      max_tokens: input.type === "long_form" ? 8000 : 3000,
+      max_tokens: input.type === "long_form" ? 16000 : 6000,
       temperature: 0.5,
     });
     const voice = parseJsonResponse<any>(p5.text);
@@ -349,7 +349,7 @@ ${briefing.required_disclaimers ? `Disclaimer obrigatório: ${briefing.required_
           content: `Texto:\n${workingDoc.content_markdown}`,
         },
       ],
-      max_tokens: input.type === "long_form" ? 8000 : 3000,
+      max_tokens: input.type === "long_form" ? 16000 : 6000,
       temperature: 0.3,
     });
     const fact = parseJsonResponse<any>(p6.text);
@@ -374,7 +374,7 @@ ${briefing.required_disclaimers ? `Disclaimer obrigatório: ${briefing.required_
           content: `Org: ${orgName}\nURL final: ${finalUrl}\nFAQs do GEO: ${JSON.stringify(workingDoc.schema_faqs)}\n\nTexto atual:\n${workingDoc.content_markdown}`,
         },
       ],
-      max_tokens: input.type === "long_form" ? 8000 : 3000,
+      max_tokens: input.type === "long_form" ? 16000 : 6000,
       temperature: 0.4,
     });
     const polished = parseJsonResponse<any>(p7.text);

@@ -102,8 +102,12 @@ export function gateSeoScore(input: QualityGateInput): GateResult {
   const issues: string[] = [];
   const wins: string[] = [];
 
+  // Defensive: campos opcionais/falhos não devem crashar todo o gate
+  const title = input.title ?? "";
+  const content = input.content ?? "";
+
   // Title length
-  const titleLen = input.title.length;
+  const titleLen = title.length;
   if (titleLen >= 30 && titleLen <= 65) {
     score += 15;
     wins.push("Title length OK");
@@ -125,8 +129,8 @@ export function gateSeoScore(input: QualityGateInput): GateResult {
   }
 
   // Headings (H2/H3 count)
-  const h2Count = (input.content.match(/^##\s+/gm) ?? []).length;
-  const h3Count = (input.content.match(/^###\s+/gm) ?? []).length;
+  const h2Count = (content.match(/^##\s+/gm) ?? []).length;
+  const h3Count = (content.match(/^###\s+/gm) ?? []).length;
   if (h2Count >= 3) {
     score += 15;
     wins.push(`${h2Count} H2 sections`);
@@ -136,7 +140,7 @@ export function gateSeoScore(input: QualityGateInput): GateResult {
   if (h3Count > 0) score += 5;
 
   // Word count
-  const wordCount = input.content.split(/\s+/).filter(Boolean).length;
+  const wordCount = content.split(/\s+/).filter(Boolean).length;
   if (input.type === "long_form") {
     if (wordCount >= 1500 && wordCount <= 3500) {
       score += 20;
@@ -394,17 +398,29 @@ export interface AllGatesResult {
 }
 
 export async function runAllGates(input: QualityGateInput): Promise<AllGatesResult> {
+  // Defensive: garante que campos string nunca sejam undefined/null antes de
+  // chegar nos gates (que fazem .match/.split/.toLowerCase direto). Se algum
+  // pass anterior deixou um campo vazio, gates registram score baixo mas
+  // não crasham o pipeline inteiro.
+  const safeInput: QualityGateInput = {
+    ...input,
+    title: input.title ?? "",
+    content: input.content ?? "",
+    metaDescription: input.metaDescription ?? "",
+    schemaMarkup: input.schemaMarkup ?? undefined,
+  };
+
   const [plagiarism, brandVoice] = await Promise.all([
-    gatePlagiarism(input),
-    gateBrandVoice(input),
+    gatePlagiarism(safeInput),
+    gateBrandVoice(safeInput),
   ]);
 
-  const seo = gateSeoScore(input);
-  const geo = gateGeoScore(input);
-  const disclaimer = gateDisclaimer(input);
-  const forbidden = gateForbiddenWords(input);
-  const size = gateSize(input);
-  const structure = gateStructure(input);
+  const seo = gateSeoScore(safeInput);
+  const geo = gateGeoScore(safeInput);
+  const disclaimer = gateDisclaimer(safeInput);
+  const forbidden = gateForbiddenWords(safeInput);
+  const size = gateSize(safeInput);
+  const structure = gateStructure(safeInput);
 
   const results = {
     plagiarism,

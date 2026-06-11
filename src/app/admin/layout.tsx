@@ -4,7 +4,7 @@
  * Acesso: ADMIN_EMAILS env ou domínio @dosedegrowth.com
  */
 import Link from "next/link";
-import { LifeBuoy, LogOut, ShieldCheck, Ticket } from "lucide-react";
+import { Database, LifeBuoy, LogOut, ShieldCheck, Ticket } from "lucide-react";
 import { requireAdmin } from "@/lib/auth/admin";
 
 export const metadata = {
@@ -39,6 +39,13 @@ export default async function AdminLayout({
           >
             <Ticket className="w-4 h-4" />
             Tickets
+          </Link>
+          <Link
+            href="/admin/backfill-rag"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-ddg-ink hover:bg-ddg-lime/30 transition-colors"
+          >
+            <Database className="w-4 h-4" />
+            Backfill RAG
           </Link>
           <Link
             href="/dashboard"

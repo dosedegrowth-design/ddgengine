@@ -17,7 +17,8 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { embed } from "@/lib/ai/embeddings";
+import { processBriefingEmbeddings } from "@/lib/rag/brand";
+import { emit } from "@/lib/inngest/client";
 import { slugify } from "@/lib/utils";
 import type { RawAnswers, RefinedBrief } from "@/lib/briefing/questions";
 
@@ -158,18 +159,47 @@ export async function POST(req: NextRequest) {
       briefingId = created.id;
     }
 
-    // Se completed → gera embedding pro Brand RAG
-    if (body.completion_status === "completed" && body.refined_brief) {
-      try {
-        const embText = briefToEmbeddingText(body.refined_brief);
-        const embedding = await embed(embText);
-        await supabase
-          .from("briefings")
-          .update({ embedding })
-          .eq("id", briefingId);
-      } catch (err) {
-        console.error("[/api/briefing/save] embedding falhou:", err);
-        // não falha o save por causa do embedding
+    // Se completed → processa Brand RAG (chunks → embeddings → brand_documents)
+    if (body.completion_status === "completed") {
+      // 1) Tenta disparar Inngest (preferido — durable, retry, fora do request).
+      //    Se INNGEST_EVENT_KEY não estiver setado, o send retorna sem erro
+      //    mas nada acontece — por isso temos o fallback inline abaixo.
+      let inngestDispatched = false;
+      if (process.env.INNGEST_EVENT_KEY) {
+        try {
+          await emit({
+            name: "ddg/briefing.embed",
+            data: { briefing_id: briefingId },
+          });
+          inngestDispatched = true;
+        } catch (err) {
+          console.warn(
+            "[/api/briefing/save] inngest dispatch falhou, vai cair no inline:",
+            err instanceof Error ? err.message : err
+          );
+        }
+      }
+
+      // 2) Fallback inline: roda direto no contexto do request.
+      //    Adiciona ~5-15s ao submit final mas é o passo onde o user
+      //    espera "calculando voz da marca" — tolerável em UX.
+      //    Se falhar, marca como pending e cliente pode pedir re-trigger
+      //    via backfill admin (ou tenta de novo no proximo save).
+      if (!inngestDispatched) {
+        try {
+          await processBriefingEmbeddings(briefingId);
+        } catch (err) {
+          console.error(
+            "[/api/briefing/save] processBriefingEmbeddings falhou:",
+            err instanceof Error ? err.message : err
+          );
+          // Marca status como 'failed' pra backfill identificar
+          await supabase
+            .from("briefings")
+            .update({ embedding_status: "failed" })
+            .eq("id", briefingId);
+          // NÃO falha o save — briefing tá salvo, RAG pode ser feito depois
+        }
       }
     }
 
@@ -211,26 +241,6 @@ function mapRefinedToLegacy(brief: RefinedBrief) {
       brief.positioning?.differentials?.[0] ||
       null,
   };
-}
-
-/**
- * Texto plano consolidado pra gerar embedding (Brand RAG).
- */
-function briefToEmbeddingText(brief: RefinedBrief): string {
-  const parts: string[] = [];
-  if (brief.identity?.elevator_pitch) parts.push(brief.identity.elevator_pitch);
-  if (brief.audience?.ideal_customer) parts.push(`Cliente ideal: ${brief.audience.ideal_customer}`);
-  if (brief.audience?.main_pain) parts.push(`Dor: ${brief.audience.main_pain}`);
-  if (brief.positioning?.unique_value) parts.push(`Valor único: ${brief.positioning.unique_value}`);
-  if (brief.positioning?.differentials?.length)
-    parts.push(`Diferenciais: ${brief.positioning.differentials.join("; ")}`);
-  if (brief.voice?.tone) parts.push(`Tom: ${brief.voice.tone}`);
-  if (brief.voice?.style_notes) parts.push(brief.voice.style_notes);
-  if (brief.seo?.primary_keywords?.length)
-    parts.push(`Keywords: ${brief.seo.primary_keywords.join(", ")}`);
-  if (brief.storytelling?.case_summaries?.length)
-    parts.push(`Cases: ${brief.storytelling.case_summaries.join(" | ")}`);
-  return parts.join("\n\n");
 }
 
 function extractDomain(url: string): string {

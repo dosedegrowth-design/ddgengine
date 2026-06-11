@@ -23,12 +23,15 @@ interface Props {
   tokens: BrandTokens;
   orgSlug: string;
   orgName: string;
+  /** Prefixo dos links. "" no subdomínio, "/blog/{orgSlug}" no preview. */
+  basePath: string;
   children: React.ReactNode;
 }
 
-export function BlogShell({ template, tokens, orgSlug, orgName, children }: Props) {
+export function BlogShell({ template, tokens, orgSlug, orgName, basePath, children }: Props) {
   const style = brandTokensToCSSVars(tokens);
   const bodyClass = TEMPLATE_BODY_CLASS[template];
+  void orgSlug; // mantido na assinatura por compat; links usam basePath
 
   return (
     <div className={`min-h-screen ${bodyClass}`} style={style}>
@@ -38,7 +41,7 @@ export function BlogShell({ template, tokens, orgSlug, orgName, children }: Prop
         <link rel="stylesheet" href={tokens.font_url} />
       )}
 
-      <SiteHeader template={template} orgSlug={orgSlug} orgName={orgName} />
+      <SiteHeader template={template} basePath={basePath} orgName={orgName} />
 
       <main>{children}</main>
 
@@ -49,11 +52,11 @@ export function BlogShell({ template, tokens, orgSlug, orgName, children }: Prop
 
 function SiteHeader({
   template,
-  orgSlug,
+  basePath,
   orgName,
 }: {
   template: BlogTemplate;
-  orgSlug: string;
+  basePath: string;
   orgName: string;
 }) {
   const headerClass =
@@ -77,11 +80,11 @@ function SiteHeader({
   return (
     <header className={headerClass}>
       <div className="container mx-auto max-w-5xl px-6 h-14 flex items-center justify-between">
-        <Link href={`/blog/${orgSlug}`} className={linkClass}>
+        <Link href={basePath || "/"} className={linkClass}>
           {orgName}
         </Link>
         <Link
-          href={`/blog/${orgSlug}/search`}
+          href={`${basePath}/search`}
           className="text-sm text-current/70 hover:opacity-100 opacity-70"
         >
           Buscar

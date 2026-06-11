@@ -1,16 +1,16 @@
 "use server";
 
 /**
- * Server actions do wizard de conexão de domínio.
+ * Server actions do wizard de conexão de domínio (modelo SUBDOMÍNIO + CNAME).
  *
  * Step 1: initiateDomainConnection
- *   - Cria zona Cloudflare na conta master
- *   - Salva zone_id + nameservers em sites
- *   - state: preview → zone_created
+ *   - Define blog_host = blog.{domain} + cname_target
+ *   - Adiciona o domínio no projeto Vercel (addProjectDomain)
+ *   - Salva subdomain/blog_host/cname_target + state: cname_pending
  *
- * Step 3: verifyDomainConnection
- *   - Lê estado da zona no Cloudflare
- *   - Se 'active' = DNS propagado → deploya Worker → state: active
+ * Step 2 (verificar): verifyDomainConnection
+ *   - Lê status do domínio na Vercel (CNAME apontado + SSL pronto?)
+ *   - Se verified → cname_verified=true + state: active
  *   - Senão → state: verifying (cron checa periodicamente)
  *
  * Erros caem em integration_state='error' pra UI mostrar.
@@ -18,12 +18,19 @@
 import { revalidatePath } from "next/cache";
 import { getCurrentSite } from "@/lib/auth";
 import { createServiceClient } from "@/lib/supabase/server";
-import { createZone, getZone, findZoneByDomain } from "@/lib/cloudflare/api";
-import { deployWorkerForSite } from "@/lib/cloudflare/deploy";
+import {
+  addProjectDomain,
+  getProjectDomainStatus,
+} from "@/lib/vercel/domains";
 import {
   sendConciergeRequestedToTeam,
   sendConciergeConfirmationToClient,
 } from "@/lib/notifications/concierge-emails";
+
+/** Alvo do CNAME que o cliente aponta (branded, future-proof). */
+const CNAME_TARGET = process.env.BLOG_CNAME_TARGET ?? "cname.conteudai.com.br";
+/** Subdomínio padrão onde o blog vive. */
+const BLOG_SUBDOMAIN = "blog";
 
 export async function initiateDomainConnection(siteId: string) {
   const { site } = await getCurrentSite();
@@ -31,23 +38,30 @@ export async function initiateDomainConnection(siteId: string) {
   if (!site.domain) return { error: "Site sem domínio configurado" };
 
   const admin = createServiceClient();
+  const apex = (site.domain as string).replace(/^www\./, "");
+  const blogHost = `${BLOG_SUBDOMAIN}.${apex}`;
 
   try {
-    // Idempotente: se já criamos zona pra esse domínio, reusa
-    let zone = await findZoneByDomain(site.domain);
-    if (!zone) {
-      zone = await createZone(site.domain);
+    // Adiciona o subdomínio no projeto Vercel (idempotente).
+    // Vercel emite SSL automático assim que o CNAME apontar.
+    const added = await addProjectDomain(blogHost);
+    if (!added.ok) {
+      await admin
+        .from("sites")
+        .update({ integration_state: "error" })
+        .eq("id", siteId);
+      return { error: added.error ?? "Falha ao registrar o subdomínio" };
     }
-
-    // Lê NS da zona (Cloudflare atribui 2 NS aleatórios da pool)
-    const fullZone = await getZone(zone.id);
 
     const { error } = await admin
       .from("sites")
       .update({
-        cloudflare_zone_id: zone.id,
-        cloudflare_nameservers: fullZone.name_servers,
-        integration_state: "zone_created",
+        subdomain: BLOG_SUBDOMAIN,
+        blog_host: blogHost,
+        cname_target: CNAME_TARGET,
+        vercel_domain_added: true,
+        cname_verified: false,
+        integration_state: "cname_pending",
         integration_started_at: new Date().toISOString(),
       })
       .eq("id", siteId);
@@ -56,7 +70,12 @@ export async function initiateDomainConnection(siteId: string) {
 
     revalidatePath("/settings/integration");
     revalidatePath("/dashboard");
-    return { success: true, nameservers: fullZone.name_servers };
+    return {
+      success: true,
+      blogHost,
+      cnameName: BLOG_SUBDOMAIN,
+      cnameTarget: CNAME_TARGET,
+    };
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Erro ao iniciar conexão";
     await admin
@@ -70,19 +89,18 @@ export async function initiateDomainConnection(siteId: string) {
 export async function verifyDomainConnection(siteId: string) {
   const { site } = await getCurrentSite();
   if (!site || site.id !== siteId) return { error: "Site não autorizado" };
-  if (!site.cloudflare_zone_id) {
-    return { error: "Zona ainda não foi criada. Volte ao Passo 1." };
+  const blogHost = site.blog_host as string | null;
+  if (!blogHost) {
+    return { error: "Conexão ainda não iniciada. Volte ao Passo 1." };
   }
 
   const admin = createServiceClient();
 
   try {
-    const zone = await getZone(site.cloudflare_zone_id as string);
+    const status = await getProjectDomainStatus(blogHost);
 
-    // Cloudflare valida nameservers automaticamente. Quando status='active',
-    // significa que o cliente já trocou os NS no registrador e a propagação completou.
-    if (zone.status !== "active") {
-      // Ainda propagando — atualiza state pra "verifying" pro banner mudar
+    if (!status.verified) {
+      // CNAME ainda não apontou / propagou → verifying (cron re-checa)
       await admin
         .from("sites")
         .update({ integration_state: "verifying" })
@@ -92,22 +110,16 @@ export async function verifyDomainConnection(siteId: string) {
       return { verified: false };
     }
 
-    // Zona ativa → deploya Worker + marca status
-    const deployResult = await deployWorkerForSite(siteId);
-    if (!deployResult.success) {
-      await admin
-        .from("sites")
-        .update({ integration_state: "error" })
-        .eq("id", siteId);
-      return { error: deployResult.error ?? "Falha ao ativar integração" };
-    }
-
+    // CNAME apontado + SSL pronto → ativa
     await admin
       .from("sites")
       .update({
+        cname_verified: true,
+        cname_verified_at: new Date().toISOString(),
         integration_state: "active",
         integration_activated_at: new Date().toISOString(),
         status: "active",
+        proxy_method: "subdomain",
       })
       .eq("id", siteId);
 
@@ -117,7 +129,7 @@ export async function verifyDomainConnection(siteId: string) {
     return { verified: true };
   } catch (err) {
     const msg =
-      err instanceof Error ? err.message : "Erro ao verificar propagação DNS";
+      err instanceof Error ? err.message : "Erro ao verificar o CNAME";
     return { error: msg };
   }
 }

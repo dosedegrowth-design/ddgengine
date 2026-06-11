@@ -9,6 +9,7 @@ import { formatDate } from "@/lib/utils";
 import { CategoryNav } from "@/components/blog/category-nav";
 import { BlogShell } from "@/components/blog/blog-shell";
 import { loadBlogShellContext } from "@/lib/blog/load-shell-context";
+import { getBlogBasePath } from "@/lib/blog/base-path";
 
 interface Params {
   orgSlug: string;
@@ -64,6 +65,8 @@ export default async function CategoryPage({
     .maybeSingle();
   if (!org) notFound();
 
+  const basePath = await getBlogBasePath(org.slug);
+
   const { template, tokens, siteIds } = await loadBlogShellContext(org.id);
   if (siteIds.length === 0) notFound();
 
@@ -96,11 +99,11 @@ export default async function CategoryPage({
   const list = posts ?? [];
 
   return (
-    <BlogShell template={template} tokens={tokens} orgSlug={org.slug} orgName={org.name}>
+    <BlogShell template={template} tokens={tokens} orgSlug={org.slug} orgName={org.name} basePath={basePath}>
       <div className="container mx-auto max-w-4xl px-6 py-12">
         {/* Breadcrumb */}
         <Link
-          href={`/blog/${orgSlug}`}
+          href={basePath || "/"}
           className="inline-flex items-center gap-1.5 text-sm opacity-60 hover:opacity-100 mb-8 transition-opacity"
         >
           <ChevronLeft className="w-4 h-4" /> Blog
@@ -128,6 +131,7 @@ export default async function CategoryPage({
         {/* Menu de categorias */}
         <CategoryNav
           orgSlug={orgSlug}
+          basePath={basePath}
           categories={allCategories ?? []}
           activeCatSlug={catSlug}
         />
@@ -142,7 +146,7 @@ export default async function CategoryPage({
             {list.map((p) => (
               <Link
                 key={p.id}
-                href={`/blog/${orgSlug}/${p.slug}`}
+                href={`${basePath}/${p.slug}`}
                 className="flex gap-4 p-4 rounded-lg border bg-card hover:shadow-md transition-all"
               >
                 {p.og_image_url && (

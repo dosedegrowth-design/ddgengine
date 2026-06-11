@@ -13,6 +13,7 @@ import { formatDate } from "@/lib/utils";
 import { CategoryNav } from "@/components/blog/category-nav";
 import { BlogShell } from "@/components/blog/blog-shell";
 import { loadBlogShellContext } from "@/lib/blog/load-shell-context";
+import { getBlogBasePath } from "@/lib/blog/base-path";
 
 export const dynamic = "force-dynamic";
 
@@ -39,6 +40,8 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
     .eq("slug", orgSlug)
     .maybeSingle();
   if (!org) notFound();
+
+  const basePath = await getBlogBasePath(org.slug);
 
   const { template, tokens, siteIds } = await loadBlogShellContext(org.id);
   if (siteIds.length === 0) notFound();
@@ -78,10 +81,10 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
   }
 
   return (
-    <BlogShell template={template} tokens={tokens} orgSlug={org.slug} orgName={org.name}>
+    <BlogShell template={template} tokens={tokens} orgSlug={org.slug} orgName={org.name} basePath={basePath}>
       <div className="container mx-auto max-w-4xl px-6 py-12">
         <Link
-          href={`/blog/${orgSlug}`}
+          href={basePath || "/"}
           className="inline-flex items-center gap-1.5 text-sm opacity-60 hover:opacity-100 mb-8 transition-opacity"
         >
           <ChevronLeft className="w-4 h-4" /> Blog
@@ -97,7 +100,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
           </h1>
           <form
             method="GET"
-            action={`/blog/${orgSlug}/search`}
+            action={`${basePath}/search`}
             className="flex gap-2 max-w-md mt-4"
           >
             <input
@@ -117,7 +120,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
           </form>
         </header>
 
-        <CategoryNav orgSlug={orgSlug} categories={categories ?? []} />
+        <CategoryNav orgSlug={orgSlug} basePath={basePath} categories={categories ?? []} />
 
         {!q ? (
           <p className="text-center py-12 text-muted-foreground mt-8">
@@ -135,7 +138,7 @@ export default async function SearchPage({ params, searchParams }: PageProps) {
             {hits.map((p) => (
               <Link
                 key={p.id}
-                href={`/blog/${orgSlug}/${p.slug}`}
+                href={`${basePath}/${p.slug}`}
                 className="flex gap-4 p-4 rounded-lg border bg-card hover:shadow-md transition-all"
               >
                 {p.og_image_url && (

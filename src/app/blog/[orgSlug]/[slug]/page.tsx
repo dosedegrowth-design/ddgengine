@@ -10,6 +10,7 @@ import { SocialShare } from "@/components/blog/social-share";
 import { NewsletterForm } from "@/components/blog/newsletter-form";
 import { BlogShell } from "@/components/blog/blog-shell";
 import { loadBlogShellContext } from "@/lib/blog/load-shell-context";
+import { getBlogBasePath } from "@/lib/blog/base-path";
 
 interface Params {
   orgSlug: string;
@@ -89,6 +90,8 @@ export default async function BlogPostPage({
 
   if (!org) notFound();
 
+  const basePath = await getBlogBasePath(org.slug);
+
   const { template, tokens, siteIds } = await loadBlogShellContext(org.id);
 
   const { data: post } = await supabase
@@ -126,7 +129,7 @@ export default async function BlogPostPage({
   const fullUrl = `${baseUrl}/blog/${org.slug}/${slug}`;
 
   return (
-    <BlogShell template={template} tokens={tokens} orgSlug={org.slug} orgName={org.name}>
+    <BlogShell template={template} tokens={tokens} orgSlug={org.slug} orgName={org.name} basePath={basePath}>
       <ReadingProgress />
 
       {/* Schema markup */}
@@ -141,14 +144,14 @@ export default async function BlogPostPage({
       <article className="container mx-auto max-w-3xl px-6 py-12 md:py-16">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-8" aria-label="Breadcrumb">
-          <Link href={`/blog/${org.slug}`} className="hover:text-foreground transition-colors">
+          <Link href={basePath || "/"} className="hover:text-foreground transition-colors">
             Blog
           </Link>
           {category && (
             <>
               <span>/</span>
               <Link
-                href={`/blog/${org.slug}/categoria/${category.slug}`}
+                href={`${basePath}/categoria/${category.slug}`}
                 className="hover:text-foreground transition-colors"
               >
                 {category.name}
@@ -167,7 +170,7 @@ export default async function BlogPostPage({
               <>
                 {" · "}
                 <Link
-                  href={`/blog/${org.slug}/categoria/${category.slug}`}
+                  href={`${basePath}/categoria/${category.slug}`}
                   className="opacity-100 hover:underline"
                   style={{ color: "var(--blog-accent)" }}
                 >
@@ -220,7 +223,7 @@ export default async function BlogPostPage({
                 return (
                   <Link
                     key={r.id}
-                    href={`/blog/${org.slug}/${r.slug}`}
+                    href={`${basePath}/${r.slug}`}
                     className="blog-card block rounded-lg border border-current/10 overflow-hidden hover:opacity-90 transition-all"
                   >
                     {img && (

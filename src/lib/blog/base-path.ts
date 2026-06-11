@@ -1,0 +1,35 @@
+/**
+ * basePath do blog — resolve o prefixo de URL dos links do blog conforme
+ * onde ele está sendo servido:
+ *
+ *  - Subdomínio (blog.cliente.com.br): basePath = "" (links na raiz do subdomínio)
+ *  - Preview/nosso domínio (conteudai.com.br/blog/{orgSlug}): basePath = "/blog/{orgSlug}"
+ *
+ * O middleware (proxy.ts) seta o header `x-blog-subdomain` quando a request
+ * vem de um subdomínio de cliente. As pages leem esse header pra decidir o
+ * basePath e gerar links limpos.
+ */
+import { headers } from "next/headers";
+
+export const BLOG_SUBDOMAIN_HEADER = "x-blog-subdomain";
+
+/**
+ * Retorna o prefixo de URL pros links do blog.
+ * Chamar nas Server Components das pages do blog.
+ */
+export async function getBlogBasePath(orgSlug: string): Promise<string> {
+  const h = await headers();
+  const subdomainHost = h.get(BLOG_SUBDOMAIN_HEADER);
+  // Servindo via subdomínio do cliente → links na raiz
+  if (subdomainHost) return "";
+  // Servindo no nosso domínio → prefixo /blog/{orgSlug}
+  return `/blog/${orgSlug}`;
+}
+
+/**
+ * Versão síncrona pra quando já se tem o host (ex: dentro do middleware
+ * ou quando o header já foi lido). Não usa next/headers.
+ */
+export function blogBasePathFor(orgSlug: string, isSubdomain: boolean): string {
+  return isSubdomain ? "" : `/blog/${orgSlug}`;
+}

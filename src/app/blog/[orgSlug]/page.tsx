@@ -5,6 +5,7 @@ import { formatDate } from "@/lib/utils";
 import { CategoryNav } from "@/components/blog/category-nav";
 import { BlogShell } from "@/components/blog/blog-shell";
 import { loadBlogShellContext } from "@/lib/blog/load-shell-context";
+import { getBlogBasePath } from "@/lib/blog/base-path";
 
 interface Params {
   orgSlug: string;
@@ -55,6 +56,8 @@ export default async function BlogIndexPage({
 
   if (!org) notFound();
 
+  const basePath = await getBlogBasePath(org.slug);
+
   const { template, tokens, siteIds } = await loadBlogShellContext(org.id);
 
   // Categorias do site pra menu
@@ -85,7 +88,7 @@ export default async function BlogIndexPage({
   const list = (posts ?? []) as PostListItem[];
 
   return (
-    <BlogShell template={template} tokens={tokens} orgSlug={org.slug} orgName={org.name}>
+    <BlogShell template={template} tokens={tokens} orgSlug={org.slug} orgName={org.name} basePath={basePath}>
       <div className="container mx-auto max-w-4xl px-6 py-16">
         <header className="mb-12 text-center space-y-4">
           <h1 className="text-4xl md:text-5xl tracking-tight">
@@ -94,7 +97,7 @@ export default async function BlogIndexPage({
           <p className="opacity-70">
             Conteúdo de {org.name}
           </p>
-          <form method="GET" action={`/blog/${org.slug}/search`} className="flex gap-2 max-w-md mx-auto pt-2">
+          <form method="GET" action={`${basePath}/search`} className="flex gap-2 max-w-md mx-auto pt-2">
             <input
               type="search"
               name="q"
@@ -111,7 +114,7 @@ export default async function BlogIndexPage({
         </header>
 
         {/* Menu de categorias */}
-        <CategoryNav orgSlug={org.slug} categories={categories ?? []} />
+        <CategoryNav orgSlug={org.slug} basePath={basePath} categories={categories ?? []} />
 
         {list.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
@@ -122,7 +125,7 @@ export default async function BlogIndexPage({
             {list.map((p) => (
               <Link
                 key={p.id}
-                href={`/blog/${org.slug}/${p.slug}`}
+                href={`${basePath}/${p.slug}`}
                 className="flex gap-4 p-4 rounded-lg border bg-card hover:shadow-md transition-all"
               >
                 {p.og_image_url && (

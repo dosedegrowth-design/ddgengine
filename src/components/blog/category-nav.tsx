@@ -8,12 +8,15 @@ import Link from "next/link";
 
 interface Props {
   orgSlug: string;
+  /** Prefixo dos links. "" no subdomínio, "/blog/{orgSlug}" no preview. */
+  basePath: string;
   categories: Array<{ name: string; slug: string }>;
   activeCatSlug?: string;
 }
 
-export function CategoryNav({ orgSlug, categories, activeCatSlug }: Props) {
+export function CategoryNav({ orgSlug, basePath, categories, activeCatSlug }: Props) {
   if (categories.length === 0) return null;
+  void orgSlug; // compat; links usam basePath
 
   return (
     <nav
@@ -21,7 +24,7 @@ export function CategoryNav({ orgSlug, categories, activeCatSlug }: Props) {
       aria-label="Categorias do blog"
     >
       <Link
-        href={`/blog/${orgSlug}`}
+        href={basePath || "/"}
         className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
           !activeCatSlug
             ? "bg-foreground text-background border-foreground"
@@ -33,7 +36,7 @@ export function CategoryNav({ orgSlug, categories, activeCatSlug }: Props) {
       {categories.map((c) => (
         <Link
           key={c.slug}
-          href={`/blog/${orgSlug}/categoria/${c.slug}`}
+          href={`${basePath}/categoria/${c.slug}`}
           className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
             activeCatSlug === c.slug
               ? "bg-foreground text-background border-foreground"

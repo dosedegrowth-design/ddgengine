@@ -14,8 +14,10 @@
  */
 import { parseJsonResponse } from "./claude";
 import { generateLLMWithFallback as generateWithClaude } from "./with-fallback";
+import { generateHeroImage, buildVisualPromptFromTitle } from "./image-gen";
 import { retrieveBrandContext } from "@/lib/rag/brand";
 import { createServiceClient } from "@/lib/supabase/server";
+import { uploadHeroImage } from "@/lib/storage/post-images";
 import { runAllGates, type QualityGateInput } from "./quality-gates";
 import { slugify } from "@/lib/utils";
 import { dispatchPostPendingReview, dispatchPostPublished } from "@/lib/notifications/dispatcher";
@@ -458,6 +460,36 @@ ${briefing.required_disclaimers ? `Disclaimer obrigatório: ${briefing.required_
         generation_passes: passLogs,
       })
       .eq("id", post.id);
+
+    // Hero image — fire-and-forget. Se falhar, post fica sem og_image_url
+    // (mas continua publicado/em-review normal). User pode regerar manualmente
+    // ou subir a própria imagem pelo editor.
+    void (async () => {
+      try {
+        const vertical = (site.vertical as string | null) ?? undefined;
+        const visualPrompt = buildVisualPromptFromTitle(workingDoc.title, vertical);
+        const img = await generateHeroImage({
+          prompt: visualPrompt,
+          style: "photo",
+          size: "1536x1024",
+        });
+        const uploaded = await uploadHeroImage({
+          postId: post.id,
+          siteId: input.siteId,
+          bytes: img.bytes,
+          contentType: "image/png",
+        });
+        await supabase
+          .from("posts")
+          .update({ og_image_url: uploaded.url })
+          .eq("id", post.id);
+      } catch (err) {
+        console.warn(
+          "[multi-pass] hero image falhou:",
+          err instanceof Error ? err.message : String(err)
+        );
+      }
+    })();
 
     // Dispara notificações (fire-and-forget)
     const orgId = site.organization_id as string;

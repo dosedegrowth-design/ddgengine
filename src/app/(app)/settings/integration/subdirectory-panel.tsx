@@ -101,7 +101,7 @@ export function SubdirectoryPanel({ domain, tenantSlug }: Props) {
           autoridade de SEO. Diferente do subdomínio (que é só 1 registro DNS),
           isso exige uma <strong className="text-ddg-ink">regra de reverse
           proxy</strong> no servidor onde seu site está hospedado. Por isso a
-          gente não deixa você "se virar" — escolhe abaixo:
+          gente não deixa você &ldquo;se virar&rdquo; — escolhe abaixo:
         </p>
       </div>
 

@@ -5,8 +5,6 @@
  * Só admin DDG. Renovar no futuro = acessar /api/google-ads/connect de novo.
  */
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { isAdminEmail } from "@/lib/auth/admin";
 import { setRefreshToken } from "@/lib/seo/keyword-research";
 
 export const runtime = "nodejs";
@@ -18,14 +16,7 @@ function back(req: NextRequest, params: Record<string, string>) {
 }
 
 export async function GET(req: NextRequest) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!isAdminEmail(user?.email)) {
-    return NextResponse.json({ error: "Só admin DDG." }, { status: 403 });
-  }
-
+  // Autorização = state cookie válido (só setado por um /connect autorizado).
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
   const err = url.searchParams.get("error");
@@ -34,7 +25,9 @@ export async function GET(req: NextRequest) {
 
   if (err) return back(req, { gads_error: err });
   if (!code) return back(req, { gads_error: "sem_code" });
-  if (!state || state !== cookieState) return back(req, { gads_error: "state_invalido" });
+  if (!state || !cookieState || state !== cookieState) {
+    return back(req, { gads_error: "state_invalido" });
+  }
 
   const host = req.headers.get("host") ?? "conteudai.com.br";
   const redirectUri = `https://${host}/api/google-ads/callback`;

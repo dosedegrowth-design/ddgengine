@@ -14,12 +14,17 @@ export const runtime = "nodejs";
 const SCOPE = "https://www.googleapis.com/auth/adwords";
 
 export async function GET(req: NextRequest) {
+  // Autoriza por sessão admin OU por chave de setup (?key=) — bootstrap
+  // one-time, libera de qualquer sessão (ex: admin testando como cliente).
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!isAdminEmail(user?.email)) {
-    return NextResponse.json({ error: "Só admin DDG." }, { status: 403 });
+  const key = new URL(req.url).searchParams.get("key");
+  const setupKey = process.env.GOOGLE_ADS_SETUP_KEY;
+  const authorized = isAdminEmail(user?.email) || (setupKey && key === setupKey);
+  if (!authorized) {
+    return NextResponse.json({ error: "Não autorizado." }, { status: 403 });
   }
   if (!hasAppCredentials()) {
     return NextResponse.json(

@@ -20,6 +20,7 @@ import {
   Activity,
   ShieldCheck,
   Lightbulb,
+  Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BrandMarkInverted } from "@/components/brand/brand-mark";
@@ -40,6 +41,7 @@ const NAV_GROUPS: Array<{
     label: "Conteúdo",
     items: [
       { href: "/posts", label: "Posts", icon: FileText },
+      { href: "/palavras-chave", label: "Palavras-chave", icon: Search },
       { href: "/ideias", label: "Ideias", icon: Lightbulb },
       { href: "/briefing", label: "Briefing", icon: ClipboardList },
     ],

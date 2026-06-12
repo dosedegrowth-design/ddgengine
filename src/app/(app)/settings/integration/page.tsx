@@ -19,7 +19,7 @@ import {
   MessageCircle,
   Clock,
 } from "lucide-react";
-import { IntegrationWizard } from "./wizard";
+import { InstallMethodChooser } from "./install-method-chooser";
 import { ConciergeButton } from "./concierge-button";
 
 const CNAME_TARGET = process.env.BLOG_CNAME_TARGET ?? "cname.conteudai.com.br";
@@ -33,6 +33,7 @@ export default async function IntegrationPage() {
   const cnameName = (site.subdomain as string | null) ?? "blog";
   const blogHost = (site.blog_host as string | null) ?? `${cnameName}.${apex}`;
   const cnameTarget = (site.cname_target as string | null) ?? CNAME_TARGET;
+  const tenantSlug = (site.tenant_slug as string | null) ?? "";
 
   return (
     <div className="space-y-6">
@@ -53,15 +54,17 @@ export default async function IntegrationPage() {
       {/* Status atual em destaque */}
       <StatusBlock state={state} blogHost={blogHost} />
 
-      {/* Wizard interativo — escondido se cliente pediu concierge */}
+      {/* Seletor de método (subdomínio self-service / subdiretório avançado)
+          — escondido se cliente já pediu concierge */}
       {state !== "concierge_requested" && (
-        <IntegrationWizard
+        <InstallMethodChooser
           siteId={site.id}
           domain={apex}
           state={state}
           blogHost={blogHost}
           cnameName={cnameName}
           cnameTarget={cnameTarget}
+          tenantSlug={tenantSlug}
         />
       )}
 

@@ -768,6 +768,94 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ===== 2 JEITOS DE INSTALAR ===== */}
+        <section className="bg-ddg-cream border-y-2 border-ddg-ink">
+          <div className="container mx-auto max-w-7xl px-4 lg:px-8 py-24 md:py-32">
+            <div className="max-w-3xl mb-12 md:mb-16">
+              <Reveal>
+                <div className="ddg-bracket mb-5">INSTALAÇÃO</div>
+              </Reveal>
+              <Reveal delay={0.1}>
+                <h2 className="ddg-display text-4xl md:text-6xl text-balance">
+                  Seu blog, no seu domínio.<br />
+                  <span className="text-ddg-muted">Sem risco de quebrar nada.</span>
+                </h2>
+              </Reveal>
+              <Reveal delay={0.2}>
+                <p className="text-lg text-ddg-muted mt-5 max-w-2xl">
+                  A gente nunca toca no seu site, no seu www ou no seu email. Você
+                  escolhe onde o blog vive — e os dois jeitos são seguros.
+                </p>
+              </Reveal>
+            </div>
+
+            <StaggerGroup className="grid md:grid-cols-2 gap-5" stagger={0.1}>
+              <StaggerItem>
+                <div className="h-full p-6 md:p-8 rounded-2xl border-2 border-ddg-ink bg-ddg-paper shadow-[5px_5px_0_var(--ddg-ink)]">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="ddg-bracket">SUBDOMÍNIO</div>
+                    <span className="ddg-pill-lime text-[10px]">RECOMENDADO</span>
+                  </div>
+                  <code className="block font-mono text-xl md:text-2xl font-black text-ddg-ink mb-3">
+                    blog.suaempresa.com.br
+                  </code>
+                  <p className="text-sm md:text-base text-ddg-muted leading-relaxed mb-5">
+                    Você adiciona <strong className="text-ddg-ink">1 registro
+                    CNAME</strong> no painel do seu domínio (a gente guia
+                    passo-a-passo). Pronto em ~5 minutos. Funciona em qualquer
+                    site — WordPress, Wix, Shopify, o que for.
+                  </p>
+                  <ul className="space-y-2 text-sm">
+                    {[
+                      "Você mesmo faz, sem depender de ninguém",
+                      "Não troca nameserver, não mexe no site",
+                      "SSL automático, sem custo extra",
+                    ].map((t) => (
+                      <li key={t} className="flex items-start gap-2 text-ddg-muted">
+                        <Check className="w-4 h-4 text-ddg-lime-deep mt-0.5 shrink-0" />
+                        <span>{t}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </StaggerItem>
+
+              <StaggerItem>
+                <div className="h-full p-6 md:p-8 rounded-2xl border-2 border-ddg-ink bg-ddg-paper">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="ddg-bracket">SUBDIRETÓRIO</div>
+                    <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-ddg-stone text-ddg-muted">
+                      AVANÇADO
+                    </span>
+                  </div>
+                  <code className="block font-mono text-xl md:text-2xl font-black text-ddg-ink mb-3">
+                    suaempresa.com.br/blog
+                  </code>
+                  <p className="text-sm md:text-base text-ddg-muted leading-relaxed mb-5">
+                    Pra quem quer o blog no caminho do domínio raiz. Exige uma
+                    config no servidor do seu site — então{" "}
+                    <strong className="text-ddg-ink">a gente configura pra
+                    você</strong> (ou passa o código pronto pro seu dev). Nunca
+                    é "se vira aí".
+                  </p>
+                  <ul className="space-y-2 text-sm">
+                    {[
+                      "Time DDG instala em até 24h úteis",
+                      "Ou código pronto pro seu desenvolvedor",
+                      "Resto do site 100% intocado",
+                    ].map((t) => (
+                      <li key={t} className="flex items-start gap-2 text-ddg-muted">
+                        <Check className="w-4 h-4 text-ddg-lime-deep mt-0.5 shrink-0" />
+                        <span>{t}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </StaggerItem>
+            </StaggerGroup>
+          </div>
+        </section>
+
         {/* ===== TESTIMONIALS — DARK ===== */}
         <section className="bg-ddg-ink text-ddg-paper border-y-2 border-ddg-ink">
           <div className="container mx-auto max-w-7xl px-4 lg:px-8 py-24 md:py-32">

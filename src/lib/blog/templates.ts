@@ -81,8 +81,8 @@ const TEMPLATE_DEFAULTS: Record<BlogTemplate, BrandTokens> = {
     font_family: '"Inter", system-ui, sans-serif',
   },
   bold: {
-    primary_color: "#000000",
-    accent_color: "#c8ff3d", // lime
+    primary_color: "#111827", // gray-900 (NÃO a paleta DDG)
+    accent_color: "#f59e0b", // amber-500 (neutro forte, não o lime DDG)
     font_family: '"Space Grotesk", "Inter", sans-serif',
   },
 };

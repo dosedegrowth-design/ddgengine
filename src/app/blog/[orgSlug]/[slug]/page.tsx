@@ -230,7 +230,7 @@ export default async function BlogPostPage({
         )}
 
         <div
-          className="prose prose-neutral dark:prose-invert max-w-none prose-headings:tracking-tight prose-h2:mt-12 prose-h2:mb-4 prose-h3:mt-8 prose-h3:mb-3 prose-p:leading-relaxed prose-a:underline prose-a:underline-offset-2 prose-code:before:hidden prose-code:after:hidden"
+          className="blog-prose prose prose-neutral max-w-none prose-headings:tracking-tight prose-h2:mt-12 prose-h2:mb-4 prose-h3:mt-8 prose-h3:mb-3 prose-p:leading-relaxed prose-a:underline prose-a:underline-offset-2 prose-code:before:hidden prose-code:after:hidden"
           dangerouslySetInnerHTML={{ __html: html }}
         />
 

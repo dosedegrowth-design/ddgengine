@@ -408,3 +408,27 @@
 .blog-bold h1, .blog-bold h2 { font-weight: 900; letter-spacing: -0.04em; }
 .blog-bold .blog-card { border: 3px solid var(--blog-primary); box-shadow: 4px 4px 0 var(--blog-primary); }
 .blog-bold .blog-card:hover { transform: translate(-1px, -1px); box-shadow: 6px 6px 0 var(--blog-primary); }
+
+/* === Blog SEMPRE tema claro — nunca herda dark mode do navegador (senão
+      o prose-invert deixava texto claro sobre fundo claro = invisível) === */
+.blog-editorial, .blog-magazine, .blog-minimal, .blog-bold {
+  color-scheme: light;
+}
+
+/* === Corpo do post: ALTO CONTRASTE + cores da marca do cliente === */
+.blog-prose { color: #1c1917; }                 /* fallback near-black */
+.blog-prose p,
+.blog-prose li,
+.blog-prose blockquote { color: #27272a; }       /* zinc-800 — alto contraste */
+.blog-prose h1,
+.blog-prose h2,
+.blog-prose h3,
+.blog-prose h4 { color: var(--blog-primary); }   /* títulos na cor da marca */
+.blog-prose strong { color: #18181b; font-weight: 700; }
+.blog-prose a { color: var(--blog-primary); text-decoration-color: var(--blog-accent); }
+.blog-prose blockquote {
+  border-left: 4px solid var(--blog-accent);
+  font-style: normal;
+}
+.blog-prose ul > li::marker { color: var(--blog-accent); }
+.blog-prose ol > li::marker { color: var(--blog-primary); }

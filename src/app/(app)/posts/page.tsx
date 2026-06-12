@@ -3,14 +3,13 @@
  */
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, FileText, Sparkles, ExternalLink } from "lucide-react";
+import { ArrowRight, FileText, Sparkles } from "lucide-react";
 import { getCurrentSite } from "@/lib/auth";
 import { GeneratePostButton } from "@/components/dashboard/generate-post-button";
 import { SuggestionsBar } from "@/components/dashboard/suggestions-bar";
 import { PageHeader } from "@/components/dashboard/page-header";
-import { StatusBadge } from "@/components/dashboard/status-badge";
 import { EmptyState } from "@/components/dashboard/empty-state";
-import { formatRelativeTime } from "@/lib/utils";
+import { PostListItem } from "@/components/dashboard/post-list-item";
 import { suggestTopics } from "@/lib/briefing/suggest-topics";
 
 const TYPE_LABEL: Record<string, string> = {
@@ -115,55 +114,17 @@ export default async function PostsPage() {
           <ul className="space-y-2">
             {posts.map((p) => (
               <li key={p.id}>
-                <Link
-                  href={`/posts/${p.id}`}
-                  className="block p-4 rounded-xl border-2 border-ddg-ink bg-ddg-paper hover:bg-ddg-cream hover:-translate-y-0.5 hover:shadow-[3px_3px_0_var(--ddg-ink)] transition-all group"
-                >
-                  <div className="flex items-start gap-4">
-                    {/* Thumb da imagem hero (ou placeholder lime) */}
-                    <div className="shrink-0 w-24 h-16 rounded-lg border-2 border-ddg-ink bg-ddg-stone overflow-hidden">
-                      {p.og_image_url ? (
-                        <img
-                          src={p.og_image_url}
-                          alt=""
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-ddg-lime/20 flex items-center justify-center">
-                          <FileText className="w-5 h-5 text-ddg-lime-deep opacity-50" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 mb-2 flex-wrap">
-                        <span className="text-[9px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded-full bg-ddg-stone text-ddg-muted">
-                          {TYPE_LABEL[p.type] ?? p.type}
-                        </span>
-                        <StatusBadge status={p.status} />
-                      </div>
-                      <div className="font-bold text-base text-ddg-ink truncate group-hover:text-ddg-lime-deep transition-colors">
-                        {p.title ?? "Sem título"}
-                      </div>
-                      <div className="text-xs font-mono uppercase tracking-widest text-ddg-muted mt-1.5">
-                        {p.status === "published" && p.published_at
-                          ? `Publicado ${formatRelativeTime(p.published_at)}`
-                          : `Criado ${formatRelativeTime(p.created_at)}`}
-                      </div>
-                    </div>
-                    {p.status === "published" && p.slug && org.slug && (
-                      <Link
-                        href={`/blog/${org.slug}/${p.slug}`}
-                        target="_blank"
-                        className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border-2 border-ddg-ink text-ddg-ink text-xs font-medium hover:bg-ddg-ink hover:text-ddg-paper transition-colors"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <ExternalLink className="w-3 h-3" />
-                        Ver post
-                      </Link>
-                    )}
-                  </div>
-                </Link>
+                <PostListItem
+                  id={p.id}
+                  slug={p.slug}
+                  title={p.title}
+                  typeLabel={TYPE_LABEL[p.type] ?? p.type}
+                  status={p.status}
+                  createdAt={p.created_at}
+                  publishedAt={p.published_at}
+                  ogImageUrl={p.og_image_url}
+                  orgSlug={org.slug}
+                />
               </li>
             ))}
           </ul>

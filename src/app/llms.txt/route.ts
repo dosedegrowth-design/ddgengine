@@ -79,9 +79,9 @@ A primeira plataforma brasileira de visibilidade em IA + Google. Conecta seu sit
 
 ## Pricing
 
-- Starter: R$ 97/mês — 4 artigos + 8 FAQs
+- Starter: R$ 119,99/mês — 4 artigos + 8 FAQs
 - Light: R$ 197/mês — 6 artigos + 12 FAQs
-- Pro: R$ 297/mês — 8 artigos + 16 FAQs + WhatsApp
+- Pro: R$ 349,99/mês — 8 artigos + 16 FAQs + WhatsApp
 - Multi: R$ 897/mês — 3 sites
 
 `;

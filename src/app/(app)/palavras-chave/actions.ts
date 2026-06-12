@@ -22,3 +22,14 @@ export async function keywordIdeasAction(seed: string): Promise<KeywordResearchR
 export async function keywordResearchConfigured(): Promise<boolean> {
   return isConfigured();
 }
+
+export async function keywordConnectionStatus(): Promise<{
+  hasAppCredentials: boolean;
+  connected: boolean;
+}> {
+  const { hasAppCredentials, getRefreshToken } = await import(
+    "@/lib/seo/keyword-research"
+  );
+  const connected = Boolean(await getRefreshToken());
+  return { hasAppCredentials: hasAppCredentials(), connected };
+}

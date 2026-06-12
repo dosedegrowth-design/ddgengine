@@ -10,7 +10,10 @@
  */
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
-import { BLOG_SUBDOMAIN_HEADER } from "@/lib/blog/base-path";
+import {
+  BLOG_SUBDOMAIN_HEADER,
+  BLOG_BASEPATH_HEADER,
+} from "@/lib/blog/base-path";
 
 /** Hosts que são o NOSSO app (não subdomínio de cliente). */
 const APP_HOSTS = new Set([
@@ -63,6 +66,25 @@ async function resolveOrgSlugByHost(host: string): Promise<string | null> {
 export async function proxy(request: NextRequest) {
   const rawHost = request.headers.get("host") ?? "";
   const host = rawHost.toLowerCase().split(":")[0];
+  const pathname = request.nextUrl.pathname;
+
+  // Modo SUBDIRETÓRIO: o site do cliente (ex: petdermafood.com.br) faz reverse
+  // proxy de /blog/* pra cá em /_ext/{orgSlug}/*. Reescreve internamente pro
+  // /blog/{orgSlug}/* e marca basePath="/blog" pra os links saírem como
+  // cliente.com.br/blog/{slug}.
+  if (pathname.startsWith("/_ext/")) {
+    const rest = pathname.slice("/_ext/".length); // {orgSlug}/{...}
+    const slash = rest.indexOf("/");
+    const orgSlug = slash === -1 ? rest : rest.slice(0, slash);
+    const tail = slash === -1 ? "" : rest.slice(slash);
+    if (!orgSlug) return await updateSession(request);
+
+    const url = request.nextUrl.clone();
+    url.pathname = `/blog/${orgSlug}${tail}`;
+    const reqHeaders = new Headers(request.headers);
+    reqHeaders.set(BLOG_BASEPATH_HEADER, "/blog");
+    return NextResponse.rewrite(url, { request: { headers: reqHeaders } });
+  }
 
   // Caminho 1: nosso app → auth normal
   if (isAppHost(host)) {

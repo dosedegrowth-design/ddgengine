@@ -12,17 +12,22 @@
 import { headers } from "next/headers";
 
 export const BLOG_SUBDOMAIN_HEADER = "x-blog-subdomain";
+/** Setado pelo middleware no modo subdiretório (ex: "/blog") */
+export const BLOG_BASEPATH_HEADER = "x-blog-basepath";
 
 /**
- * Retorna o prefixo de URL pros links do blog.
- * Chamar nas Server Components das pages do blog.
+ * Retorna o prefixo de URL pros links do blog. 3 modos:
+ *  - Subdiretório (header x-blog-basepath, ex "/blog"): usa esse prefixo →
+ *    links viram /blog/{slug} no domínio do cliente.
+ *  - Subdomínio (header x-blog-subdomain): "" → links na raiz.
+ *  - Preview (nosso domínio): /blog/{orgSlug}.
  */
 export async function getBlogBasePath(orgSlug: string): Promise<string> {
   const h = await headers();
+  const explicitBase = h.get(BLOG_BASEPATH_HEADER);
+  if (explicitBase) return explicitBase;
   const subdomainHost = h.get(BLOG_SUBDOMAIN_HEADER);
-  // Servindo via subdomínio do cliente → links na raiz
   if (subdomainHost) return "";
-  // Servindo no nosso domínio → prefixo /blog/{orgSlug}
   return `/blog/${orgSlug}`;
 }
 

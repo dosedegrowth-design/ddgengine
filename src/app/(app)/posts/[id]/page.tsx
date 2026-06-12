@@ -6,7 +6,9 @@ import { formatDate } from "@/lib/utils";
 import { PostEditor } from "./post-editor";
 import { DeleteFailedPostButton } from "./failed-actions";
 import { HeroImagePicker } from "./hero-image-picker";
+import { SeoReport } from "./seo-report";
 import { StatusBadge } from "@/components/dashboard/status-badge";
+import { analyzePost } from "@/lib/seo/analyze-post";
 
 export default async function PostDetailPage({
   params,
@@ -26,6 +28,21 @@ export default async function PostDetailPage({
     .maybeSingle();
 
   if (!post) notFound();
+
+  // Relatório SEO/GEO calculado ao vivo sobre o conteúdo salvo (não mostra
+  // pra post que falhou — não há conteúdo).
+  const seoReport =
+    post.status !== "failed" && post.content_markdown
+      ? analyzePost({
+          type: (post.type as "long_form" | "faq_page") ?? "long_form",
+          title: post.title ?? "",
+          content: post.content_markdown ?? "",
+          metaDescription: post.meta_description,
+          slug: post.slug,
+          schemaMarkup: (post.schema_markup as unknown[] | null) ?? null,
+          focusKeyword: post.target_keyword,
+        })
+      : null;
 
   return (
     <div className="container mx-auto max-w-4xl px-6 py-10 space-y-6">
@@ -101,6 +118,9 @@ export default async function PostDetailPage({
           postTitle={post.title ?? null}
         />
       )}
+
+      {/* Painel de qualidade SEO/GEO (estilo RankMath, recalculado ao vivo) */}
+      {seoReport && <SeoReport postId={id} initial={seoReport} />}
 
       {/* Meta description (visível e útil) */}
       {post.meta_description && (

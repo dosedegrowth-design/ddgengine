@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { generatePost } from "@/lib/ai/generate";
 import { generatePostMultiPass } from "@/lib/ai/multi-pass";
 import { extractFromUrl } from "@/lib/ai/source-extract";
+import { analyzePost, type PostSeoReport } from "@/lib/seo/analyze-post";
 import { getCurrentSite } from "@/lib/auth";
 import { dispatchPostPublished } from "@/lib/notifications/dispatcher";
 
@@ -153,6 +154,41 @@ export async function generateFromSourceAction(input: {
       error: err instanceof Error ? err.message : "Erro ao gerar post",
     };
   }
+}
+
+/**
+ * Analisa o SEO/GEO on-page de um post (estilo RankMath), recalculado AO
+ * VIVO sobre o conteúdo SALVO atual. Reflete edições depois de salvar.
+ * Usa a palavra-chave de foco do post (target_keyword) quando houver.
+ */
+export async function analyzePostAction(
+  postId: string
+): Promise<{ report: PostSeoReport } | { error: string }> {
+  const { site, supabase } = await getCurrentSite();
+  if (!site) return { error: "Site não configurado" };
+
+  const { data: post } = await supabase
+    .from("posts")
+    .select(
+      "type, title, content_markdown, meta_description, slug, schema_markup, target_keyword"
+    )
+    .eq("id", postId)
+    .eq("site_id", site.id)
+    .maybeSingle();
+
+  if (!post) return { error: "Post não encontrado" };
+
+  const report = analyzePost({
+    type: (post.type as "long_form" | "faq_page") ?? "long_form",
+    title: post.title ?? "",
+    content: post.content_markdown ?? "",
+    metaDescription: post.meta_description,
+    slug: post.slug,
+    schemaMarkup: (post.schema_markup as unknown[] | null) ?? null,
+    focusKeyword: post.target_keyword,
+  });
+
+  return { report };
 }
 
 export async function approvePostAction(postId: string) {

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { auditSite, type AuditResult } from "@/lib/audit";
 import { getCurrentOrg } from "@/lib/auth";
 import { slugify } from "@/lib/utils";
-import { detectBrandTokensFromUrl } from "@/lib/blog/detect-brand";
+import { buildBrandProfile } from "@/lib/blog/brand-profile";
 
 export async function auditAndCreateSite(
   orgId: string,
@@ -23,9 +23,15 @@ export async function auditAndCreateSite(
     return { error: err instanceof Error ? err.message : "Erro ao auditar site" };
   }
 
-  // Detecta brand tokens (cor + fonte) do HTML do site.
-  // Falha silenciosa — se não conseguir, BlogShell usa defaults do template.
-  const brandTokens = await detectBrandTokensFromUrl(rawUrl).catch(() => ({}));
+  // Lê o site do cliente e monta o DNA visual completo (cores, fontes,
+  // raio, sombra, vibe) + template recomendado. Best-effort — se falhar,
+  // BlogShell usa defaults do template.
+  const profile = await buildBrandProfile(rawUrl).catch(() => ({
+    tokens: {},
+    template: undefined,
+  }));
+  const brandTokens = profile.tokens;
+  const detectedTemplate = profile.template;
 
   // Cria ou atualiza site
   const tenantSlug = `${slugify(org.slug)}-${audit.domain.replace(/\./g, "-")}-${Math.random()
@@ -42,9 +48,12 @@ export async function auditAndCreateSite(
 
   let siteId: string;
 
-  // Só inclui brand_tokens no payload se detectamos algo (evita overwrite com {} num re-audit)
-  const tokensPayload =
-    Object.keys(brandTokens).length > 0 ? { brand_tokens: brandTokens } : {};
+  // Só inclui brand_tokens/template no payload se detectamos algo (evita
+  // overwrite com {} num re-audit)
+  const tokensPayload = {
+    ...(Object.keys(brandTokens).length > 0 ? { brand_tokens: brandTokens } : {}),
+    ...(detectedTemplate ? { blog_template: detectedTemplate } : {}),
+  };
 
   if (existing) {
     const { error } = await supabase

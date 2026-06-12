@@ -33,12 +33,25 @@ export function BlogShell({ template, tokens, orgSlug, orgName, basePath, childr
   const bodyClass = TEMPLATE_BODY_CLASS[template];
   void orgSlug; // mantido na assinatura por compat; links usam basePath
 
+  // Quando detectamos bg/text do cliente, sobrepõe o do template via inline
+  // (a classe do template ainda dá o "esqueleto", mas a cor real vem do DNA).
+  const overrides: React.CSSProperties = {};
+  if (tokens.bg_color) overrides.backgroundColor = "var(--blog-bg)";
+  if (tokens.text_color) overrides.color = "var(--blog-text)";
+
   return (
-    <div className={`min-h-screen ${bodyClass}`} style={style}>
-      {/* Font dinâmica do cliente, se houver */}
+    <div
+      className={`blog-shell min-h-screen ${bodyClass}`}
+      style={{ ...style, ...overrides }}
+    >
+      {/* Fontes dinâmicas do cliente (corpo + título) */}
       {tokens.font_url && (
         // eslint-disable-next-line @next/next/no-css-tags
         <link rel="stylesheet" href={tokens.font_url} />
+      )}
+      {tokens.heading_font_url && tokens.heading_font_url !== tokens.font_url && (
+        // eslint-disable-next-line @next/next/no-css-tags
+        <link rel="stylesheet" href={tokens.heading_font_url} />
       )}
 
       <SiteHeader template={template} basePath={basePath} orgName={orgName} />

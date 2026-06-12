@@ -415,6 +415,16 @@
   color-scheme: light;
 }
 
+/* === DNA visual do cliente (fonte de título + raio + sombra nos cards) === */
+.blog-shell h1, .blog-shell h2, .blog-shell h3 {
+  font-family: var(--blog-heading-font, var(--blog-font));
+}
+.blog-shell .blog-card {
+  border-radius: var(--blog-radius, 8px);
+  box-shadow: var(--blog-shadow, none);
+}
+.blog-shell img { border-radius: var(--blog-radius, 8px); }
+
 /* === Corpo do post: ALTO CONTRASTE + cores da marca do cliente === */
 .blog-prose { color: #1c1917; }                 /* fallback near-black */
 .blog-prose p,

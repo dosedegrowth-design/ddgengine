@@ -9,15 +9,46 @@
 export type BlogTemplate = "editorial" | "magazine" | "minimal" | "bold";
 
 export interface BrandTokens {
-  /** Cor primária da marca (hex). Usada em links, botões, accents. */
+  /** Cor primária da marca (hex). Títulos, links — precisa de bom contraste. */
   primary_color: string;
-  /** Cor secundária / contraste pra elementos especiais. */
+  /** Cor secundária / accent pra destaques, bordas, marcadores. */
   accent_color: string;
-  /** Família de fontes principal (CSS font-family). */
+  /** Família de fontes principal (corpo). CSS font-family. */
   font_family: string;
   /** URL do CSS de fonte (Google Fonts, etc). Opcional. */
   font_url?: string;
+
+  // ---- DNA visual estendido (auto-detectado do site do cliente) ----
+  /** Fonte dos títulos (se diferente do corpo). */
+  heading_font_family?: string;
+  /** URL CSS da fonte de título, se diferente. */
+  heading_font_url?: string;
+  /** Cor de fundo do blog (default branco/quase-branco da marca). */
+  bg_color?: string;
+  /** Cor do texto do corpo (alto contraste sobre bg). */
+  text_color?: string;
+  /** Raio de borda dominante: "sharp" (0) | "soft" (8px) | "round" (16px) | "pill". */
+  radius?: "sharp" | "soft" | "round" | "pill";
+  /** Estilo de sombra: "none" (flat) | "soft" | "elevated". */
+  shadow?: "none" | "soft" | "elevated";
+  /** Estilo de botão/CTA: "solid" | "outline" | "soft". */
+  button_style?: "solid" | "outline" | "soft";
 }
+
+/** Mapeia o token de raio pra valor CSS. */
+export const RADIUS_CSS: Record<NonNullable<BrandTokens["radius"]>, string> = {
+  sharp: "0px",
+  soft: "8px",
+  round: "16px",
+  pill: "9999px",
+};
+
+/** Mapeia o token de sombra pra valor CSS. */
+export const SHADOW_CSS: Record<NonNullable<BrandTokens["shadow"]>, string> = {
+  none: "none",
+  soft: "0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)",
+  elevated: "0 10px 30px -10px rgba(0,0,0,0.18)",
+};
 
 export interface TemplateMeta {
   id: BlogTemplate;
@@ -96,11 +127,20 @@ export function resolveBrandTokens(
   siteTokens: Partial<BrandTokens> | null | undefined
 ): BrandTokens {
   const def = TEMPLATE_DEFAULTS[template] ?? TEMPLATE_DEFAULTS.editorial;
+  const t = siteTokens ?? {};
   return {
-    primary_color: siteTokens?.primary_color || def.primary_color,
-    accent_color: siteTokens?.accent_color || def.accent_color,
-    font_family: siteTokens?.font_family || def.font_family,
-    font_url: siteTokens?.font_url || def.font_url,
+    primary_color: t.primary_color || def.primary_color,
+    accent_color: t.accent_color || def.accent_color,
+    font_family: t.font_family || def.font_family,
+    font_url: t.font_url || def.font_url,
+    // DNA estendido (só vem se detectado)
+    heading_font_family: t.heading_font_family,
+    heading_font_url: t.heading_font_url,
+    bg_color: t.bg_color,
+    text_color: t.text_color,
+    radius: t.radius,
+    shadow: t.shadow,
+    button_style: t.button_style,
   };
 }
 
@@ -108,11 +148,17 @@ export function resolveBrandTokens(
  * Converte os tokens em um inline style de CSS variables pro Shell.
  */
 export function brandTokensToCSSVars(tokens: BrandTokens): React.CSSProperties {
-  return {
-    ["--blog-primary" as string]: tokens.primary_color,
-    ["--blog-accent" as string]: tokens.accent_color,
-    ["--blog-font" as string]: tokens.font_family,
-  } as React.CSSProperties;
+  const vars: Record<string, string> = {
+    "--blog-primary": tokens.primary_color,
+    "--blog-accent": tokens.accent_color,
+    "--blog-font": tokens.font_family,
+    "--blog-heading-font": tokens.heading_font_family || tokens.font_family,
+    "--blog-bg": tokens.bg_color || "#ffffff",
+    "--blog-text": tokens.text_color || "#27272a",
+    "--blog-radius": RADIUS_CSS[tokens.radius ?? "soft"],
+    "--blog-shadow": SHADOW_CSS[tokens.shadow ?? "soft"],
+  };
+  return vars as React.CSSProperties;
 }
 
 /**

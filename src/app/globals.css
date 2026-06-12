@@ -415,15 +415,40 @@
   color-scheme: light;
 }
 
+/* === Blog FORÇA tokens de tema claros — não herda dark mode do app/navegador.
+      (Sem isso, busca/pílulas/cards usavam --background/--foreground do .dark
+      e ficavam PRETOS.) === */
+.blog-shell {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+}
+
 /* === DNA visual do cliente (fonte de título + raio + sombra nos cards) === */
 .blog-shell h1, .blog-shell h2, .blog-shell h3 {
   font-family: var(--blog-heading-font, var(--blog-font));
 }
 .blog-shell .blog-card {
-  border-radius: var(--blog-radius, 8px);
+  /* cards: raio do cliente, mas limitado pra não virar capsula */
+  border-radius: min(var(--blog-radius, 8px), 20px);
   box-shadow: var(--blog-shadow, none);
 }
-.blog-shell img { border-radius: var(--blog-radius, 8px); }
+/* Imagens NUNCA pegam pill (senão viram oval). Cantos suaves no maximo. */
+.blog-shell img { border-radius: min(var(--blog-radius, 8px), 12px); }
 
 /* === Corpo do post: ALTO CONTRASTE + cores da marca do cliente === */
 .blog-prose { color: #1c1917; }                 /* fallback near-black */

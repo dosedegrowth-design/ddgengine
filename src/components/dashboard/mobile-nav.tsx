@@ -5,14 +5,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, Sparkles, Inbox, Settings } from "lucide-react";
+import { LayoutDashboard, FileText, Sparkles, Lightbulb, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV = [
   { href: "/dashboard", label: "Início", icon: LayoutDashboard },
   { href: "/posts", label: "Posts", icon: FileText },
+  { href: "/ideias", label: "Ideias", icon: Lightbulb },
   { href: "/visibility", label: "IA", icon: Sparkles },
-  { href: "/inbox", label: "Inbox", icon: Inbox },
   { href: "/settings", label: "Config", icon: Settings },
 ];
 

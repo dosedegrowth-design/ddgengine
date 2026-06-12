@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { generatePost } from "@/lib/ai/generate";
 import { generatePostMultiPass } from "@/lib/ai/multi-pass";
+import { extractFromUrl } from "@/lib/ai/source-extract";
 import { getCurrentSite } from "@/lib/auth";
 import { dispatchPostPublished } from "@/lib/notifications/dispatcher";
 
@@ -50,6 +51,103 @@ export async function generatePostAction(input: {
     revalidatePath("/dashboard");
 
     return { success: true, post: result };
+  } catch (err) {
+    return {
+      error: err instanceof Error ? err.message : "Erro ao gerar post",
+    };
+  }
+}
+
+/**
+ * Pré-visualiza a extração de uma fonte (link) ANTES de gerar o post.
+ * Devolve título + prévia do texto pro cliente confirmar que pegou o
+ * conteúdo certo. Não gera nada — só lê.
+ */
+export async function previewSourceAction(url: string) {
+  if (!url.trim()) return { error: "Cole um link." };
+  const result = await extractFromUrl(url.trim());
+  if (!result.ok) return { error: result.error };
+  const { source } = result;
+  return {
+    success: true as const,
+    title: source.title,
+    type: source.type,
+    chars: source.text.length,
+    preview: source.text.slice(0, 600),
+  };
+}
+
+/**
+ * Gera um post ORIGINAL adaptado a partir de uma FONTE:
+ *  - link (notícia, artigo, blog, post) → extrai o texto
+ *  - link do YouTube → transcrição/descrição
+ *  - texto colado direto → usa como base
+ *
+ * A engine usa o material só como insumo de fatos/ideias e reescreve 100%
+ * na voz da marca (briefing + RAG), otimizado SEO/GEO. Sempre multi-pass.
+ */
+export async function generateFromSourceAction(input: {
+  type: "long_form" | "faq_page";
+  /** Link da fonte (artigo, vídeo, post). Opcional se rawText vier. */
+  url?: string;
+  /** Texto colado direto (quando não há link ou a extração falhou). */
+  rawText?: string;
+  /** Ângulo/foco que o cliente quer dar (vira o tema do post). Opcional. */
+  angle?: string;
+  targetKeyword?: string;
+}) {
+  const { site } = await getCurrentSite();
+  if (!site) return { error: "Site não configurado" };
+
+  let sourceTitle = "";
+  let sourceText = (input.rawText ?? "").trim();
+  let sourceUrl = "";
+
+  // Se veio link, extrai (a não ser que o cliente já tenha colado texto).
+  if (input.url?.trim() && sourceText.length < 200) {
+    const extracted = await extractFromUrl(input.url.trim());
+    if (!extracted.ok) return { error: extracted.error };
+    sourceTitle = extracted.source.title;
+    sourceText = extracted.source.text;
+    sourceUrl = extracted.source.sourceUrl;
+  }
+
+  if (sourceText.length < 120) {
+    return {
+      error:
+        "Preciso de mais conteúdo. Cole um link com texto/legendas ou cole o conteúdo manualmente.",
+    };
+  }
+
+  // Tema conciso (dirige slug + RAG). O texto grande vai em extraContext.
+  const topic =
+    input.angle?.trim() ||
+    sourceTitle ||
+    sourceText.slice(0, 80);
+
+  const extraContext = [
+    sourceTitle ? `Título da fonte: ${sourceTitle}` : "",
+    sourceUrl ? `Link da fonte: ${sourceUrl}` : "",
+    input.angle?.trim() ? `Ângulo que o cliente quer: ${input.angle.trim()}` : "",
+    "",
+    sourceText,
+  ]
+    .filter((l) => l !== undefined)
+    .join("\n");
+
+  try {
+    const result = await generatePostMultiPass({
+      siteId: site.id,
+      type: input.type,
+      topic,
+      targetKeyword: input.targetKeyword?.trim() || undefined,
+      extraContext,
+    });
+
+    revalidatePath("/posts");
+    revalidatePath("/dashboard");
+
+    return { success: true as const, post: result };
   } catch (err) {
     return {
       error: err instanceof Error ? err.message : "Erro ao gerar post",

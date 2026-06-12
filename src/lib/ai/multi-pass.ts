@@ -28,6 +28,10 @@ export interface MultiPassInput {
   targetKeyword?: string;
   targetQuestion?: string;
   topic?: string;
+  /** Material de referência (artigo/vídeo/post que o cliente quer adaptar).
+   *  Entra como contexto nos passes de outline+draft, mas NÃO afeta slug/RAG
+   *  (o topic continua conciso). A engine adapta num post ORIGINAL. */
+  extraContext?: string;
 }
 
 export interface MultiPassOutput {
@@ -190,6 +194,11 @@ export async function generatePostMultiPass(input: MultiPassInput): Promise<Mult
 
   const topic = input.topic || input.targetKeyword || input.targetQuestion || briefing.target_keywords?.[0] || "tópico geral";
   const brandContext = await retrieveBrandContext(input.siteId, topic, 5);
+
+  // Bloco de material de referência (repurpose). Instrui a adaptar, não copiar.
+  const sourceBlock = input.extraContext?.trim()
+    ? `\n\n## MATERIAL DE REFERÊNCIA (adaptar, NÃO copiar)\nO cliente trouxe este conteúdo como base/inspiração. Use os FATOS, DADOS e IDEIAS dele, mas reescreva 100% original na nossa voz e pro nosso público. NÃO copie frases nem a estrutura. Se for relevante, cite a fonte.\n\n"""\n${input.extraContext.trim().slice(0, 12000)}\n"""`
+    : "";
   const brandContextText = brandContext.length
     ? brandContext.map((b, i) => `[${i + 1}] ${b.content}`).join("\n\n")
     : "Sem contexto de marca disponível.";
@@ -243,7 +252,7 @@ ${briefing.required_disclaimers ? `Disclaimer obrigatório: ${briefing.required_
       messages: [
         {
           role: "user",
-          content: `Tópico: ${topic}\nKeyword alvo: ${input.targetKeyword ?? "n/a"}\nPergunta principal: ${input.targetQuestion ?? "n/a"}\n\n${briefingSummary}`,
+          content: `Tópico: ${topic}\nKeyword alvo: ${input.targetKeyword ?? "n/a"}\nPergunta principal: ${input.targetQuestion ?? "n/a"}\n\n${briefingSummary}${sourceBlock}`,
         },
       ],
       max_tokens: 2000,
@@ -263,7 +272,7 @@ ${briefing.required_disclaimers ? `Disclaimer obrigatório: ${briefing.required_
       messages: [
         {
           role: "user",
-          content: `Outline:\n${JSON.stringify(outline, null, 2)}\n\n${briefingSummary}\n\nEscreva o artigo completo seguindo o outline.`,
+          content: `Outline:\n${JSON.stringify(outline, null, 2)}\n\n${briefingSummary}${sourceBlock}\n\nEscreva o artigo completo seguindo o outline.`,
         },
       ],
       max_tokens: input.type === "long_form" ? 16000 : 6000,

@@ -8,13 +8,19 @@
  * extra (texto + áudio) antes de gerar. Há opção "pular e gerar direto".
  */
 import { useState } from "react";
-import { Sparkles, FileText, HelpCircle, Zap } from "lucide-react";
+import { Sparkles, FileText, HelpCircle, Zap, TrendingUp } from "lucide-react";
 import { SuggestionDetailModal } from "./suggestion-detail-modal";
 
 interface Suggestion {
-  kind: "keyword" | "question" | "differential";
+  kind: "keyword" | "question" | "differential" | "opportunity";
   label: string;
   description: string;
+  metric?: {
+    volume: number;
+    competition: string | null;
+    trend: number | null;
+    score: number;
+  };
   payload:
     | { type: "long_form"; topic?: string; targetKeyword?: string }
     | { type: "faq_page"; targetQuestion: string };
@@ -28,12 +34,14 @@ const ICONS = {
   keyword: FileText,
   question: HelpCircle,
   differential: Zap,
+  opportunity: TrendingUp,
 } as const;
 
 const KIND_LABEL = {
   keyword: "SEO",
   question: "FAQ pra IAs",
   differential: "Diferencial",
+  opportunity: "Oportunidade",
 } as const;
 
 export function SuggestionsBar({ suggestions }: Props) {
@@ -71,6 +79,21 @@ export function SuggestionsBar({ suggestions }: Props) {
                   <div className="font-bold text-xs text-ddg-ink leading-snug line-clamp-2">
                     {s.label}
                   </div>
+                  {/* Dado real de busca (oportunidades) */}
+                  {s.metric ? (
+                    <div className="text-[10px] text-ddg-muted mt-1 leading-tight">
+                      <span className="font-bold text-ddg-ink">
+                        {s.metric.volume.toLocaleString("pt-BR")}
+                      </span>{" "}
+                      buscas/mês
+                      {s.metric.competition ? ` · conc. ${s.metric.competition}` : ""}
+                      {s.metric.trend && s.metric.trend > 5 ? " · 📈 em alta" : ""}
+                    </div>
+                  ) : (
+                    <div className="text-[10px] text-ddg-muted mt-1 leading-tight line-clamp-1">
+                      {s.description}
+                    </div>
+                  )}
                   <div className="inline-flex items-center gap-1 mt-1.5 text-[10px] font-mono uppercase tracking-widest text-ddg-lime-deep font-bold opacity-0 group-hover:opacity-100 transition-opacity">
                     <Sparkles className="w-3 h-3" /> Personalizar e gerar
                   </div>

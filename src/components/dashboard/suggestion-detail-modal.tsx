@@ -17,9 +17,15 @@ import { generatePostAction } from "@/app/(app)/posts/actions";
 import { AudioRecorder } from "@/components/briefing/audio-recorder";
 
 interface Suggestion {
-  kind: "keyword" | "question" | "differential";
+  kind: "keyword" | "question" | "differential" | "opportunity";
   label: string;
   description: string;
+  metric?: {
+    volume: number;
+    competition: string | null;
+    trend: number | null;
+    score: number;
+  };
   payload:
     | { type: "long_form"; topic?: string; targetKeyword?: string }
     | { type: "faq_page"; targetQuestion: string };
@@ -34,12 +40,14 @@ const ICONS = {
   keyword: FileText,
   question: HelpCircle,
   differential: Zap,
+  opportunity: FileText,
 } as const;
 
 const KIND_LABEL = {
   keyword: "SEO",
   question: "FAQ pra IAs",
   differential: "Diferencial",
+  opportunity: "Oportunidade",
 } as const;
 
 export function SuggestionDetailModal({ suggestion, onClose }: Props) {

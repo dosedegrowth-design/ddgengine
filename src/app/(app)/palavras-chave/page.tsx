@@ -8,8 +8,10 @@ import { Search, TrendingUp, Sparkles, CheckCircle2, AlertTriangle, Plug } from 
 import { getCurrentSite } from "@/lib/auth";
 import { isAdminEmail } from "@/lib/auth/admin";
 import { hasAppCredentials, getRefreshToken } from "@/lib/seo/keyword-research";
+import { getUniverseSummary } from "@/lib/seo/keyword-universe";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { KeywordResearch } from "@/components/dashboard/keyword-research";
+import { OpportunityMapper } from "@/components/dashboard/opportunity-mapper";
 
 export default async function PalavrasChavePage({
   searchParams,
@@ -23,6 +25,9 @@ export default async function PalavrasChavePage({
   const isAdmin = isAdminEmail(user?.email);
   const connected = Boolean(await getRefreshToken());
   const appCreds = hasAppCredentials();
+  const universe = connected
+    ? await getUniverseSummary(site.id)
+    : { total: 0, covered: 0, opportunities: 0, coveragePct: 0 };
 
   // Prefill com a 1ª palavra-chave do briefing (se houver)
   const { data: briefing } = await supabase
@@ -91,6 +96,9 @@ export default async function PalavrasChavePage({
             <CheckCircle2 className="w-3.5 h-3.5" /> Google conectado · fonte de volume ativa
           </div>
         )}
+
+        {/* Mapa de oportunidades (alimenta as Sugestões em Posts) */}
+        {connected && <OpportunityMapper initial={universe} />}
 
         <KeywordResearch initialSeed={initialSeed} />
 

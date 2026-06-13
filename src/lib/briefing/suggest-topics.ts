@@ -11,11 +11,19 @@
  *    keyword + diferencial + cliente ideal
  */
 import { createClient } from "@/lib/supabase/server";
+import { getTopOpportunities } from "@/lib/seo/keyword-universe";
 
 export interface TopicSuggestion {
-  kind: "keyword" | "question" | "differential";
+  kind: "keyword" | "question" | "differential" | "opportunity";
   label: string;
   description: string;
+  /** Dados reais de busca (quando vem do universo de palavra-chave). */
+  metric?: {
+    volume: number;
+    competition: string | null;
+    trend: number | null;
+    score: number;
+  };
   payload:
     | { type: "long_form"; topic?: string; targetKeyword?: string }
     | { type: "faq_page"; targetQuestion: string };
@@ -90,14 +98,49 @@ export async function suggestTopics(orgId: string, siteId: string): Promise<Topi
   }
 
   const out: TopicSuggestion[] = [];
+  const addedKw = new Set<string>();
 
-  // 3) Keyword (SEO)
+  // 2.5) OPORTUNIDADES (universo de palavra-chave, dado real do Google) —
+  // entram primeiro porque são escolha por VOLUME × ganhabilidade, não chute.
+  try {
+    const opps = await getTopOpportunities(siteId, 6);
+    for (const o of opps) {
+      if (out.length >= 4) break;
+      if (alreadyUsedKeyword(o.keyword) || addedKw.has(normalize(o.keyword))) continue;
+      addedKw.add(normalize(o.keyword));
+      const compTxt = o.competition ? `concorrência ${o.competition}` : "";
+      out.push({
+        kind: "opportunity",
+        label: `Artigo sobre "${o.keyword}"`,
+        description: [
+          `${o.volume.toLocaleString("pt-BR")} buscas/mês`,
+          compTxt,
+          o.trend && o.trend > 5 ? "📈 em alta" : "",
+        ]
+          .filter(Boolean)
+          .join(" · "),
+        metric: {
+          volume: o.volume,
+          competition: o.competition,
+          trend: o.trend,
+          score: o.opportunity_score,
+        },
+        payload: { type: "long_form", targetKeyword: o.keyword },
+      });
+    }
+  } catch {
+    /* universo ainda vazio — segue com sugestões do briefing */
+  }
+
+  // 3) Keyword (SEO) — do briefing, se ainda sobra espaço
   const allKeywords = [
     ...(brief.seo?.primary_keywords ?? []),
     ...(brief.seo?.secondary_keywords ?? []),
   ].filter(Boolean);
-  const kw = allKeywords.find((k) => !alreadyUsedKeyword(k));
-  if (kw) {
+  const kw = allKeywords.find(
+    (k) => !alreadyUsedKeyword(k) && !addedKw.has(normalize(k))
+  );
+  if (kw && out.length < 4) {
     out.push({
       kind: "keyword",
       label: `Artigo sobre "${kw}"`,

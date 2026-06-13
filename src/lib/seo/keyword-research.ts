@@ -186,11 +186,18 @@ export async function generateKeywordIdeas(
 
   if (!res.ok) {
     const body = await res.text();
-    // Mensagens amigáveis pros erros comuns do Google Ads
-    if (res.status === 401 || res.status === 403) {
-      return { ok: false, error: "Credencial Google Ads sem permissão pra esse recurso." };
+    // Extrai o motivo específico do Google Ads (errorCode + message)
+    let detail = body.slice(0, 300);
+    try {
+      const j = JSON.parse(body);
+      const gErr = j?.error?.details?.[0]?.errors?.[0];
+      const code = gErr?.errorCode ? Object.values(gErr.errorCode)[0] : j?.error?.status;
+      const msg = gErr?.message ?? j?.error?.message;
+      if (code || msg) detail = `${code ?? ""} ${msg ?? ""}`.trim();
+    } catch {
+      /* mantém o body cru */
     }
-    return { ok: false, error: `Google Ads (${res.status}): ${body.slice(0, 200)}` };
+    return { ok: false, error: `Google Ads ${res.status}: ${detail}` };
   }
 
   const json = await res.json();

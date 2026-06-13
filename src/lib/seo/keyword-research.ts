@@ -65,6 +65,26 @@ export async function getRefreshToken(): Promise<string | null> {
   return process.env.GOOGLE_ADS_REFRESH_TOKEN ?? null;
 }
 
+/** Lê uma config genérica do banco (app_config). */
+async function getConfigValue(key: string): Promise<string | null> {
+  try {
+    const sb = createServiceClient();
+    const { data } = await sb.from("app_config").select("value").eq("key", key).maybeSingle();
+    return data?.value ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Conta consultada no Keyword Planner: banco → env → MCC. */
+async function getCustomerId(): Promise<string> {
+  return (
+    (await getConfigValue("google_ads_customer_id")) ??
+    process.env.GOOGLE_ADS_CUSTOMER_ID ??
+    process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID!
+  );
+}
+
 /** Grava o refresh token no banco (chamado pelo callback OAuth hospedado). */
 export async function setRefreshToken(token: string): Promise<void> {
   const sb = createServiceClient();
@@ -178,8 +198,7 @@ export async function generateKeywordIdeas(
     };
   }
 
-  const customerId =
-    process.env.GOOGLE_ADS_CUSTOMER_ID ?? process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID!;
+  const customerId = await getCustomerId();
 
   let accessToken: string;
   try {

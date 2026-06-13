@@ -166,6 +166,14 @@ export async function refreshKeywordUniverse(
     };
   });
 
+  // Limpa oportunidades antigas (mantém covered/queued — ligadas a posts/produção)
+  // pra não acumular duplicatas de refreshes anteriores.
+  await sb
+    .from("keyword_universe")
+    .delete()
+    .eq("site_id", siteId)
+    .eq("status", "opportunity");
+
   const { error } = await sb
     .from("keyword_universe")
     .upsert(rows, { onConflict: "site_id,keyword" });

@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Geist_Mono } from "next/font/google";
-import { Toaster } from "sonner";
+import { BrandToaster } from "@/components/brand/brand-toaster";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AnalyticsPixels } from "@/components/analytics/pixels";
 import "./globals.css";
@@ -83,7 +83,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
-          <Toaster richColors position="top-right" closeButton />
+          <BrandToaster />
         </ThemeProvider>
         <AnalyticsPixels />
       </body>

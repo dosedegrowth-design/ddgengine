@@ -22,7 +22,9 @@ async function handle(req: NextRequest) {
     (process.env.GOOGLE_ADS_SETUP_KEY && key === process.env.GOOGLE_ADS_SETUP_KEY);
   if (!ok) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const result = await tickOldestPending(50000);
+  // budget baixo = 1 passe por tick (cada passe reescreve o artigo ~30-50s;
+  // garante nunca passar dos 60s do serverless). O cron 1min avança o resto.
+  const result = await tickOldestPending(8000);
   return NextResponse.json(result);
 }
 

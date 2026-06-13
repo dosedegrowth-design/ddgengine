@@ -47,6 +47,23 @@ export async function universeSummaryAction() {
   return getUniverseSummary(site.id);
 }
 
+/** Liga/desliga o piloto automático e define a cadência (posts/semana). */
+export async function setAutopilotAction(input: {
+  enabled: boolean;
+  postsPerWeek: number;
+}): Promise<{ ok: boolean; error?: string }> {
+  const { site, supabase } = await getCurrentSite();
+  if (!site) return { ok: false, error: "Site não configurado" };
+  const ppw = Math.max(1, Math.min(14, Math.round(input.postsPerWeek)));
+  const { error } = await supabase
+    .from("sites")
+    .update({ autopilot_enabled: input.enabled, autopilot_posts_per_week: ppw })
+    .eq("id", site.id);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/palavras-chave");
+  return { ok: true };
+}
+
 export async function keywordConnectionStatus(): Promise<{
   hasAppCredentials: boolean;
   connected: boolean;

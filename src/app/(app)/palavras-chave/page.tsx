@@ -8,10 +8,11 @@ import { Search, TrendingUp, Sparkles, CheckCircle2, AlertTriangle, Plug } from 
 import { getCurrentSite } from "@/lib/auth";
 import { isAdminEmail } from "@/lib/auth/admin";
 import { hasAppCredentials, getRefreshToken } from "@/lib/seo/keyword-research";
-import { getUniverseSummary } from "@/lib/seo/keyword-universe";
+import { getUniverseSummary, getTopOpportunities } from "@/lib/seo/keyword-universe";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { KeywordResearch } from "@/components/dashboard/keyword-research";
 import { OpportunityMapper } from "@/components/dashboard/opportunity-mapper";
+import { AutopilotPanel } from "@/components/dashboard/autopilot-panel";
 
 export default async function PalavrasChavePage({
   searchParams,
@@ -28,6 +29,7 @@ export default async function PalavrasChavePage({
   const universe = connected
     ? await getUniverseSummary(site.id)
     : { total: 0, covered: 0, opportunities: 0, coveragePct: 0 };
+  const topOpps = connected ? await getTopOpportunities(site.id, 12) : [];
 
   // Prefill com a 1ª palavra-chave do briefing (se houver)
   const { data: briefing } = await supabase
@@ -97,8 +99,58 @@ export default async function PalavrasChavePage({
           </div>
         )}
 
+        {/* Piloto automático */}
+        {connected && (
+          <AutopilotPanel
+            initialEnabled={Boolean(site.autopilot_enabled)}
+            initialPerWeek={(site.autopilot_posts_per_week as number) ?? 3}
+          />
+        )}
+
         {/* Mapa de oportunidades (alimenta as Sugestões em Posts) */}
         {connected && <OpportunityMapper initial={universe} />}
+
+        {/* Relatório: top oportunidades do nicho */}
+        {connected && topOpps.length > 0 && (
+          <div className="rounded-2xl border-2 border-ddg-ink bg-ddg-paper overflow-hidden">
+            <div className="px-4 py-3 border-b-2 border-ddg-ink bg-ddg-cream/50">
+              <div className="ddg-bracket text-ddg-muted">
+                OPORTUNIDADES DO SEU NICHO · POR SCORE
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left border-b border-ddg-stone">
+                    <th className="px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-ddg-muted">Palavra-chave</th>
+                    <th className="px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-ddg-muted">Buscas/mês</th>
+                    <th className="px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-ddg-muted">Conc.</th>
+                    <th className="px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-ddg-muted">Score</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-ddg-stone">
+                  {topOpps.map((o) => (
+                    <tr key={o.keyword} className="hover:bg-ddg-cream/40">
+                      <td className="px-4 py-2 font-medium text-ddg-ink">
+                        {o.keyword}
+                        {o.trend && o.trend > 5 ? <span className="ml-1.5 text-emerald-600">📈</span> : null}
+                      </td>
+                      <td className="px-3 py-2 tabular-nums font-bold text-ddg-ink">
+                        {o.volume.toLocaleString("pt-BR")}
+                      </td>
+                      <td className="px-3 py-2 text-xs text-ddg-muted">{o.competition ?? "—"}</td>
+                      <td className="px-3 py-2">
+                        <span className="inline-flex items-center justify-center min-w-7 px-1.5 py-0.5 rounded-md bg-ddg-lime/20 border border-ddg-ink/20 font-black text-xs text-ddg-ink">
+                          {o.opportunity_score}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         <KeywordResearch initialSeed={initialSeed} />
 

@@ -22,6 +22,25 @@ function norm(s: string): string {
     .replace(/\s+/g, " ");
 }
 
+// Stopwords PT pra dedup sem\u00e2ntico (varia\u00e7\u00f5es = mesmo tema)
+const STOP = new Set([
+  "a", "o", "as", "os", "de", "da", "do", "das", "dos", "em", "no", "na",
+  "nos", "nas", "para", "pra", "por", "com", "e", "ou", "que", "um", "uma",
+  "ao", "aos", "the", "of",
+]);
+
+/**
+ * Chave can\u00f4nica: tokens significativos ordenados. Junta "doen\u00e7a de pele em
+ * cachorro" / "no cachorro" / "cachorro doen\u00e7a pele" no mesmo tema.
+ */
+function canonicalKey(keyword: string): string {
+  return norm(keyword)
+    .split(" ")
+    .filter((w) => w && !STOP.has(w))
+    .sort()
+    .join(" ");
+}
+
 /**
  * Score de oportunidade 0-100.
  *  - volume (log): 1k≈60, 10k≈80, 100k≈100
@@ -85,29 +104,53 @@ export async function refreshKeywordUniverse(
   const res = await generateKeywordIdeas(seeds, 80);
   if (!res.ok) return { ok: false, error: res.error };
 
-  // Posts existentes → marca palavras já cobertas
+  // DEDUP SEMÂNTICO: agrupa por chave canônica, mantém a de maior volume.
+  const byCanon = new Map<string, (typeof res.ideas)[number]>();
+  for (const idea of res.ideas) {
+    const ck = canonicalKey(idea.keyword);
+    if (!ck) continue;
+    const cur = byCanon.get(ck);
+    if (!cur || idea.volume > cur.volume) byCanon.set(ck, idea);
+  }
+  const deduped = [...byCanon.values()];
+
+  // Posts existentes → marca palavras já cobertas (por chave canônica)
   const { data: posts } = await sb
     .from("posts")
     .select("id, target_keyword, title")
     .eq("site_id", siteId)
     .neq("status", "archived");
 
-  const coveredByKw = new Map<string, string>();
-  const titles: string[] = [];
+  const coveredCanon = new Map<string, string>();
   for (const p of posts ?? []) {
-    if (p.target_keyword) coveredByKw.set(norm(p.target_keyword as string), p.id as string);
-    if (p.title) titles.push(norm(p.title as string));
+    if (p.target_keyword) coveredCanon.set(canonicalKey(p.target_keyword as string), p.id as string);
+    if (p.title) coveredCanon.set(canonicalKey(p.title as string), p.id as string);
   }
+
+  // Status atual (preserva 'queued' que ainda não virou post)
+  const { data: existing } = await sb
+    .from("keyword_universe")
+    .select("keyword, status")
+    .eq("site_id", siteId);
+  const prevStatus = new Map<string, string>();
+  for (const e of existing ?? []) prevStatus.set(norm(e.keyword as string), e.status as string);
 
   const nowIso = new Date().toISOString();
   let coveredCount = 0;
 
-  const rows = res.ideas.map((k) => {
-    const nk = norm(k.keyword);
-    const coveredPost = coveredByKw.get(nk) ?? null;
-    const inTitle = titles.some((t) => t.includes(nk));
-    const isCovered = Boolean(coveredPost) || inTitle;
-    if (isCovered) coveredCount++;
+  const rows = deduped.map((k) => {
+    const ck = canonicalKey(k.keyword);
+    const coveredPost = coveredCanon.get(ck) ?? null;
+    const prev = prevStatus.get(norm(k.keyword));
+    let status: string;
+    if (coveredPost) {
+      status = "covered";
+      coveredCount++;
+    } else if (prev === "queued") {
+      status = "queued"; // já está em produção — não rebaixa
+    } else {
+      status = "opportunity";
+    }
     return {
       site_id: siteId,
       keyword: k.keyword,
@@ -117,7 +160,7 @@ export async function refreshKeywordUniverse(
       trend: k.trend,
       source_seed: seeds[0],
       opportunity_score: opportunityScore(k.volume, k.competitionIndex, k.trend),
-      status: isCovered ? "covered" : "opportunity",
+      status,
       post_id: coveredPost,
       updated_at: nowIso,
     };
@@ -128,12 +171,115 @@ export async function refreshKeywordUniverse(
     .upsert(rows, { onConflict: "site_id,keyword" });
   if (error) return { ok: false, error: error.message };
 
+  // marca o site como sincronizado agora
+  await sb.from("sites").update({ keyword_universe_synced_at: nowIso }).eq("id", siteId);
+
   return {
     ok: true,
     discovered: rows.length,
-    opportunities: rows.length - coveredCount,
+    opportunities: rows.filter((r) => r.status === "opportunity").length,
     covered: coveredCount,
   };
+}
+
+/**
+ * Pega a melhor oportunidade não-coberta e TRAVA (status 'queued') pra o
+ * auto-pilot não pegar a mesma duas vezes. Retorna null se não houver.
+ */
+export async function pickAndLockNextOpportunity(
+  siteId: string
+): Promise<{ keyword: string; volume: number; score: number } | null> {
+  const sb = createServiceClient();
+  const { data } = await sb
+    .from("keyword_universe")
+    .select("id, keyword, volume, opportunity_score")
+    .eq("site_id", siteId)
+    .eq("status", "opportunity")
+    .order("opportunity_score", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (!data) return null;
+
+  // trava condicional (só se ainda 'opportunity' — evita corrida)
+  const { data: locked } = await sb
+    .from("keyword_universe")
+    .update({ status: "queued", updated_at: new Date().toISOString() })
+    .eq("id", data.id)
+    .eq("status", "opportunity")
+    .select("id")
+    .maybeSingle();
+  if (!locked) return null;
+
+  return {
+    keyword: data.keyword as string,
+    volume: data.volume as number,
+    score: data.opportunity_score as number,
+  };
+}
+
+/** Marca a palavra como coberta (após o post nascer). */
+export async function markKeywordCovered(
+  siteId: string,
+  keyword: string,
+  postId: string
+): Promise<void> {
+  const sb = createServiceClient();
+  await sb
+    .from("keyword_universe")
+    .update({ status: "covered", post_id: postId, updated_at: new Date().toISOString() })
+    .eq("site_id", siteId)
+    .eq("keyword", keyword);
+}
+
+/**
+ * Reconcilia: palavras 'queued' que JÁ viraram post (canônica bate) → 'covered'.
+ * Roda antes do release pra não soltar (e regerar) o que já foi feito.
+ */
+export async function reconcileQueued(siteId: string): Promise<number> {
+  const sb = createServiceClient();
+  const { data: queued } = await sb
+    .from("keyword_universe")
+    .select("id, keyword")
+    .eq("site_id", siteId)
+    .eq("status", "queued");
+  if (!queued?.length) return 0;
+
+  const { data: posts } = await sb
+    .from("posts")
+    .select("id, target_keyword, title")
+    .eq("site_id", siteId)
+    .neq("status", "archived");
+  const postByCanon = new Map<string, string>();
+  for (const p of posts ?? []) {
+    if (p.target_keyword) postByCanon.set(canonicalKey(p.target_keyword as string), p.id as string);
+    if (p.title) postByCanon.set(canonicalKey(p.title as string), p.id as string);
+  }
+
+  let n = 0;
+  for (const k of queued) {
+    const pid = postByCanon.get(canonicalKey(k.keyword as string));
+    if (pid) {
+      await sb
+        .from("keyword_universe")
+        .update({ status: "covered", post_id: pid, updated_at: new Date().toISOString() })
+        .eq("id", k.id);
+      n++;
+    }
+  }
+  return n;
+}
+
+/** Solta de volta as travadas ('queued') antigas que nunca viraram post. */
+export async function releaseStaleQueued(siteId: string, olderThanHours = 6): Promise<void> {
+  const sb = createServiceClient();
+  const cutoff = new Date(Date.now() - olderThanHours * 3600 * 1000).toISOString();
+  await sb
+    .from("keyword_universe")
+    .update({ status: "opportunity" })
+    .eq("site_id", siteId)
+    .eq("status", "queued")
+    .is("post_id", null)
+    .lt("updated_at", cutoff);
 }
 
 export interface OpportunityRow {

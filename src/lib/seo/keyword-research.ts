@@ -215,7 +215,10 @@ export async function generateKeywordIdeas(
       headers: {
         Authorization: `Bearer ${accessToken}`,
         "developer-token": process.env.GOOGLE_ADS_DEVELOPER_TOKEN!,
-        "login-customer-id": process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID!,
+        // login-customer-id = a própria conta consultada (acesso direto).
+        // Mandar o MCC aqui dava USER_PERMISSION_DENIED quando a conta é
+        // acessada diretamente, não via aquele manager.
+        "login-customer-id": customerId,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({

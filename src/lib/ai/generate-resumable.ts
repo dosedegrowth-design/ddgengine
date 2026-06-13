@@ -262,7 +262,29 @@ ${briefing.required_disclaimers ? `Disclaimer obrigatório: ${briefing.required_
     .single();
   if (error || !post) throw new Error(`Erro ao criar post: ${error?.message}`);
 
+  // Dispara a geração no n8n (sem limite de tempo). Fire-and-forget: o
+  // webhook responde na hora e o n8n escreve o post em background.
+  void fireGenerationWebhook(post.id);
+
   return { postId: post.id };
+}
+
+/** Aciona o workflow do n8n que faz a escrita pesada (7 passes). */
+async function fireGenerationWebhook(postId: string): Promise<void> {
+  const url =
+    process.env.N8N_GENERATE_WEBHOOK_URL ??
+    "https://go.dosedegrowth.cloud/webhook/conteudai-generate";
+  try {
+    await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ postId }),
+      signal: AbortSignal.timeout(8000),
+    });
+  } catch {
+    // Se o webhook falhar, o post fica em 'generating' e pode ser reprocessado
+    // manualmente. Não quebra o enqueue.
+  }
 }
 
 // Cada passe: recebe o GenDoc, roda 1 chamada Claude, muta workingDoc.

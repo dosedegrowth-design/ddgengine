@@ -102,7 +102,7 @@ export function IdeasForm() {
         return;
       }
       if ("success" in res && res.success && res.post) {
-        toast.success(`Post gerado: ${res.post.title}`);
+        toast.success("Post na fila — fica pronto em alguns minutos");
         const postId = (res.post as { postId?: string }).postId;
         if (postId) router.push(`/posts/${postId}`);
         else router.push("/posts");

@@ -82,7 +82,7 @@ export function KeywordResearch({ initialSeed }: { initialSeed?: string }) {
         return;
       }
       if ("success" in res && res.success && res.post) {
-        toast.success(`Post gerado: ${res.post.title}`);
+        toast.success("Post na fila — fica pronto em alguns minutos");
         const postId = (res.post as { postId?: string }).postId;
         router.push(postId ? `/posts/${postId}` : "/posts");
         router.refresh();

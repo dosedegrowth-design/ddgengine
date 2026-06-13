@@ -12,7 +12,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
-import { generatePostMultiPass } from "@/lib/ai/multi-pass";
+import { enqueueGeneration } from "@/lib/ai/generate-resumable";
 import {
   refreshKeywordUniverse,
   pickAndLockNextOpportunity,
@@ -135,28 +135,29 @@ export async function GET(req: NextRequest) {
         r.action = "limite por run — fica pro próximo";
       } else {
         try {
-          const post = await generatePostMultiPass({
+          // Enfileira (resumível) — o driver de geração completa em alguns
+          // minutos. A palavra já vira 'covered' apontando pro post enfileirado.
+          const { postId } = await enqueueGeneration({
             siteId,
             type: "long_form",
             targetKeyword: pick.keyword,
+            topic: pick.keyword,
           });
-          await markKeywordCovered(siteId, pick.keyword, post.postId);
+          await markKeywordCovered(siteId, pick.keyword, postId);
           await sb
             .from("sites")
             .update({ autopilot_last_run_at: new Date().toISOString() })
             .eq("id", siteId);
           generatedThisRun++;
-          r.action = "post gerado";
-          r.postId = post.postId;
-          r.title = post.title;
+          r.action = "post enfileirado";
+          r.postId = postId;
         } catch (genErr) {
-          // solta a trava pra tentar de novo no próximo run
           await sb
             .from("keyword_universe")
             .update({ status: "opportunity" })
             .eq("site_id", siteId)
             .eq("keyword", pick.keyword);
-          r.action = "falha na geração";
+          r.action = "falha ao enfileirar";
           r.genError = genErr instanceof Error ? genErr.message : "erro";
         }
       }

@@ -90,6 +90,23 @@ export default async function PostDetailPage({
         </div>
       </header>
 
+      {/* Estado: gerando (geração resumível em andamento) */}
+      {post.status === "generating" && (
+        <div className="rounded-2xl border-2 border-ddg-ink bg-ddg-lime/10 p-5 flex items-center gap-3">
+          <div className="shrink-0 h-9 w-9 rounded-lg border-2 border-ddg-ink bg-ddg-lime/30 flex items-center justify-center">
+            <span className="inline-block h-3 w-3 rounded-full bg-ddg-lime animate-pulse" />
+          </div>
+          <div className="text-sm">
+            <div className="font-bold text-ddg-ink">Seu post está sendo escrito</div>
+            <p className="text-ddg-muted">
+              A engine está passando pelos 7 passes (outline → escrita → SEO →
+              IA → voz → checagem → polimento). Fica pronto em alguns minutos —
+              pode atualizar a página.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Aviso de falha + botão tentar de novo */}
       {post.status === "failed" && (
         <div className="rounded-2xl border-2 border-amber-300 bg-amber-50 p-5 flex items-start justify-between gap-4">
@@ -111,7 +128,7 @@ export default async function PostDetailPage({
       )}
 
       {/* Hero image — gerada pela IA OU upload manual do cliente */}
-      {post.status !== "failed" && (
+      {post.status !== "failed" && post.status !== "generating" && (
         <HeroImagePicker
           postId={id}
           initialUrl={post.og_image_url ?? null}
@@ -142,8 +159,8 @@ export default async function PostDetailPage({
         </div>
       )}
 
-      {/* Editor inline + approve/reject (não renderiza se failed) */}
-      {post.status !== "failed" && (
+      {/* Editor inline + approve/reject (não renderiza se failed/gerando) */}
+      {post.status !== "failed" && post.status !== "generating" && (
         <PostEditor
           postId={id}
           initialContent={post.content_markdown ?? ""}

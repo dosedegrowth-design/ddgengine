@@ -1,8 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { generatePost } from "@/lib/ai/generate";
-import { generatePostMultiPass } from "@/lib/ai/multi-pass";
+import { enqueueGeneration } from "@/lib/ai/generate-resumable";
 import { extractFromUrl } from "@/lib/ai/source-extract";
 import { analyzePost, type PostSeoReport } from "@/lib/seo/analyze-post";
 import { getCurrentSite } from "@/lib/auth";
@@ -21,8 +20,6 @@ export async function generatePostAction(input: {
   const { site } = await getCurrentSite();
   if (!site) return { error: "Site não configurado" };
 
-  const mode = input.mode ?? "multi_pass"; // default = multi-pass (qualidade)
-
   // Se cliente deu notas extras, anexa ao topic pra incluir no prompt
   const enrichedTopic = input.extraNotes?.trim()
     ? [input.topic, `Detalhes do cliente: ${input.extraNotes.trim()}`]
@@ -31,27 +28,20 @@ export async function generatePostAction(input: {
     : input.topic;
 
   try {
-    const result =
-      mode === "multi_pass"
-        ? await generatePostMultiPass({
-            siteId: site.id,
-            type: input.type,
-            topic: enrichedTopic,
-            targetKeyword: input.targetKeyword,
-            targetQuestion: input.targetQuestion,
-          })
-        : await generatePost({
-            siteId: site.id,
-            type: input.type,
-            topic: enrichedTopic,
-            targetKeyword: input.targetKeyword,
-            targetQuestion: input.targetQuestion,
-          });
+    // Enfileira a geração (resumível). Retorna na hora — o post nasce em
+    // 'generating' e o driver (cron 1min) completa em alguns minutos.
+    const { postId } = await enqueueGeneration({
+      siteId: site.id,
+      type: input.type,
+      topic: enrichedTopic,
+      targetKeyword: input.targetKeyword,
+      targetQuestion: input.targetQuestion,
+    });
 
     revalidatePath("/posts");
     revalidatePath("/dashboard");
 
-    return { success: true, post: result };
+    return { success: true as const, queued: true as const, post: { id: postId, postId } };
   } catch (err) {
     return {
       error: err instanceof Error ? err.message : "Erro ao gerar post",
@@ -137,7 +127,7 @@ export async function generateFromSourceAction(input: {
     .join("\n");
 
   try {
-    const result = await generatePostMultiPass({
+    const { postId } = await enqueueGeneration({
       siteId: site.id,
       type: input.type,
       topic,
@@ -148,7 +138,7 @@ export async function generateFromSourceAction(input: {
     revalidatePath("/posts");
     revalidatePath("/dashboard");
 
-    return { success: true as const, post: result };
+    return { success: true as const, queued: true as const, post: { id: postId, postId } };
   } catch (err) {
     return {
       error: err instanceof Error ? err.message : "Erro ao gerar post",

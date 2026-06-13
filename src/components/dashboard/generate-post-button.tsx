@@ -38,7 +38,7 @@ export function GeneratePostButton({ siteId: _siteId }: { siteId: string }) {
       if ("error" in result && result.error) {
         toast.error(result.error);
       } else if ("success" in result && result.success && result.post) {
-        toast.success(`Post gerado: ${result.post.title}`);
+        toast.success("Post na fila — fica pronto em alguns minutos");
         setOpen(false);
         setTopic("");
         setKeyword("");

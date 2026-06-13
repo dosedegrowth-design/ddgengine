@@ -129,6 +129,33 @@ function computeTrend(metrics: RawMetrics): number | null {
   return Math.round(((recent - old) / old) * 100);
 }
 
+/** Lista as contas Google Ads que o token autorizado consegue acessar. */
+export async function listAccessibleCustomers(): Promise<
+  { ok: true; customers: string[] } | { ok: false; error: string }
+> {
+  if (!hasAppCredentials()) return { ok: false, error: "sem credenciais de app" };
+  let accessToken: string;
+  try {
+    accessToken = await getAccessToken();
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "auth" };
+  }
+  const res = await fetch(
+    `https://googleads.googleapis.com/${API_VERSION}/customers:listAccessibleCustomers`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "developer-token": process.env.GOOGLE_ADS_DEVELOPER_TOKEN!,
+      },
+      signal: AbortSignal.timeout(12000),
+    }
+  );
+  if (!res.ok) return { ok: false, error: `${res.status}: ${(await res.text()).slice(0, 300)}` };
+  const j = await res.json();
+  const customers = (j.resourceNames ?? []).map((r: string) => r.replace("customers/", ""));
+  return { ok: true, customers };
+}
+
 export type KeywordResearchResult =
   | { ok: true; ideas: KeywordIdea[] }
   | { ok: false; error: string; notConfigured?: boolean };

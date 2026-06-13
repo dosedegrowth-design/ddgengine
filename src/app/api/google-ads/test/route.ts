@@ -6,7 +6,10 @@
  * Autoriza por ?key=GOOGLE_ADS_SETUP_KEY (bootstrap one-time).
  */
 import { NextRequest, NextResponse } from "next/server";
-import { generateKeywordIdeas } from "@/lib/seo/keyword-research";
+import {
+  generateKeywordIdeas,
+  listAccessibleCustomers,
+} from "@/lib/seo/keyword-research";
 import { createServiceClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -18,11 +21,21 @@ export async function GET(req: NextRequest) {
   }
 
   const seed = new URL(req.url).searchParams.get("seed") ?? "ração para cães";
+
+  // Quais contas o token consegue acessar (pra apontar o customer_id certo)
+  const accessible = await listAccessibleCustomers();
+
   const result = await generateKeywordIdeas([seed], 8);
 
-  const summary = result.ok
-    ? { ok: true, count: result.ideas.length, sample: result.ideas.slice(0, 5) }
-    : { ok: false, error: result.error, notConfigured: result.notConfigured ?? false };
+  const summary = {
+    accessibleCustomers: accessible.ok ? accessible.customers : `erro: ${accessible.error}`,
+    currentCustomerId:
+      process.env.GOOGLE_ADS_CUSTOMER_ID ?? process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID ?? null,
+    loginCustomerId: process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID ?? null,
+    search: result.ok
+      ? { ok: true, count: result.ideas.length, sample: result.ideas.slice(0, 5) }
+      : { ok: false, error: result.error },
+  };
 
   try {
     const sb = createServiceClient();

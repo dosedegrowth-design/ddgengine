@@ -44,7 +44,8 @@ REGRAS:
 - Use os H2 e H3 do outline
 - Inclua TL;DR no topo (após H1)
 - Inclua FAQ section no final (com schema FAQPage)
-- 1500-3500 palavras (long_form) ou 400-800 (faq_page)
+- 1500-2200 palavras (long_form) ou 400-700 (faq_page) — seja completo mas conciso
+- Cada seção H2 com 2-4 parágrafos densos (qualidade > quantidade)
 - NÃO use frases vazias ("no mundo de hoje", "vale ressaltar", "cada vez mais")
 - Inclua data points concretos quando puder
 - Mantenha o tom de voz do brand context
@@ -267,7 +268,9 @@ ${briefing.required_disclaimers ? `Disclaimer obrigatório: ${briefing.required_
 // Cada passe: recebe o GenDoc, roda 1 chamada Claude, muta workingDoc.
 async function runStage(stage: number, g: GenDoc, longForm: boolean): Promise<void> {
   const wd = g.workingDoc as Record<string, any>;
-  const maxBody = longForm ? 16000 : 6000;
+  // Cap menor que o multi-pass original: cada passe (que reescreve o artigo
+  // inteiro) precisa caber em <60s do serverless. ~7000 tokens ≈ ~45s.
+  const maxBody = longForm ? 7000 : 4000;
   const t0 = Date.now();
   let name = "";
   let res: { text: string; cost_usd: number; input_tokens: number; output_tokens: number };

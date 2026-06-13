@@ -12,17 +12,22 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
-import { emit } from "@/lib/inngest/client";
+import { generatePostMultiPass } from "@/lib/ai/multi-pass";
 import {
   refreshKeywordUniverse,
   pickAndLockNextOpportunity,
   releaseStaleQueued,
   reconcileQueued,
+  markKeywordCovered,
 } from "@/lib/seo/keyword-universe";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
+export const maxDuration = 300;
+
+// Quantos posts gerar por invocação (evita timeout com muitos sites).
+// Geração é síncrona (~30-60s cada). Para escala maior, migrar pra Inngest.
+const MAX_PER_RUN = 3;
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -52,6 +57,7 @@ export async function GET(req: NextRequest) {
   const { data: sites } = await q;
 
   const report: Array<Record<string, unknown>> = [];
+  let generatedThisRun = 0;
 
   for (const site of sites ?? []) {
     const siteId = site.id as string;
@@ -119,21 +125,40 @@ export async function GET(req: NextRequest) {
 
       if (dry) {
         r.action = "DRY — geraria este post";
-      } else {
-        await emit({
-          name: "ddg/post.generate",
-          data: {
-            site_id: siteId,
-            type: "long_form",
-            target_keyword: pick.keyword,
-            mode: "multi_pass",
-          },
-        });
+      } else if (generatedThisRun >= MAX_PER_RUN) {
+        // já gerou o máximo nesta invocação — solta a trava pro próximo run
         await sb
-          .from("sites")
-          .update({ autopilot_last_run_at: new Date().toISOString() })
-          .eq("id", siteId);
-        r.action = "geração disparada";
+          .from("keyword_universe")
+          .update({ status: "opportunity" })
+          .eq("site_id", siteId)
+          .eq("keyword", pick.keyword);
+        r.action = "limite por run — fica pro próximo";
+      } else {
+        try {
+          const post = await generatePostMultiPass({
+            siteId,
+            type: "long_form",
+            targetKeyword: pick.keyword,
+          });
+          await markKeywordCovered(siteId, pick.keyword, post.postId);
+          await sb
+            .from("sites")
+            .update({ autopilot_last_run_at: new Date().toISOString() })
+            .eq("id", siteId);
+          generatedThisRun++;
+          r.action = "post gerado";
+          r.postId = post.postId;
+          r.title = post.title;
+        } catch (genErr) {
+          // solta a trava pra tentar de novo no próximo run
+          await sb
+            .from("keyword_universe")
+            .update({ status: "opportunity" })
+            .eq("site_id", siteId)
+            .eq("keyword", pick.keyword);
+          r.action = "falha na geração";
+          r.genError = genErr instanceof Error ? genErr.message : "erro";
+        }
       }
     } catch (e) {
       r.error = e instanceof Error ? e.message : "erro";

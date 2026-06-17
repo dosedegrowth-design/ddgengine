@@ -10,6 +10,7 @@ import { SuggestionsBar } from "@/components/dashboard/suggestions-bar";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { PostListItem } from "@/components/dashboard/post-list-item";
+import { publicBlogBaseUrl } from "@/lib/blog/base-path";
 import { suggestTopics } from "@/lib/briefing/suggest-topics";
 
 const TYPE_LABEL: Record<string, string> = {
@@ -21,6 +22,13 @@ export default async function PostsPage() {
   const { site, supabase, org } = await getCurrentSite();
 
   if (!site) redirect("/onboarding");
+
+  // URL pública do cliente (blog.cliente.com.br) quando o subdomínio está
+  // conectado — os links "Ver post" abrem direto no domínio do cliente.
+  const publicBlogUrl = publicBlogBaseUrl({
+    blogHost: (site as { blog_host?: string | null }).blog_host,
+    cnameVerified: (site as { cname_verified?: boolean | null }).cname_verified,
+  });
 
   const { data: briefing } = await supabase
     .from("briefings")
@@ -124,6 +132,7 @@ export default async function PostsPage() {
                   publishedAt={p.published_at}
                   ogImageUrl={p.og_image_url}
                   orgSlug={org.slug}
+                  publicBlogUrl={publicBlogUrl}
                 />
               </li>
             ))}

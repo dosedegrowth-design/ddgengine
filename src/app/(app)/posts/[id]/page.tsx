@@ -9,6 +9,7 @@ import { HeroImagePicker } from "./hero-image-picker";
 import { SeoReport } from "./seo-report";
 import { StatusBadge } from "@/components/dashboard/status-badge";
 import { analyzePost } from "@/lib/seo/analyze-post";
+import { publicBlogBaseUrl } from "@/lib/blog/base-path";
 
 export default async function PostDetailPage({
   params,
@@ -28,6 +29,18 @@ export default async function PostDetailPage({
     .maybeSingle();
 
   if (!post) notFound();
+
+  // URL do cliente (blog.cliente.com.br) quando conectado; senão o preview.
+  const clientBase = publicBlogBaseUrl({
+    blogHost: (site as { blog_host?: string | null }).blog_host,
+    cnameVerified: (site as { cname_verified?: boolean | null }).cname_verified,
+  });
+  const blogUrl = clientBase
+    ? `${clientBase}/${post.slug}`
+    : `/blog/${org.slug}/${post.slug}`;
+  const blogUrlLabel = clientBase
+    ? `${clientBase.replace(/^https:\/\//, "")}/${post.slug}`
+    : `/blog/${org.slug}/${post.slug}`;
 
   // Relatório SEO/GEO calculado ao vivo sobre o conteúdo salvo (não mostra
   // pra post que falhou — não há conteúdo).
@@ -72,7 +85,7 @@ export default async function PostDetailPage({
         <div className="flex gap-2 shrink-0">
           {post.status === "published" && org.slug && post.slug && (
             <Link
-              href={`/blog/${org.slug}/${post.slug}`}
+              href={blogUrl}
               target="_blank"
               className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border-2 border-ddg-ink text-ddg-ink text-sm font-medium hover:bg-ddg-ink hover:text-ddg-paper transition-colors"
             >
@@ -152,7 +165,7 @@ export default async function PostDetailPage({
                 URL
               </div>
               <code className="text-xs text-ddg-ink break-all">
-                /blog/{org.slug}/{post.slug}
+                {blogUrlLabel}
               </code>
             </div>
           )}

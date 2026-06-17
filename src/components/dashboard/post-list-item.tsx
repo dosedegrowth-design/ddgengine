@@ -25,6 +25,8 @@ interface Props {
   publishedAt: string | null;
   ogImageUrl: string | null;
   orgSlug: string | null;
+  /** Domínio do cliente (blog.cliente.com.br) quando conectado; senão null. */
+  publicBlogUrl?: string | null;
 }
 
 export function PostListItem({
@@ -37,9 +39,12 @@ export function PostListItem({
   publishedAt,
   ogImageUrl,
   orgSlug,
+  publicBlogUrl,
 }: Props) {
   const router = useRouter();
   const showViewPost = status === "published" && !!slug && !!orgSlug;
+  // Link do cliente (limpo) quando o subdomínio está conectado; senão preview.
+  const viewHref = publicBlogUrl ? `${publicBlogUrl}/${slug}` : `/blog/${orgSlug}/${slug}`;
 
   return (
     <div
@@ -86,7 +91,7 @@ export function PostListItem({
         </div>
         {showViewPost && (
           <Link
-            href={`/blog/${orgSlug}/${slug}`}
+            href={viewHref}
             target="_blank"
             className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border-2 border-ddg-ink text-ddg-ink text-xs font-medium hover:bg-ddg-ink hover:text-ddg-paper transition-colors"
             onClick={(e) => e.stopPropagation()}

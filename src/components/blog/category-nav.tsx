@@ -27,8 +27,8 @@ export function CategoryNav({ orgSlug, basePath, categories, activeCatSlug }: Pr
         href={basePath || "/"}
         className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
           !activeCatSlug
-            ? "bg-foreground text-background border-foreground"
-            : "bg-background text-muted-foreground border-border hover:border-foreground hover:text-foreground"
+            ? "bg-[var(--blog-primary)] text-white border-[var(--blog-primary)]"
+            : "bg-background text-muted-foreground border-border hover:border-[var(--blog-primary)] hover:text-[var(--blog-primary)]"
         }`}
       >
         Todos

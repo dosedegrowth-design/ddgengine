@@ -29,16 +29,45 @@ const STOP = new Set([
   "ao", "aos", "the", "of",
 ]);
 
+// Sin\u00f4nimos que representam o MESMO tema pro leitor (ap\u00f3s stem).
+const SYNONYM = new Map<string, string>([
+  ["cachorro", "cao"],
+  ["canino", "cao"],
+  ["canina", "cao"],
+  ["felino", "gato"],
+  ["felina", "gato"],
+]);
+
 /**
- * Chave can\u00f4nica: tokens significativos ordenados. Junta "doen\u00e7a de pele em
- * cachorro" / "no cachorro" / "cachorro doen\u00e7a pele" no mesmo tema.
+ * Stem leve PT (sobre o token j\u00e1 sem acento): colapsa plural.
+ * racoes\u2192racao, caes\u2192cao, hipoalergenicas\u2192hipoalergenica, gatos\u2192gato.
  */
-function canonicalKey(keyword: string): string {
-  return norm(keyword)
+function stem(w: string): string {
+  if (w.length <= 3) return w;
+  if (w.endsWith("oes")) return w.slice(0, -3) + "ao";
+  if (w.endsWith("aes")) return w.slice(0, -3) + "ao";
+  if (w.endsWith("ais")) return w.slice(0, -3) + "al";
+  if (w.endsWith("eis")) return w.slice(0, -3) + "el";
+  if (w.endsWith("s")) return w.slice(0, -1);
+  return w;
+}
+
+/**
+ * Chave can\u00f4nica: tokens significativos ordenados, com stem de plural e
+ * sin\u00f4nimos. Junta "ra\u00e7\u00e3o hipoalerg\u00eanica" / "ra\u00e7\u00f5es hipoalerg\u00eanicas" /
+ * "ra\u00e7\u00e3o hipoalergenica cachorro \u00d7 c\u00e3es" no mesmo tema \u2014 evita o autopilot
+ * escrever o mesmo artigo em varia\u00e7\u00f5es (canibaliza\u00e7\u00e3o).
+ */
+export function canonicalKey(keyword: string): string {
+  const tokens = norm(keyword)
     .split(" ")
     .filter((w) => w && !STOP.has(w))
-    .sort()
-    .join(" ");
+    .map((w) => {
+      const st = stem(w);
+      return SYNONYM.get(st) ?? st;
+    });
+  // Dedup interno ("cao" repetido apos sinonimo) + ordena
+  return [...new Set(tokens)].sort().join(" ");
 }
 
 /**
@@ -119,7 +148,7 @@ export async function refreshKeywordUniverse(
     .from("posts")
     .select("id, target_keyword, title")
     .eq("site_id", siteId)
-    .neq("status", "archived");
+    .not("status", "in", "(archived,failed)");
 
   const coveredCanon = new Map<string, string>();
   for (const p of posts ?? []) {
@@ -256,7 +285,7 @@ export async function reconcileQueued(siteId: string): Promise<number> {
     .from("posts")
     .select("id, target_keyword, title")
     .eq("site_id", siteId)
-    .neq("status", "archived");
+    .not("status", "in", "(archived,failed)");
   const postByCanon = new Map<string, string>();
   for (const p of posts ?? []) {
     if (p.target_keyword) postByCanon.set(canonicalKey(p.target_keyword as string), p.id as string);

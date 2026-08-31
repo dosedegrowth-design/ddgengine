@@ -1,7 +1,41 @@
 # Conteudai — PROGRESS.md
 
 > Documento vivo do progresso do projeto (antes "DDG Engine" durante beta interno).
-> Última atualização: **2026-05-19 (madrugada)**
+> Última atualização: **2026-08-31 (checkup geral)**
+
+---
+
+## 🩺 CHECKUP GERAL 2026-08-31 (retomada após 2,5 meses parado)
+
+### 🚨 INCIDENTE RESOLVIDO: schema `ddg_engine` fora da API (2 meses de outage silencioso)
+
+- **Sintoma**: autopilot parou de gerar posts em 01/jul; blog.petdermafood.com.br devolvia 404 ("Blog não encontrado"); metrics/visibility mortos.
+- **Causa raiz**: alguém re-salvou `pgrst.db_schemas` no Supabase compartilhado (ao configurar instituto_miracema/marina_saleme) e o `ddg_engine` SAIU da lista de schemas expostos → TODA chamada PostgREST com `Accept-Profile: ddg_engine` levava PGRST106. Mesma praga que derrubou o Petderma em jul (ver memória petderma-ingest-schema-exposto).
+- **Fix aplicado**: `alter role authenticator set pgrst.db_schemas = '... , ddg_engine'` + notify reload. Blog voltou (200), autopilot voltou a enfileirar.
+- **Anti-recorrência (pendente decidir)**: guard que re-adiciona schemas críticos se sumirem da lista, ou migrar leituras críticas pra views em `public`.
+
+### 🐛 FIX: dedup de keywords (posts duplicados) — commit `2ee40d3`
+
+- `canonicalKey` não colapsava plural/sinônimo → autopilot escreveu **3 posts quase idênticos** de "ração hipoalergênica" (23, 29, 30/jun) e tinha mais 4 variantes na fila.
+- Fix: stem leve PT (rações→ração, cães→cão) + sinônimos (cachorro/canino→cão, felino→gato) + posts `failed` não contam mais como cobertura ("ração natural", 9.900 buscas/mês, estava presa por post que falhou).
+- Curadoria da fila do piloto: variantes já cobertas marcadas `covered` apontando pro post existente; duplicatas exatas removidas; "ração natural" devolvida pra fila. Resultado: 21 oportunidades únicas + 20 cobertas.
+- +5 testes unitários (33 no total).
+
+### ✅ Validado no checkup
+
+- Typecheck limpo · 33/33 testes · build de produção ok · deploy = último commit.
+- `/api/health` ok · landing/pricing/login/status/sitemap 200.
+- 6 crons Vercel registrados · autopilot dry-run e run real ok (post "ração guabi natural" enfileirado, n8n "Conteudai - Gerar Post" ativo e executando).
+- Google Ads Keyword Planner funcionando (refresh trouxe 46 keywords).
+- Envs críticas presentes na Vercel (Anthropic, OpenAI, Asaas prod, Resend, Cloudflare, Google OAuth/Ads, Vercel API).
+
+### ❌ Ainda faltando (mapa)
+
+- **Piloto**: GSC/GA4 nunca conectados (site_integrations=0, metrics_daily=0) — envs do Google OAuth existem, falta clicar em Conectar no painel logado.
+- **Envs ausentes**: WHATSAPP_* (templates Meta nunca submetidos), PERPLEXITY_API_KEY + GOOGLE_AI_API_KEY (visibility tracker roda só com ChatGPT/Claude), INNGEST_* (bypassado — geração via n8n), Sentry/PostHog/Meta Pixel.
+- **Comercial**: 0 assinaturas; checkout Asaas nunca testado com cliente real; logo ainda placeholder; cases placeholder; termos sem advogado; banner LGPD.
+- **Sujeira**: 11 sites/orgs de teste (maio) pausados no banco; 7 posts `failed` antigos (jun) — inofensivos.
+- Visibility tracker: só 1 run na história (cron semanal deve voltar a rodar agora com o schema consertado — acompanhar segunda-feira).
 
 ---
 

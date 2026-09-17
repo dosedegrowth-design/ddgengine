@@ -262,9 +262,10 @@ ${briefing.required_disclaimers ? `Disclaimer obrigatório: ${briefing.required_
     .single();
   if (error || !post) throw new Error(`Erro ao criar post: ${error?.message}`);
 
-  // Dispara a geração no n8n (sem limite de tempo). Fire-and-forget: o
-  // webhook responde na hora e o n8n escreve o post em background.
-  void fireGenerationWebhook(post.id);
+  // Dispara a geração no n8n (sem limite de tempo). O webhook responde na hora (~0,4s) e o n8n
+  // escreve em background. Precisa de await: na Vercel a função congela ao responder e um `void`
+  // nunca chegava a sair (post ficava em 'generating' etapa 0 pra sempre).
+  await fireGenerationWebhook(post.id);
 
   return { postId: post.id };
 }

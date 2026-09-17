@@ -40,6 +40,9 @@ import { syncSiteMetrics } from "@/lib/integrations/sync";
 import { auditSite } from "@/lib/audit/index";
 import { slugify } from "@/lib/utils";
 import { addProjectDomain, getProjectDomainStatus } from "@/lib/vercel/domains";
+import { refineBriefing } from "@/lib/briefing/refine";
+import { BRIEFING_QUESTIONS, type RawAnswers, type RefinedBrief } from "@/lib/briefing/questions";
+import { suggestCategories } from "@/lib/blog/suggest-categories";
 import { generateNewsletter, generateLinkedInPost, generateTwitterThread, generateInstagramCarousel, generateLeadMagnet, translatePost } from "@/lib/ai/repurpose";
 
 export const dynamic = "force-dynamic";
@@ -73,15 +76,15 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ op: string[
       }
       case "site": {
         if (!siteId) return erro("site_id");
-        const [{ data: site }, { data: briefing }, { data: categorias }, { data: integ }] = await Promise.all([
-          sb.from("sites").select(`${SITE_CAMPOS}, organizations(name, slug)`).eq("id", siteId).maybeSingle(),
-          sb.from("briefings").select("*").eq("site_id", siteId).maybeSingle(),
+        const { data: site } = await sb.from("sites").select(`${SITE_CAMPOS}, organizations(name, slug)`).eq("id", siteId).maybeSingle();
+        if (!site) return erro("site nao encontrado", 404);
+        const [{ data: briefing }, { data: categorias }, { data: integ }] = await Promise.all([
+          sb.from("briefings").select("id, organization_id, site_id, raw_answers, refined_brief, mode, completion_status, completed_at, embedding_status, updated_at").eq("organization_id", site.organization_id).limit(1).maybeSingle(),
           sb.from("blog_categories").select("*").eq("site_id", siteId).order("name"),
           sb.from("site_integrations").select("id, provider, status, property_id, last_sync_at, created_at").eq("site_id", siteId),
         ]);
-        if (!site) return erro("site nao encontrado", 404);
         const universo = await getUniverseSummary(siteId).catch(() => null);
-        return ok({ site, briefing, categorias: categorias ?? [], integracoes: integ ?? [], universo });
+        return ok({ site, briefing, perguntas: BRIEFING_QUESTIONS, categorias: categorias ?? [], integracoes: integ ?? [], universo });
       }
       case "posts": {
         if (!siteId) return erro("site_id");
@@ -175,22 +178,32 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ op: string
         if (error) return erro(error.message);
         return ok({ ok: true });
       }
-      case "briefing/save": {
-        if (!siteId) return erro("site_id");
-        const data = (b.data || {}) as Record<string, unknown>;
-        const { data: ex } = await sb.from("briefings").select("id").eq("site_id", siteId).maybeSingle();
-        if (ex) { const { error } = await sb.from("briefings").update(data).eq("id", ex.id); if (error) return erro(error.message); return ok({ id: ex.id }); }
-        const { data: cr, error } = await sb.from("briefings").insert({ site_id: siteId, ...data }).select("id").single();
-        if (error) return erro(error.message);
-        return ok({ id: cr.id });
+      case "briefing/refine": {
+        const raw = b.raw_answers as RawAnswers | undefined;
+        if (!raw || typeof raw !== "object") return erro("raw_answers");
+        return ok({ refined: await refineBriefing(raw) });
       }
-      case "briefing/submit": {
+      case "briefing/save": {
+        // mesmo contrato do /api/briefing/save do app: raw_answers (12 perguntas) + refined_brief; 1 briefing por organização
         if (!siteId) return erro("site_id");
-        const { data: br } = await sb.from("briefings").select("id").eq("site_id", siteId).maybeSingle();
-        if (!br) return erro("briefing nao encontrado", 404);
-        await sb.from("briefings").update({ completion_percent: 100, embedding_status: "pending" }).eq("id", br.id);
-        const r = await processBriefingEmbeddings(br.id);
-        return ok({ ok: true, embeddings: r.inserted });
+        const { data: site } = await sb.from("sites").select("organization_id").eq("id", siteId).maybeSingle();
+        if (!site) return erro("site nao encontrado", 404);
+        const raw = (b.raw_answers || {}) as RawAnswers;
+        const refined = (b.refined_brief || null) as RefinedBrief | null;
+        const status = (String(b.completion_status || "in_progress") as "in_progress" | "review" | "completed");
+        const legacy: Record<string, unknown> = refined ? {
+          business_description: refined.identity?.description ?? null, services: refined.positioning?.differentials ?? [], competitors: refined.market?.competitors ?? [],
+          target_keywords: refined.seo?.primary_keywords ?? [], faq_questions: refined.visibility_goal?.target_questions ?? [],
+          differentiator: refined.positioning?.unique_value || refined.positioning?.differentials?.[0] || null,
+        } : {};
+        const payload: Record<string, unknown> = { organization_id: site.organization_id, site_id: siteId, raw_answers: raw, refined_brief: refined, mode: "guided", completion_status: status, completed_at: status === "completed" ? new Date().toISOString() : null, ...legacy };
+        const { data: ex } = await sb.from("briefings").select("id").eq("organization_id", site.organization_id).limit(1).maybeSingle();
+        let id: string;
+        if (ex) { const { error } = await sb.from("briefings").update(payload).eq("id", ex.id); if (error) return erro(error.message); id = ex.id; }
+        else { const { data: cr, error } = await sb.from("briefings").insert(payload).select("id").single(); if (error) return erro(error.message); id = cr.id; }
+        let embeddings: number | null = null;
+        if (status === "completed") { try { embeddings = (await processBriefingEmbeddings(id)).inserted; } catch (e) { await sb.from("briefings").update({ embedding_status: "failed" }).eq("id", id); return ok({ id, embeddings: null, aviso: `briefing salvo, memória falhou: ${e instanceof Error ? e.message : e}` }); } }
+        return ok({ id, embeddings });
       }
       case "post/generate": {
         if (!siteId) return erro("site_id");
@@ -294,6 +307,19 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ op: string
         const id = s("id"); if (!id) return erro("id");
         const { error } = await sb.from("blog_categories").delete().eq("id", id);
         if (error) return erro(error.message); return ok({ ok: true });
+      }
+      case "categories/suggest": {
+        if (!siteId) return erro("site_id");
+        const { data: site } = await sb.from("sites").select("organization_id").eq("id", siteId).maybeSingle();
+        if (!site) return erro("site nao encontrado", 404);
+        const { data: br } = await sb.from("briefings").select("refined_brief").eq("organization_id", site.organization_id).maybeSingle();
+        if (!br?.refined_brief) return erro("Termine o briefing primeiro: a IA usa as informações dele pra sugerir.");
+        const sugs = await suggestCategories(br.refined_brief as Record<string, unknown>);
+        const { data: ex } = await sb.from("blog_categories").select("slug").eq("site_id", siteId);
+        const slugs = new Set((ex ?? []).map((c: { slug: string }) => c.slug));
+        const ins = sugs.filter((x) => !slugs.has(x.slug)).map((x, i) => ({ site_id: siteId, name: x.name, slug: x.slug, description: x.description || null, display_order: slugs.size + i, source: "ai_suggested" }));
+        if (ins.length) { const { error } = await sb.from("blog_categories").insert(ins); if (error) return erro(error.message); }
+        return ok({ criadas: ins.length });
       }
       case "domain/initiate": {
         if (!siteId) return erro("site_id");

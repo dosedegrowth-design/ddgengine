@@ -43,6 +43,8 @@ import { addProjectDomain, getProjectDomainStatus } from "@/lib/vercel/domains";
 import { refineBriefing } from "@/lib/briefing/refine";
 import { BRIEFING_QUESTIONS, type RawAnswers, type RefinedBrief } from "@/lib/briefing/questions";
 import { suggestCategories } from "@/lib/blog/suggest-categories";
+import { signApprovalToken } from "@/lib/whatsapp/notifications";
+import { buildAuthUrl } from "@/lib/integrations/oauth-google";
 import { generateNewsletter, generateLinkedInPost, generateTwitterThread, generateInstagramCarousel, generateLeadMagnet, translatePost } from "@/lib/ai/repurpose";
 
 export const dynamic = "force-dynamic";
@@ -71,7 +73,7 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ op: string[
         const ids = (sites ?? []).map((s: { id: string }) => s.id);
         const { data: posts } = ids.length ? await sb.from("posts").select("site_id, status").in("site_id", ids) : { data: [] };
         const cont: Record<string, { total: number; publicados: number; pendentes: number }> = {};
-        for (const p of (posts ?? []) as { site_id: string; status: string }[]) { const c = (cont[p.site_id] ||= { total: 0, publicados: 0, pendentes: 0 }); c.total++; if (p.status === "published") c.publicados++; if (p.status === "review") c.pendentes++; }
+        for (const p of (posts ?? []) as { site_id: string; status: string }[]) { const c = (cont[p.site_id] ||= { total: 0, publicados: 0, pendentes: 0 }); c.total++; if (p.status === "published") c.publicados++; if (p.status === "in_review") c.pendentes++; }
         return ok({ sites: (sites ?? []).map((s: Record<string, unknown>) => ({ ...s, posts: cont[String(s.id)] || { total: 0, publicados: 0, pendentes: 0 } })) });
       }
       case "site": {
@@ -81,7 +83,7 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ op: string[
         const [{ data: briefing }, { data: categorias }, { data: integ }] = await Promise.all([
           sb.from("briefings").select("id, organization_id, site_id, raw_answers, refined_brief, mode, completion_status, completed_at, embedding_status, updated_at").eq("organization_id", site.organization_id).limit(1).maybeSingle(),
           sb.from("blog_categories").select("*").eq("site_id", siteId).order("name"),
-          sb.from("site_integrations").select("id, provider, status, property_id, last_sync_at, created_at").eq("site_id", siteId),
+          sb.from("site_integrations").select("id, provider, status, external_id, last_synced_at, created_at").eq("site_id", siteId),
         ]);
         const universo = await getUniverseSummary(siteId).catch(() => null);
         return ok({ site, briefing, perguntas: BRIEFING_QUESTIONS, categorias: categorias ?? [], integracoes: integ ?? [], universo });
@@ -142,6 +144,13 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ op: string[
         if (!siteId) return erro("site_id");
         const { data } = await sb.from("blog_categories").select("*").eq("site_id", siteId).order("name");
         return ok({ categorias: data ?? [] });
+      }
+      case "oauth-url": {
+        // link de conexão do Search Console / GA4 pra qualquer site: o callback do Conteudai salva o token pelo state assinado
+        if (!siteId) return erro("site_id");
+        const prov = q.get("provider") === "google_analytics_4" ? "google_analytics_4" : "google_search_console";
+        const url = buildAuthUrl({ scope: prov === "google_analytics_4" ? "analytics" : "search_console", state: signApprovalToken(`${siteId}:${prov}`) });
+        return ok({ url });
       }
       default: return erro(`operacao desconhecida: ${op.join("/")}`, 404);
     }

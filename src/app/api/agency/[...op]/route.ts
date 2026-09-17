@@ -45,6 +45,7 @@ import { BRIEFING_QUESTIONS, type RawAnswers, type RefinedBrief } from "@/lib/br
 import { suggestCategories } from "@/lib/blog/suggest-categories";
 import { signApprovalToken } from "@/lib/whatsapp/notifications";
 import { buildAuthUrl } from "@/lib/integrations/oauth-google";
+import { importWordPressBlog } from "@/lib/imports/wordpress";
 import { generateNewsletter, generateLinkedInPost, generateTwitterThread, generateInstagramCarousel, generateLeadMagnet, translatePost } from "@/lib/ai/repurpose";
 
 export const dynamic = "force-dynamic";
@@ -329,6 +330,11 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ op: string
         const ins = sugs.filter((x) => !slugs.has(x.slug)).map((x, i) => ({ site_id: siteId, name: x.name, slug: x.slug, description: x.description || null, display_order: slugs.size + i, source: "ai_suggested" }));
         if (ins.length) { const { error } = await sb.from("blog_categories").insert(ins); if (error) return erro(error.message); }
         return ok({ criadas: ins.length });
+      }
+      case "import/wordpress": {
+        if (!siteId) return erro("site_id");
+        const src = s("source_url")?.trim(); if (!src) return erro("source_url");
+        return ok({ resultado: await importWordPressBlog({ siteId, sourceUrl: src, limit: Math.min(Number(b.limit || 50), 200) }) });
       }
       case "domain/initiate": {
         if (!siteId) return erro("site_id");

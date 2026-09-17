@@ -10,7 +10,7 @@
  * 4. Se acabaram os seeds nativos, gera variações combinando
  *    keyword + diferencial + cliente ideal
  */
-import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
 import { getTopOpportunities } from "@/lib/seo/keyword-universe";
 
 export interface TopicSuggestion {
@@ -48,7 +48,8 @@ function normalize(s: string): string {
  * Server-side (lê do DB). Chamar do Server Component ou action.
  */
 export async function suggestTopics(orgId: string, siteId: string): Promise<TopicSuggestion[]> {
-  const supabase = await createClient();
+  // service role: orgId/siteId já vêm validados por quem chama (app logado ou API de agência)
+  const supabase = createServiceClient();
 
   // 1) Carrega briefing
   const { data: briefing } = await supabase

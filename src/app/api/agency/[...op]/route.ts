@@ -349,8 +349,10 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ op: string
       }
       case "domain/verify": {
         if (!siteId) return erro("site_id");
-        const { data: site } = await sb.from("sites").select("blog_host").eq("id", siteId).maybeSingle();
+        const { data: site } = await sb.from("sites").select("blog_host, cname_verified").eq("id", siteId).maybeSingle();
         if (!site?.blog_host) return erro("conexao nao iniciada");
+        // já verificado antes: nunca rebaixa (o blog está no ar); só confirma
+        if (site.cname_verified) return ok({ verified: true, ja_verificado: true });
         const st = await getProjectDomainStatus(String(site.blog_host));
         if (!st.verified) { await sb.from("sites").update({ integration_state: "verifying" }).eq("id", siteId); return ok({ verified: false }); }
         await sb.from("sites").update({ cname_verified: true, cname_verified_at: new Date().toISOString(), integration_state: "active", integration_activated_at: new Date().toISOString(), status: "active", proxy_method: "subdomain" }).eq("id", siteId);

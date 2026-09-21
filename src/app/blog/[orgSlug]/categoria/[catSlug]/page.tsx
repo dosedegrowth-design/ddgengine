@@ -67,7 +67,7 @@ export default async function CategoryPage({
 
   const basePath = await getBlogBasePath(org.slug);
 
-  const { template, tokens, siteIds } = await loadBlogShellContext(org.id);
+  const { template, tokens, siteIds, cta } = await loadBlogShellContext(org.id, org.name);
   if (siteIds.length === 0) notFound();
 
   // Categoria pelo slug
@@ -99,7 +99,7 @@ export default async function CategoryPage({
   const list = posts ?? [];
 
   return (
-    <BlogShell template={template} tokens={tokens} orgSlug={org.slug} orgName={org.name} basePath={basePath}>
+    <BlogShell template={template} tokens={tokens} orgSlug={org.slug} orgName={org.name} basePath={basePath} cta={cta}>
       <div className="container mx-auto max-w-4xl px-6 py-12">
         {/* Breadcrumb */}
         <Link

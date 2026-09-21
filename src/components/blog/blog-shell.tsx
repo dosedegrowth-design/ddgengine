@@ -17,6 +17,7 @@ import {
   brandTokensToCSSVars,
   TEMPLATE_BODY_CLASS,
 } from "@/lib/blog/templates";
+import { type BlogCta, ctaHref } from "@/lib/blog/cta";
 
 interface Props {
   template: BlogTemplate;
@@ -25,10 +26,11 @@ interface Props {
   orgName: string;
   /** Prefixo dos links. "" no subdomínio, "/blog/{orgSlug}" no preview. */
   basePath: string;
+  cta?: BlogCta;
   children: React.ReactNode;
 }
 
-export function BlogShell({ template, tokens, orgSlug, orgName, basePath, children }: Props) {
+export function BlogShell({ template, tokens, orgSlug, orgName, basePath, cta, children }: Props) {
   const style = brandTokensToCSSVars(tokens);
   const bodyClass = TEMPLATE_BODY_CLASS[template];
   void orgSlug; // mantido na assinatura por compat; links usam basePath
@@ -54,11 +56,11 @@ export function BlogShell({ template, tokens, orgSlug, orgName, basePath, childr
         <link rel="stylesheet" href={tokens.heading_font_url} />
       )}
 
-      <SiteHeader template={template} basePath={basePath} orgName={orgName} />
+      <SiteHeader template={template} basePath={basePath} orgName={orgName} cta={cta} />
 
       <main>{children}</main>
 
-      <SiteFooter template={template} orgName={orgName} />
+      <SiteFooter template={template} orgName={orgName} cta={cta} />
     </div>
   );
 }
@@ -67,10 +69,12 @@ function SiteHeader({
   template,
   basePath,
   orgName,
+  cta,
 }: {
   template: BlogTemplate;
   basePath: string;
   orgName: string;
+  cta?: BlogCta;
 }) {
   const headerClass =
     template === "bold"
@@ -96,18 +100,28 @@ function SiteHeader({
         <Link href={basePath || "/"} className={linkClass}>
           {orgName}
         </Link>
-        <Link
-          href={`${basePath}/search`}
-          className="text-sm text-current/70 hover:opacity-100 opacity-70"
-        >
-          Buscar
-        </Link>
+        <nav className="flex items-center gap-4">
+          {cta?.site_url && (
+            <a href={cta.site_url} className="text-sm opacity-70 hover:opacity-100 hidden sm:inline">Site</a>
+          )}
+          <Link
+            href={`${basePath}/search`}
+            className="text-sm text-current/70 hover:opacity-100 opacity-70"
+          >
+            Buscar
+          </Link>
+          {cta && (
+            <a href={ctaHref(cta)} target="_blank" rel="noopener" className="hidden sm:inline-flex items-center rounded-full px-4 h-9 text-sm font-semibold transition hover:opacity-90" style={{ background: "var(--blog-primary)", color: "#fff" }}>
+              {cta.botao}
+            </a>
+          )}
+        </nav>
       </div>
     </header>
   );
 }
 
-function SiteFooter({ template, orgName }: { template: BlogTemplate; orgName: string }) {
+function SiteFooter({ template, orgName, cta }: { template: BlogTemplate; orgName: string; cta?: BlogCta }) {
   const year = new Date().getFullYear();
   const footerClass =
     template === "bold"
@@ -122,8 +136,9 @@ function SiteFooter({ template, orgName }: { template: BlogTemplate; orgName: st
     <footer className={footerClass}>
       <div className="container mx-auto max-w-5xl px-6 py-8 text-xs text-current/60 flex flex-wrap items-center justify-between gap-2">
         <span>© {year} {orgName}. Todos os direitos reservados.</span>
-        <span>
-          Powered by <span style={{ color: "var(--blog-accent)" }}>blog</span>
+        <span className="flex items-center gap-4">
+          {cta?.site_url && <a href={cta.site_url} className="hover:opacity-100">Site oficial</a>}
+          {cta && <a href={ctaHref(cta)} target="_blank" rel="noopener" className="hover:opacity-100" style={{ color: "var(--blog-primary)" }}>{cta.botao}</a>}
         </span>
       </div>
     </footer>

@@ -9,6 +9,7 @@ import { ReadingProgress } from "@/components/blog/reading-progress";
 import { SocialShare } from "@/components/blog/social-share";
 import { NewsletterForm } from "@/components/blog/newsletter-form";
 import { BlogShell } from "@/components/blog/blog-shell";
+import { CtaBlock, CtaBarraMobile } from "@/components/blog/cta-block";
 import { loadBlogShellContext } from "@/lib/blog/load-shell-context";
 import { getBlogBasePath, publicBlogBaseUrl } from "@/lib/blog/base-path";
 
@@ -68,7 +69,8 @@ export async function generateMetadata({
     : `${baseUrl}/blog/${orgSlug}/${slug}`;
 
   return {
-    title: post.title,
+    // título absoluto: a aba do navegador mostra o cliente, não a ferramenta
+    title: { absolute: `${post.title} | ${org.name}` },
     description: post.meta_description,
     alternates: { canonical: canonicalUrl },
     openGraph: {
@@ -106,7 +108,7 @@ export default async function BlogPostPage({
 
   const basePath = await getBlogBasePath(org.slug);
 
-  const { template, tokens, siteIds } = await loadBlogShellContext(org.id);
+  const { template, tokens, siteIds, cta } = await loadBlogShellContext(org.id, org.name);
 
   const { data: post } = await supabase
     .from("posts")
@@ -129,7 +131,13 @@ export default async function BlogPostPage({
     if (cat) category = cat;
   }
 
-  const html = renderMarkdown(post.content_markdown);
+  let html = renderMarkdown(post.content_markdown);
+  // CTA curto no meio do artigo: depois do 2º H2 (o leitor já leu o suficiente pra decidir)
+  if (cta.meio) {
+    const partes = html.split(/(?=<h2)/);
+    if (partes.length > 3) { partes.splice(3, 0, `<div data-cta-meio></div>`); html = partes.join(""); }
+  }
+  const [htmlA, htmlB] = html.includes("<div data-cta-meio></div>") ? html.split("<div data-cta-meio></div>") : [html, null];
   const schemas = Array.isArray(post.schema_markup)
     ? post.schema_markup
     : post.schema_markup
@@ -155,7 +163,7 @@ export default async function BlogPostPage({
     : `${baseUrl}/blog/${org.slug}/${slug}`;
 
   return (
-    <BlogShell template={template} tokens={tokens} orgSlug={org.slug} orgName={org.name} basePath={basePath}>
+    <BlogShell template={template} tokens={tokens} orgSlug={org.slug} orgName={org.name} basePath={basePath} cta={cta}>
       <ReadingProgress />
 
       {/* Schema markup */}
@@ -231,11 +239,23 @@ export default async function BlogPostPage({
 
         <div
           className="blog-prose prose prose-neutral max-w-none prose-headings:tracking-tight prose-h2:mt-12 prose-h2:mb-4 prose-h3:mt-8 prose-h3:mb-3 prose-p:leading-relaxed prose-a:underline prose-a:underline-offset-2 prose-code:before:hidden prose-code:after:hidden"
-          dangerouslySetInnerHTML={{ __html: html }}
+          dangerouslySetInnerHTML={{ __html: htmlA }}
         />
+        {htmlB !== null && (
+          <>
+            <CtaBlock cta={cta} compacto />
+            <div
+              className="blog-prose prose prose-neutral max-w-none prose-headings:tracking-tight prose-h2:mt-12 prose-h2:mb-4 prose-h3:mt-8 prose-h3:mb-3 prose-p:leading-relaxed prose-a:underline prose-a:underline-offset-2 prose-code:before:hidden prose-code:after:hidden"
+              dangerouslySetInnerHTML={{ __html: htmlB }}
+            />
+          </>
+        )}
+
+        {/* Chamada para ação principal: o que o leitor faz agora */}
+        <CtaBlock cta={cta} />
 
         {/* Social share final */}
-        <div className="mt-12 pt-6 border-t">
+        <div className="mt-10 pt-6 border-t">
           <SocialShare url={fullUrl} title={(post.title as string) ?? ""} />
         </div>
 
@@ -277,10 +297,11 @@ export default async function BlogPostPage({
         )}
 
         {/* Newsletter */}
-        <div className="mt-12">
+        <div className="mt-12 pb-16 md:pb-0">
           <NewsletterForm orgSlug={org.slug as string} orgName={org.name as string} />
         </div>
       </article>
+      <CtaBarraMobile cta={cta} />
     </BlogShell>
   );
 }

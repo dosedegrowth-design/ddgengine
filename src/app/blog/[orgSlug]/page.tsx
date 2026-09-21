@@ -4,6 +4,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/utils";
 import { CategoryNav } from "@/components/blog/category-nav";
 import { BlogShell } from "@/components/blog/blog-shell";
+import { CtaBlock, CtaBarraMobile } from "@/components/blog/cta-block";
 import { loadBlogShellContext } from "@/lib/blog/load-shell-context";
 import { getBlogBasePath } from "@/lib/blog/base-path";
 
@@ -26,7 +27,7 @@ export async function generateMetadata({
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://conteudai.com.br";
   return {
-    title: org ? `${org.name} · Blog` : "Blog",
+    title: { absolute: org ? `Blog | ${org.name}` : "Blog" },
     description: org ? `Conteúdo de ${org.name}` : "Blog",
     alternates: org
       ? {
@@ -58,7 +59,7 @@ export default async function BlogIndexPage({
 
   const basePath = await getBlogBasePath(org.slug);
 
-  const { template, tokens, siteIds } = await loadBlogShellContext(org.id);
+  const { template, tokens, siteIds, cta } = await loadBlogShellContext(org.id, org.name);
 
   // Categorias do site pra menu
   const { data: categories } = await supabase
@@ -88,7 +89,7 @@ export default async function BlogIndexPage({
   const list = (posts ?? []) as PostListItem[];
 
   return (
-    <BlogShell template={template} tokens={tokens} orgSlug={org.slug} orgName={org.name} basePath={basePath}>
+    <BlogShell template={template} tokens={tokens} orgSlug={org.slug} orgName={org.name} basePath={basePath} cta={cta}>
       <div className="container mx-auto max-w-4xl px-6 py-16">
         <header className="mb-12 text-center space-y-4">
           <h1 className="text-4xl md:text-5xl tracking-tight">
@@ -97,6 +98,9 @@ export default async function BlogIndexPage({
           <p className="opacity-70">
             Conteúdo de {org.name}
           </p>
+          <div className="pt-1">
+            <a href={cta.whatsapp ? `https://wa.me/${cta.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(cta.mensagem || "")}` : cta.url || cta.site_url} target="_blank" rel="noopener" className="inline-flex items-center rounded-full px-5 h-10 text-sm font-semibold transition hover:opacity-90" style={{ background: "var(--blog-primary)", color: "#fff" }}>{cta.botao}</a>
+          </div>
           <form method="GET" action={`${basePath}/search`} className="flex gap-2 max-w-md mx-auto pt-2">
             <input
               type="search"
@@ -160,7 +164,9 @@ export default async function BlogIndexPage({
             ))}
           </div>
         )}
+        <div className="pb-16 md:pb-0"><CtaBlock cta={cta} /></div>
       </div>
+      <CtaBarraMobile cta={cta} />
     </BlogShell>
   );
 }

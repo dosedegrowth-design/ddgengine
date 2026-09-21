@@ -59,7 +59,7 @@ function autorizado(req: NextRequest) {
   return !!s && req.headers.get("x-agency-secret") === s;
 }
 
-const SITE_CAMPOS = "id, organization_id, domain, tenant_slug, status, audit_score, audit_run_at, stack_detected, has_cloudflare, blog_host, subdomain, cname_target, cname_verified, integration_state, autopilot_enabled, autopilot_posts_per_week, autopilot_last_run_at, keyword_universe_synced_at, gsc_property_url, gsc_connected_at, ga4_property_id, ga4_connected_at, vertical, blog_template, created_at";
+const SITE_CAMPOS = "id, organization_id, domain, tenant_slug, status, audit_score, audit_run_at, stack_detected, has_cloudflare, blog_host, subdomain, cname_target, cname_verified, integration_state, autopilot_enabled, autopilot_posts_per_week, autopilot_last_run_at, keyword_universe_synced_at, gsc_property_url, gsc_connected_at, ga4_property_id, ga4_connected_at, vertical, blog_template, cta, created_at";
 
 export async function GET(req: NextRequest, ctx: { params: Promise<{ op: string[] }> }) {
   if (!autorizado(req)) return erro("nao autorizado", 401);
@@ -181,7 +181,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ op: string
       }
       case "site/update": {
         if (!siteId) return erro("site_id");
-        const permitidos = ["status", "blog_template", "vertical", "autopilot_enabled", "autopilot_posts_per_week", "domain"];
+        const permitidos = ["status", "blog_template", "vertical", "autopilot_enabled", "autopilot_posts_per_week", "domain", "cta"];
         const patch: Record<string, unknown> = {};
         for (const k of permitidos) if (k in b) patch[k] = b[k];
         const { error } = await sb.from("sites").update(patch).eq("id", siteId);

@@ -8,19 +8,22 @@ import {
   type BrandTokens,
   resolveBrandTokens,
 } from "./templates";
+import { type BlogCta, resolveCta } from "./cta";
 
 export interface BlogShellContext {
   template: BlogTemplate;
   tokens: BrandTokens;
   /** Primeiros site_ids da org (pra queries de posts) */
   siteIds: string[];
+  /** Chamada para ação do blog (configurada no Radar; sempre resolve pra algo) */
+  cta: BlogCta;
 }
 
-export async function loadBlogShellContext(orgId: string): Promise<BlogShellContext> {
+export async function loadBlogShellContext(orgId: string, orgName = ""): Promise<BlogShellContext> {
   const supabase = createServiceClient();
   const { data: sites } = await supabase
     .from("sites")
-    .select("id, blog_template, brand_tokens")
+    .select("id, blog_template, brand_tokens, domain, cta")
     .eq("organization_id", orgId)
     .order("created_at", { ascending: true });
 
@@ -28,6 +31,8 @@ export async function loadBlogShellContext(orgId: string): Promise<BlogShellCont
     id: string;
     blog_template: string | null;
     brand_tokens: Partial<BrandTokens> | null;
+    domain: string | null;
+    cta: Partial<BlogCta> | null;
   }>;
 
   const primarySite = list[0];
@@ -38,5 +43,6 @@ export async function loadBlogShellContext(orgId: string): Promise<BlogShellCont
     template,
     tokens,
     siteIds: list.map((s) => s.id),
+    cta: resolveCta(primarySite?.cta ?? null, primarySite?.domain ?? null, orgName),
   };
 }

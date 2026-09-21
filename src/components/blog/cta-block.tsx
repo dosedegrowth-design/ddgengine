@@ -19,7 +19,7 @@ export function CtaBlock({ cta, compacto = false }: { cta: BlogCta; compacto?: b
             {cta.whatsapp && <WhatsIcon />}{cta.botao}
           </a>
           {cta.secundario && cta.secundario_url && (
-            <a href={cta.secundario_url} target="_blank" rel="noopener" className="text-sm underline underline-offset-4 opacity-90 hover:opacity-100">{cta.secundario}</a>
+            <a href={cta.secundario_url} target="_blank" rel="noopener" className="text-sm underline underline-offset-4 opacity-90 hover:opacity-100" style={{ color: "#fff" }}>{cta.secundario}</a>
           )}
         </div>
       </div>

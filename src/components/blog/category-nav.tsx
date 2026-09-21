@@ -30,6 +30,7 @@ export function CategoryNav({ orgSlug, basePath, categories, activeCatSlug }: Pr
             ? "bg-[var(--blog-primary)] text-white border-[var(--blog-primary)]"
             : "bg-background text-muted-foreground border-border hover:border-[var(--blog-primary)] hover:text-[var(--blog-primary)]"
         }`}
+        style={!activeCatSlug ? { color: "#fff" } : undefined}
       >
         Todos
       </Link>
@@ -42,6 +43,7 @@ export function CategoryNav({ orgSlug, basePath, categories, activeCatSlug }: Pr
               ? "bg-foreground text-background border-foreground"
               : "bg-background text-muted-foreground border-border hover:border-foreground hover:text-foreground"
           }`}
+          style={activeCatSlug === c.slug ? { color: "#fff", background: "var(--blog-primary)", borderColor: "var(--blog-primary)" } : undefined}
         >
           {c.name}
         </Link>
